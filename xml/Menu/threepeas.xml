@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/programlist</path>
+    <page_callback>CRM_Threepeas_Page_Programlist</page_callback>
+    <title>Programlist</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/projectlist</path>
+    <page_callback>CRM_Threepeas_Page_Projectlist</page_callback>
+    <title>Projectlist</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/productlist</path>
+    <page_callback>CRM_Threepeas_Page_Productlist</page_callback>
+    <title>Productlist</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>
