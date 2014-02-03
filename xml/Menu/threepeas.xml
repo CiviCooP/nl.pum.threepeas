@@ -18,4 +18,16 @@
     <title>Productlist</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/pumprogram</path>
+    <page_callback>CRM_Threepeas_Page_Pumprogram</page_callback>
+    <title>Pumprogram</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/pumproject</path>
+    <page_callback>CRM_Threepeas_Page_Pumproject</page_callback>
+    <title>Pumproject</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

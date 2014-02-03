@@ -1,6 +1,6 @@
 CREATE TABLE `civicrm_program` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) DEFAULT NULL,
+  `title` varchar(80) DEFAULT NULL,
   `description` text,
   `contact_id_manager` int(11) DEFAULT NULL,
   `budget` int(11) DEFAULT NULL,

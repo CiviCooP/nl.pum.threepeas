@@ -3,7 +3,7 @@
         The existing Programs are listed below. You can add, edit, drill down or delete them from this screen. 
     </div>
     <div class="action-link">
-        <a class="button new-option" href="/localpum/index.php?q=civicrm/programmadd">
+        <a class="button new-option" href="/localpum/index.php?q=civicrm/pumprogram&action=add">
             <span><div class="icon add-icon"></div>Add Program</span>
         </a>
     </div>
@@ -31,7 +31,7 @@
                     <td>Yes</td>
                     <td>
                         <span>
-                            <a class="action-item action-item-first" title="Edit program" href="#">Edit</a>
+                            <a class="action-item action-item-first" title="Edit program" href="civicrm/pumprogram&action=edit&id=2">Edit</a>
                             <a class="action-item delete-action" title="Delete program" href="#">Delete</a>
                             <a class="action-item" title="Drill down program" href="#">Drill down</a>
                         </span>
@@ -54,7 +54,11 @@
                     </td>
                 </tr>
             </tbody>
-        </table>
-    
+        </table>    
+    </div>
+    <div class="action-link">
+        <a class="button new-option" href="/localpum/index.php?q=civicrm/pumprogram&action=add">
+            <span><div class="icon add-icon"></div>Add Program</span>
+        </a>
     </div>
 </div>
