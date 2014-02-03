@@ -141,10 +141,8 @@ function threepeas_civicrm_navigationMenu( &$params ) {
                     'active'     => 1
                 ),
                 'child' => null
-            ) 
-        ), 
-        'child' =>  array (
-            '1' => array (
+            ), 
+            '2' => array (
                 'attributes' => array (
                     'label'      => 'List Programs',
                     'name'       => 'List Programs',
@@ -156,55 +154,47 @@ function threepeas_civicrm_navigationMenu( &$params ) {
                     'active'     => 1
                 ),
                 'child' => null
-            ) 
-        ), 
-        'child' =>  array (
-            '1' => array (
+            ),
+            '3' => array (
                 'attributes' => array (
                     'label'      => 'List Projects',
                     'name'       => 'List Projects',
                     'url'        => 'civicrm/projectlist',
                     'operator'   => null,
-                    'separator'  => 1,
+                    'separator'  => 0,
                     'parentID'   => $maxKey+1,
                     'navID'      => 3,
                     'active'     => 1
                 ),
                 'child' => null
-            ) 
-        ), 
-        'child' =>  array (
-            '1' => array (
+            ), 
+            '4' => array (
                 'attributes' => array (
                     'label'      => 'List Products',
                     'name'       => 'List Products',
                     'url'        => 'civicrm/productlist',
                     'operator'   => null,
-                    'separator'  => 1,
+                    'separator'  => 0,
                     'parentID'   => $maxKey+1,
                     'navID'      => 4,
                     'active'     => 1
                 ),
                 'child' => null
-            ) 
-        ), 
-        'child' =>  array (
-            '1' => array (
+            ), 
+            '5' => array (
                 'attributes' => array (
                     'label'      => 'Programs Report',
                     'name'       => 'Programs Report',
                     'url'        => '#',
                     'operator'   => null,
-                    'separator'  => 1,
+                    'separator'  => 0,
                     'parentID'   => $maxKey+1,
                     'navID'      => 5,
                     'active'     => 1
                 ),
                 'child' => null
-            ) 
-        ), 
-        'child' =>  array (
-            '1' => array (
+            ), 
+            '6' => array (
                 'attributes' => array (
                     'label'      => 'Projects Report',
                     'name'       => 'Projects Report',
