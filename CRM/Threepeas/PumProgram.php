@@ -11,17 +11,6 @@
  * Licensed to PUM <http://www.pum.nl> and CiviCRM under the Academic Free License version 3.0.
  */
 class CRM_Threepeas_PumProgram {
-    private $_table = "";
-    public $id = 0;
-    public $title = "";
-    public $description = "";
-    public $contact_id_manager = 0;
-    public $budget = 0;
-    public $goals = "";
-    public $requirements = "";
-    public $start_date = "";
-    public $end_date = "";
-    public $is_active = 0;
     /**
      * Constructor function
      * 
@@ -29,7 +18,6 @@ class CRM_Threepeas_PumProgram {
      * @date 3 Feb 2014
      */
     function __construct() {
-        $this->_table = "civicrm_program";
     }
     /**
      * Function to retrieve all programs
@@ -58,13 +46,13 @@ class CRM_Threepeas_PumProgram {
      * @access public
      * @static
      */
-    public static function getProgramById($program_id) {
+    public static function getProgramById($programId) {
         $result = array();
-        if (empty($program_id) || !is_numeric($program_id)) {
+        if (empty($programId) || !is_numeric($programId)) {
             return $result;
         }
         $dao = CRM_Core_DAO::executeQuery("SELECT * FROM civicrm_program 
-            WHERE id = $program_id");
+            WHERE id = $programId");
         if ($dao->fetch()) {
             $result = self::_daoToArray($dao);
         }
@@ -84,15 +72,15 @@ class CRM_Threepeas_PumProgram {
      * @static
      */
     public static function add($params) {
-        $program_id = 0;
+        $programId = 0;
         /*
          * array with required parameters
          */
-        $mandatory_fields = array("title");
-        if (!self::checkMandatoryFields($mandatory_fields, $params)) {
+        $mandatoryFields = array("title");
+        if (!self::checkMandatoryFields($mandatoryFields, $params)) {
             throw new Exception("Missing or empty mandatory params ".
-                implode("; ", $mandatory_fields));
-            return $program_id;
+                implode("; ", $mandatoryFields));
+            return $programId;
         }
         /*
          * check if title does not exist yet (has to be unique)
@@ -104,7 +92,7 @@ class CRM_Threepeas_PumProgram {
         if ($dao->fetch()) {
             if ($dao->count_title > 0) {
                 throw new Exception("Program with title $title already exists");
-                return $program_id;
+                return $programId;
             }
         }
         
@@ -120,7 +108,7 @@ class CRM_Threepeas_PumProgram {
             if (!is_numeric($params['contact_id_manager'])) {
                 throw new Exception("Param contact_id_manager has to be numeric 
                     but holds ".$params['contact_id_manager']);
-                return $program_id;
+                return $programId;
             } else {
                 $fields[] = "contact_id_manager = {$params['contact_id_manager']}";
             }
@@ -130,7 +118,7 @@ class CRM_Threepeas_PumProgram {
             if (!is_numeric($params['budget'])) {
                 throw new Exception("Param budget has to be numeric but holds ".
                     $params['budget']);
-                return $program_id;
+                return $programId;
             } else {
                 $fields[] = "budget = {$params['budget']}";
             }
@@ -148,20 +136,20 @@ class CRM_Threepeas_PumProgram {
         
         if (isset($params['start_date'])) {
             if (!empty($params['start_date'])) {
-                $start_date = date("Ymd", strtotime($params['start_date']));
+                $startDate = date("Ymd", strtotime($params['start_date']));
             } else {
-                $start_date = "";
+                $startDate = "";
             }
-            $fields[] = "start_date = '$start_date'";
+            $fields[] = "start_date = '$startDate'";
         }
         
         if (isset($params['end_date'])) {
             if (!empty($params['end_date'])) {
-                $end_date = date("Ymd", strtotime($params['end_date']));
+                $endDate = date("Ymd", strtotime($params['end_date']));
             } else {
-                $end_date = "";
+                $endDate = "";
             }
-            $fields[] = "end_date = '$end_date'";
+            $fields[] = "end_date = '$endDate'";
         }
         
         if (isset($params['is_active'])) {
@@ -177,10 +165,10 @@ class CRM_Threepeas_PumProgram {
             $query = "SELECT MAX(id) AS latest_id FROM civicrm_program";
             $dao = CRM_Core_DAO::executeQuery($query);
             if ($dao->fetch()) {
-                $program_id = $dao->latest_id;
+                $programId = $dao->latest_id;
             }
         }
-        return $program_id;
+        return $programId;
     }
     /**
      * Function to update program
@@ -201,10 +189,10 @@ class CRM_Threepeas_PumProgram {
         /*
          * array with mandatory parameters
          */
-        $mandatory_fields = array("program_id", "title");
-        if (!self::checkMandatoryFields($mandatory_fields, $params)) {
+        $mandatoryFields = array("program_id", "title");
+        if (!self::checkMandatoryFields($mandatoryFields, $params)) {
             throw new Exception("Missing or empty mandatory params ".
-                implode("; ", $mandatory_fields));
+                implode("; ", $mandatoryFields));
             return $result;
         }
         if (!is_numeric($params['program_id'])) {
@@ -212,16 +200,16 @@ class CRM_Threepeas_PumProgram {
                 $params['program_id']);
             return $result;
         }
-         $program_id = $params['program_id'];
+         $programId = $params['program_id'];
         /*
          * check if program exists
          */
-        $check_query = "SELECT COUNT(*) AS count_program FROM civicrm_program 
-            WHERE id = $program_id";
-        $check_dao = CRM_Core_DAO::executeQuery($check_query);
-        if ($check_dao->fetch()) {
-            if ($check_dao->count_program == 0) {
-                throw new Exception("No program found with program_id $program_id");
+        $checkQuery = "SELECT COUNT(*) AS count_program FROM civicrm_program 
+            WHERE id = $programId";
+        $daoCheck = CRM_Core_DAO::executeQuery($checkQuery);
+        if ($daoCheck->fetch()) {
+            if ($daoCheck->count_program == 0) {
+                throw new Exception("No program found with program_id $programId");
             }
         }
         
@@ -239,7 +227,7 @@ class CRM_Threepeas_PumProgram {
             if (!is_numeric($params['contact_id_manager'])) {
                 throw new Exception("Param contact_id_manager has to be numeric 
                     but holds ".$params['contact_id_manager']);
-                return $program_id;
+                return $programId;
             } else {
                 $fields[] = "contact_id_manager = {$params['contact_id_manager']}";
             }
@@ -249,7 +237,7 @@ class CRM_Threepeas_PumProgram {
             if (!is_numeric($params['budget'])) {
                 throw new Exception("Param budget has to be numeric but holds ".
                     $params['budget']);
-                return $program_id;
+                return $programId;
             } else {
                 $fields[] = "budget = {$params['budget']}";
             }
@@ -267,20 +255,20 @@ class CRM_Threepeas_PumProgram {
         
         if (isset($params['start_date'])) {
             if (!empty($params['start_date'])) {
-                $start_date = date("Ymd", strtotime($params['start_date']));
+                $startDate = date("Ymd", strtotime($params['start_date']));
             } else {
-                $start_date = "";
+                $startDate = "";
             }
-            $fields[] = "start_date = '$start_date'";
+            $fields[] = "start_date = '$startDate'";
         }
         
         if (isset($params['end_date'])) {
             if (!empty($params['end_date'])) {
-                $end_date = date("Ymd", strtotime($params['end_date']));
+                $endDate = date("Ymd", strtotime($params['end_date']));
             } else {
-                $end_date = "";
+                $endDate = "";
             }
-            $fields[] = "end_date = '$end_date'";
+            $fields[] = "end_date = '$endDate'";
         }
         
         if (isset($params['is_active'])) {
@@ -293,10 +281,10 @@ class CRM_Threepeas_PumProgram {
         
         if (!empty($fields)) {
             $update = "UPDATE civicrm_program SET ".implode(", ", $fields).
-                " WHERE id = $program_id";
+                " WHERE id = $programId";
             CRM_Core_DAO::executeQuery($update);
             
-            $result = self::getProgramById($program_id);
+            $result = self::getProgramById($programId);
         }
         return $result;
     }
@@ -312,11 +300,11 @@ class CRM_Threepeas_PumProgram {
      * @access public
      * @static
      */
-    public static function delete($program_id) {
-        if (empty($program_id) || !is_numeric($program_id)) {
+    public static function delete($programId) {
+        if (empty($programId) || !is_numeric($programId)) {
             throw new Exception("Program_id can not be empty and has to be numeric");
         }
-        $delete = "DELETE FROM civicrm_program WHERE id = $program_id";
+        $delete = "DELETE FROM civicrm_program WHERE id = $programId";
         CRM_Core_DAO::executeQuery($delete);
         return;
     }
@@ -332,12 +320,12 @@ class CRM_Threepeas_PumProgram {
      * @access public
      * @static
      */
-    public static function disable($program_id) {
+    public static function disable($programId) {
         return;
-        if (empty($program_id) || !is_numeric($program_id)) {
+        if (empty($programId) || !is_numeric($programId)) {
             throw new Exception("Program_id can not be empty and has to be numeric");
         }
-        $update = "UPDATE civicrm_program SET is_active = 0 WHERE id = $program_id";
+        $update = "UPDATE civicrm_program SET is_active = 0 WHERE id = $programId";
         CRM_Core_DAO::executeQuery($update);
         return;
     }
@@ -368,7 +356,7 @@ class CRM_Threepeas_PumProgram {
                 throw new Exception("Program_id can not be empty and has to be 
                     numeric, now contains ".$params['program_id']);
             }
-            $program_id = $params['program_id'];
+            $programId = $params['program_id'];
         }
         /*
          * title can not be empty if set and no program_id
@@ -378,9 +366,9 @@ class CRM_Threepeas_PumProgram {
                 throw new Exception("Title can not be empty");
                 return $result;
             }
-            $program_id = self::getProgramIdWithTitle($params['title']);
+            $programId = self::getProgramIdWithTitle($params['title']);
         }
-        $result = CRM_Threepeas_PumProject::getAllProjectsByProgramId($program_id);
+        $result = CRM_Threepeas_PumProject::getAllProjectsByProgramId($programId);
         return $result;
     }
     /**
@@ -394,17 +382,17 @@ class CRM_Threepeas_PumProgram {
      * @static
      */
     public static function getProgramIdWithTitle($title) {
-        $program_id = 0;
+        $programId = 0;
         if (empty($title)) {
-            return $program_id;
+            return $programId;
         }
         $title = CRM_Core_DAO::escapeString($title);
         $query = "SELECT id FROM civicrm_program WHERE title = '$title'";
         $dao = CRM_Core_DAO::executeQuery($query);
         if ($dao->fetch()) {
-            $program_id = $dao->id;
+            $programId = $dao->id;
         }
-        return $program_id;
+        return $programId;
     }
     /**
      * Function to populate array with dao
@@ -458,18 +446,18 @@ class CRM_Threepeas_PumProgram {
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 11 Feb 2014
-     * @param array $fields
+     * @param array $mandatoryFields
      * @param array $params
      * @return boolean (TRUE if OK, FALSE if error
      * @access private
      * @static
      */
-    private static function checkMandatoryFields($mandatory_fields, $params) {
-        foreach ($mandatory_fields as $mandatory_field) {
-            if (!isset($params[$mandatory_field])) {
+    private static function checkMandatoryFields($mandatoryFields, $params) {
+        foreach ($mandatoryFields as $mandatoryField) {
+            if (!isset($params[$mandatoryField])) {
                 return FALSE;
             } else {
-                if (empty($params[$mandatory_field])) {
+                if (empty($params[$mandatoryField])) {
                     return FALSE;
                 }
             }

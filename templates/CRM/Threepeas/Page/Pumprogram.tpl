@@ -1,5 +1,10 @@
 <h3>{$action|capitalize} Program</h3>
 <form id="program-edit" name="Program" method="post" action={$submitProgramUrl}>
+    
+    {* hidden fields to pass on entity and action to processing class *}
+    <input type="hidden" name= "pumEntity" value="program">
+    <input type="hidden" name="pumAction" value={$action}>
+    
     <div class="crm-block crm-form-block">
         <div class="crm-submit-buttons">
             {if $action eq 'view'}

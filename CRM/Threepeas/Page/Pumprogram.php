@@ -13,21 +13,21 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
     protected $_action = "";
-    protected $_program_id = 0;
-    protected $_program_manager_group = 0;
+    protected $_programId = 0;
+    protected $_programManagerGroup = 0;
     
     function run() {
         $this->_action = CRM_Utils_Request::retrieve('action', 'String', $this);
-        $this->_program_id = CRM_Utils_Request::retrieve('pid', 'Positive', $this);
+        $this->_programId = CRM_Utils_Request::retrieve('pid', 'Positive', $this);
         $group = civicrm_api3('Group', 'Getsingle', array('title' => "Program Managers"));
         if (isset($group['id'])) {
-            $this->_program_manager_group = $group['id'];
+            $this->_programManagerGroup = $group['id'];
         }
         /*
          * retrieve program data if not add
          */
         if ($this->_action != 1) {
-            $pum_program = CRM_Threepeas_PumProgram::getProgramById($this->_program_id);
+            $pumProgram = CRM_Threepeas_PumProgram::getProgramById($this->_programId);
         }
         /*
          * set labels for page
@@ -38,13 +38,13 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
          */
         switch($this->_action) {
             case 0:
-                $this->buildPageEdit($pum_program);
+                $this->buildPageEdit($pumProgram);
                 break;
             case 1:
                 $this->buildPageAdd();
                 break;
             case 4:
-                $this->buildPageView($pum_program);
+                $this->buildPageView($pumProgram);
                 break;
         }
         parent::run();
@@ -54,181 +54,181 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 10 Feb 2014
-     * @param type $pum_program
+     * @param type $pumProgram
      * @access private
      */
-    private function buildPageView($pum_program) {
-        $done_url = CRM_Utils_System::url('civicrm/programlist', null, true);
-        $this->assign('doneUrl', $done_url);
+    private function buildPageView($pumProgram) {
+        $doneUrl = CRM_Utils_System::url('civicrm/programlist', null, true);
+        $this->assign('doneUrl', $doneUrl);
         
         $this->assign('action', 'view');
         
-        if (isset($pum_program['title'])) {
-            $this->assign('programTitle', $pum_program['title']);
+        if (isset($pumProgram['title'])) {
+            $this->assign('programTitle', $pumProgram['title']);
         }
-        if (isset($pum_program['description'])) {
-            $description_html='<textarea readonly="readonly" name="program_description" 
-                rows="3" cols="80">'.$pum_program['description'].'</textarea>';
-            $this->assign('programDescription', $description_html);
+        if (isset($pumProgram['description'])) {
+            $descriptionHtml='<textarea readonly="readonly" name="program_description" 
+                rows="3" cols="80">'.$pumProgram['description'].'</textarea>';
+            $this->assign('programDescription', $descriptionHtml);
         }
-        if (isset($pum_program['contact_id_manager'])) {
-            $contact_params = array(
-                'id'     =>  $pum_program['contact_id_manager'],
+        if (isset($pumProgram['contact_id_manager'])) {
+            $contactParams = array(
+                'id'     =>  $pumProgram['contact_id_manager'],
                 'return' =>  'display_name'
             );
-            $manager_name = civicrm_api3('Contact', 'Getvalue', $contact_params);
-            $manager_url = CRM_Utils_System::url('civicrm/contact/view', null, true).
-                    "&rest=1&cid=".$pum_program['contact_id_manager'];
-            $manager_html = '<a href="'.$manager_url.'">'.$manager_name.'</a>';
-            $this->assign('programManager', $manager_html);
+            $managerName = civicrm_api3('Contact', 'Getvalue', $contactParams);
+            $managerUrl = CRM_Utils_System::url('civicrm/contact/view', null, true).
+                    "&rest=1&cid=".$pumProgram['contact_id_manager'];
+            $managerHtml = '<a href="'.$managerUrl.'">'.$managerName.'</a>';
+            $this->assign('programManager', $managerHtml);
             
         }
-        if (isset($pum_program['budget'])) {
-            $this->assign('programBudget', CRM_Utils_Money::format($pum_program['budget']));
+        if (isset($pumProgram['budget'])) {
+            $this->assign('programBudget', CRM_Utils_Money::format($pumProgram['budget']));
         }
-        if (isset($pum_program['goals'])) {
-            $goals_html='<textarea readonly="readonly" name="program_goals" 
-                rows="3" cols="80">'.$pum_program['goals'].'</textarea>';
-            $this->assign('programGoals', $goals_html);
+        if (isset($pumProgram['goals'])) {
+            $goalsHtml='<textarea readonly="readonly" name="program_goals" 
+                rows="3" cols="80">'.$pumProgram['goals'].'</textarea>';
+            $this->assign('programGoals', $goalsHtml);
         }
-        if (isset($pum_program['requirements'])) {
-            $requirements_html='<textarea readonly="readonly" name="program_requirements" 
-                rows="3" cols="80">'.$pum_program['requirements'].'</textarea>';
-            $this->assign('programRequirements', $requirements_html);
+        if (isset($pumProgram['requirements'])) {
+            $requirementsHtml='<textarea readonly="readonly" name="program_requirements" 
+                rows="3" cols="80">'.$pumProgram['requirements'].'</textarea>';
+            $this->assign('programRequirements', $requirementsHtml);
         }
-        if (isset($pum_program['start_date'])) {
+        if (isset($pumProgram['start_date'])) {
             $this->assign('programStartDate', date("d-m-Y", 
-                strtotime($pum_program['start_date'])));
+                strtotime($pumProgram['start_date'])));
         }
-        if (isset($pum_program['end_date'])) {
+        if (isset($pumProgram['end_date'])) {
             $this->assign('programEndDate', date("d-m-Y", 
-                strtotime($pum_program['end_date'])));
+                strtotime($pumProgram['end_date'])));
         }
-        if (isset($pum_program['is_active'])) {
-            if ($pum_program['is_active'] == 1) {
-                $active_html="<tt>[x]</tt>";
+        if (isset($pumProgram['is_active'])) {
+            if ($pumProgram['is_active'] == 1) {
+                $activeHtml="<tt>[x]</tt>";
             } else {
-                $active_html = "<tt>[ ]</tt>";
+                $activeHtml = "<tt>[ ]</tt>";
             }
         } else {
-            $active_html = "<tt>[ ]</tt>";
+            $activeHtml = "<tt>[ ]</tt>";
         }
-        $this->assign('programIsActive', $active_html);
+        $this->assign('programIsActive', $activeHtml);
     }
     /**
      * Function to build page for add action
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 10 Feb 2014
-     * @param type $pum_program
+     * @param type $pumProgram
      * @access private
      */
     private function buildPageAdd() {
         $this->assign('action', 'add');
         
-        $submit_url = CRM_Utils_System::url('civicrm/actionprocess', null, true);
-        $this->assign('submitProgramUrl', $submit_url);
+        $submitUrl = CRM_Utils_System::url('civicrm/actionprocess', null, true);
+        $this->assign('submitProgramUrl', $submitUrl);
 
-        $cancel_url = CRM_Utils_System::url('civicrm/programlist', null, true);
-        $this->assign('cancelUrl', $cancel_url);
+        $cancelUrl = CRM_Utils_System::url('civicrm/programlist', null, true);
+        $this->assign('cancelUrl', $cancelUrl);
         
-        $title_html = '<input id="program-title" type="text" class="form-text" 
+        $titleHtml = '<input id="program-title" type="text" class="form-text" 
             name="programTitle" size="80" maxlength="80">';
-        $this->assign('programTitle', $title_html);
+        $this->assign('programTitle', $titleHtml);
         
-        $description_html='<textarea name="programDescription" rows="3" cols="80">
+        $descriptionHtml='<textarea name="programDescription" rows="3" cols="80">
             </textarea>';
-        $this->assign('programDescription', $description_html);
+        $this->assign('programDescription', $descriptionHtml);
         
-        $program_manager_html = '<select id="program-manager" name="programManager" 
+        $programManagerHtml = '<select id="program-manager" name="programManager" 
             class="form-select"><option value="0">- none</option>';        
         $contacts = civicrm_api3('Contact', 'Get', array('group' => 
-            $this->_program_manager_group));
+            $this->_programManagerGroup));
         foreach ($contacts['values'] as $contact_id => $contact) {
-            $program_manager_html .= '<option value="'.$contact_id.'">'.
+            $programManagerHtml .= '<option value="'.$contact_id.'">'.
                     $contact['display_name'].'</option>';
         }
-        $program_manager_html .= '</select>';
-        $this->assign('programManager', $program_manager_html);
+        $programManagerHtml .= '</select>';
+        $this->assign('programManager', $programManagerHtml);
         
-        $budget_html = '<input id="program-budget" type="number" class="form=text" 
+        $budgetHtml = '<input id="program-budget" type="number" class="form=text" 
             name="programBudget">';
-        $this->assign('programBudget', $budget_html);
+        $this->assign('programBudget', $budgetHtml);
 
-        $goals_html='<textarea name="programGoals" rows="3" cols="80"></textarea>';
-        $this->assign('programGoals', $goals_html);
+        $goalsHtml='<textarea name="programGoals" rows="3" cols="80"></textarea>';
+        $this->assign('programGoals', $goalsHtml);
         
-        $requirements_html='<textarea name="programRequirements" rows="3" cols="80">
+        $requirementsHtml='<textarea name="programRequirements" rows="3" cols="80">
             </textarea>';
-        $this->assign('programRequirements', $requirements_html);
+        $this->assign('programRequirements', $requirementsHtml);
 
-        $enabled_html = '<input id="is_active" class="form-checkbox" type="checkbox" 
+        $enabledHtml = '<input id="is_active" class="form-checkbox" type="checkbox" 
             checked="checked" value="1" name="is_active">';
-        $this->assign('programIsActive', $enabled_html);
+        $this->assign('programIsActive', $enabledHtml);
     }
     /**
      * Function to build page for edit action
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 10 Feb 2014
-     * @param type $pum_program
+     * @param type $pumProgram
      * @access private
      */
-    private function buildPageEdit($pum_program) {
+    private function buildPageEdit($pumProgram) {
         $this->assign('action', 'edit');
         
-        $submit_url = CRM_Utils_System::url('civicrm/actionprocess', null, true);
-        $this->assign('submitProgramUrl', $submit_url);
+        $submitUrl = CRM_Utils_System::url('civicrm/actionprocess', null, true);
+        $this->assign('submitProgramUrl', $submitUrl);
 
-        $cancel_url = CRM_Utils_System::url('civicrm/programlist', null, true);
-        $this->assign('cancelUrl', $cancel_url);
+        $cancelUrl = CRM_Utils_System::url('civicrm/programlist', null, true);
+        $this->assign('cancelUrl', $cancelUrl);
         
-        $title_html = '<input id="program-title" type="text" class="form-text" 
-            name="programTitle" value="'.$pum_program['title'].'">';
-        $this->assign('programTitle', $title_html);
+        $titleHtml = '<input id="program-title" type="text" class="form-text" 
+            name="programTitle" value="'.$pumProgram['title'].'">';
+        $this->assign('programTitle', $titleHtml);
         
-        $description_html='<textarea name="programDescription" rows="3" cols="80">'
-            .$pum_program['description'].'</textarea>';
-        $this->assign('programDescription', $description_html);
+        $descriptionHtml='<textarea name="programDescription" rows="3" cols="80">'
+            .$pumProgram['description'].'</textarea>';
+        $this->assign('programDescription', $descriptionHtml);
         
-        $program_manager_html = '<select id="program-manager" name="programManager" 
+        $programManagerHtml = '<select id="program-manager" name="programManager" 
             class="form-select"><option value="0">- none</option>';        
-        $contacts = civicrm_api3('Contact', 'Get', array('group' => $this->_program_manager_group));
+        $contacts = civicrm_api3('Contact', 'Get', array('group' => $this->_programManagerGroup));
         foreach ($contacts['values'] as $contact_id => $contact) {
-            if ($contact_id == $pum_program['contact_id_manager']) {
-                $program_manager_html .= '<option selected="selected" value="'.
+            if ($contact_id == $pumProgram['contact_id_manager']) {
+                $programManagerHtml .= '<option selected="selected" value="'.
                     $contact_id.'">'.$contact['display_name'].'</option>';                
             } else {
-                $program_manager_html .= '<option value="'.$contact_id.'">'.
+                $programManagerHtml .= '<option value="'.$contact_id.'">'.
                     $contact['display_name'].'</option>';
             }
         }
-        $program_manager_html .= '</select>';
-        $this->assign('programManager', $program_manager_html);
+        $programManagerHtml .= '</select>';
+        $this->assign('programManager', $programManagerHtml);
         
-        $budget_html = '<input id="program-budget" type="number" class="form=text" 
-            name="programBudget" value="'.$pum_program['budget'].'">';
-        $this->assign('programBudget', $budget_html);
+        $budgetHtml = '<input id="program-budget" type="number" class="form=text" 
+            name="programBudget" value="'.$pumProgram['budget'].'">';
+        $this->assign('programBudget', $budgetHtml);
 
-        $goals_html='<textarea name="programGoals" rows="3" cols="80">'
-            .$pum_program['goals'].'</textarea>';
-        $this->assign('programGoals', $goals_html);
+        $goalsHtml='<textarea name="programGoals" rows="3" cols="80">'
+            .$pumProgram['goals'].'</textarea>';
+        $this->assign('programGoals', $goalsHtml);
         
-        $requirements_html='<textarea name="programRequirements" rows="3" cols="80">'
-            .$pum_program['requirements'].'</textarea>';
-        $this->assign('programRequirements', $requirements_html);
+        $requirementsHtml='<textarea name="programRequirements" rows="3" cols="80">'
+            .$pumProgram['requirements'].'</textarea>';
+        $this->assign('programRequirements', $requirementsHtml);
 
-        if ($pum_program['is_active'] == 1) {
-            $enabled_html = '<input id="is_active" class="form-checkbox" type="checkbox" 
+        if ($pumProgram['is_active'] == 1) {
+            $enabledHtml = '<input id="is_active" class="form-checkbox" type="checkbox" 
                 checked="checked" value="1" name="is_active">';
         } else {
-            $enabled_html = '<input id="is_active" class="form-checkbox" type="checkbox" 
+            $enabledHtml = '<input id="is_active" class="form-checkbox" type="checkbox" 
                 value="0" name="is_active">';
         }
-        $this->assign('programIsActive', $enabled_html);
+        $this->assign('programIsActive', $enabledHtml);
         
-        $this->assign('displayStartDate', date("d-m-Y", strtotime($pum_program['start_date'])));
-        $this->assign('displayEndDate', date("d-m-Y", strtotime($pum_program['end_date'])));
+        $this->assign('displayStartDate', date("d-m-Y", strtotime($pumProgram['start_date'])));
+        $this->assign('displayEndDate', date("d-m-Y", strtotime($pumProgram['end_date'])));
 
     }
     /**

@@ -19,15 +19,15 @@
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
-    <path>civicrm/actionprocess</path>
-    <page_callback>CRM_Threepeas_ActionProcess</page_callback>
-    <title>ActionProcess</title>
-    <access_arguments>access CiviCRM</access_arguments>
-  </item>
-  <item>
     <path>civicrm/pumprogram</path>
     <page_callback>CRM_Threepeas_Page_Pumprogram</page_callback>
     <title>Pumprogram</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/actionprocess</path>
+    <page_callback>CRM_Threepeas_Page_Actionprocess</page_callback>
+    <title>Actionprocess</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
 </menu>
