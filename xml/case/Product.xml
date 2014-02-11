@@ -30,7 +30,7 @@
       <name>Email</name>
     </ActivityType>
     <ActivityType>
-      <name>Meeting</name>
+      <name>TestEH</name>
     </ActivityType>
     <ActivityType>
       <name>Phone Call</name>
@@ -65,6 +65,11 @@
   <CaseRoles>
     <RelationshipType>
       <name>Case Coordinator</name>
+      <creator>1</creator>
+      <manager>1</manager>
+    </RelationshipType>
+    <RelationshipType>
+      <name>Product Coordinator</name>
       <creator>1</creator>
       <manager>1</manager>
     </RelationshipType>

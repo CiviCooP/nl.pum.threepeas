@@ -58,9 +58,11 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
      * @access private
      */
     private function buildPageView($pum_program) {
-        $doneUrl = CRM_Utils_System::url('civicrm/programlist', null, true);
-        $this->assign('doneUrl', $doneUrl);
+        $done_url = CRM_Utils_System::url('civicrm/programlist', null, true);
+        $this->assign('doneUrl', $done_url);
+        
         $this->assign('action', 'view');
+        
         if (isset($pum_program['title'])) {
             $this->assign('programTitle', $pum_program['title']);
         }
@@ -123,8 +125,12 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
      */
     private function buildPageAdd() {
         $this->assign('action', 'add');
-        $cancelUrl = CRM_Utils_System::url('civicrm/programlist', null, true);
-        $this->assign('cancelUrl', $cancelUrl);
+        
+        $submit_url = CRM_Utils_System::url('civicrm/actionprocess', null, true);
+        $this->assign('submitProgramUrl', $submit_url);
+
+        $cancel_url = CRM_Utils_System::url('civicrm/programlist', null, true);
+        $this->assign('cancelUrl', $cancel_url);
         
         $title_html = '<input id="program-title" type="text" class="form-text" 
             name="programTitle" size="80" maxlength="80">';
@@ -170,8 +176,12 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
      */
     private function buildPageEdit($pum_program) {
         $this->assign('action', 'edit');
-        $cancelUrl = CRM_Utils_System::url('civicrm/programlist', null, true);
-        $this->assign('cancelUrl', $cancelUrl);
+        
+        $submit_url = CRM_Utils_System::url('civicrm/actionprocess', null, true);
+        $this->assign('submitProgramUrl', $submit_url);
+
+        $cancel_url = CRM_Utils_System::url('civicrm/programlist', null, true);
+        $this->assign('cancelUrl', $cancel_url);
         
         $title_html = '<input id="program-title" type="text" class="form-text" 
             name="programTitle" value="'.$pum_program['title'].'">';
