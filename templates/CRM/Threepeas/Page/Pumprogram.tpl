@@ -4,6 +4,9 @@
     {* hidden fields to pass on entity and action to processing class *}
     <input type="hidden" name= "pumEntity" value="program">
     <input type="hidden" name="pumAction" value={$action}>
+    {if $action ne 'add'}
+        <input type="hidden" name="programId" value={$programId}>
+    {/if}
     
     <div class="crm-block crm-form-block">
         <div class="crm-submit-buttons">
@@ -57,7 +60,7 @@
                         <td>
                             {assign var='elementDate' value="programStartDate"}
                             <input id="{$elementDate}" class="form-text" type="text" value="{$displayStartDate}" 
-                                   name="start_date" format="dd-mm-yy" endoffset="20" startoffset="20" 
+                                   name="programStartDate" format="dd-mm-yy" endoffset="20" startoffset="20" 
                                    formattype="searchDate" style="display: none;">
                             {include file="CRM/Threepeas/Page/program_jcal.tpl"}
                         </td>
@@ -71,7 +74,7 @@
                         <td>
                             {assign var='elementDate' value="programEndDate"}
                             <input id="{$elementDate}" class="form-text" type="text" value="{$displayEndDate}" 
-                                   name="end_date" format="dd-mm-yy" endoffset="20" startoffset="20" 
+                                   name="programEndDate" format="dd-mm-yy" endoffset="20" startoffset="20" 
                                    formattype="searchDate" style="display: none;">
                             {include file="CRM/Threepeas/Page/program_jcal.tpl"}
                         </td>

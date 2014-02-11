@@ -176,6 +176,7 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
      */
     private function buildPageEdit($pumProgram) {
         $this->assign('action', 'edit');
+        $this->assign('programId', $this->_programId);
         
         $submitUrl = CRM_Utils_System::url('civicrm/actionprocess', null, true);
         $this->assign('submitProgramUrl', $submitUrl);
