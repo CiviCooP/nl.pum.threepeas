@@ -75,6 +75,9 @@ function threepeas_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
 
 /**
  * Implementation of hook_civicrm_managed
+ * 
+ * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+ * @date 10 Feb 2014
  *
  * Generate a list of entities to create/deactivate/delete when this module
  * is installed, disabled, uninstalled.
@@ -82,6 +85,22 @@ function threepeas_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_managed
  */
 function threepeas_civicrm_managed(&$entities) {
+    /*
+     * create specific groups for PUM
+     */
+    $entities[] = array(
+        'module'    => 'nl.pum.threepeas',
+        'name'      => 'Program Managers',
+        'entity'    => 'Group',
+        'params'    => array(
+            'version'       => 3,
+            'name'          => 'Program Managers',
+            'title'         => 'Program Managers',
+            'description'   => 'Group for Possible Program Managers',
+            'is_active'     =>  1,
+            'is_reserved'   =>  1,
+            'group_type'    =>  array(2 => 1))
+    );
   return _threepeas_civix_civicrm_managed($entities);
 }
 
@@ -144,9 +163,9 @@ function threepeas_civicrm_navigationMenu( &$params ) {
             ), 
             '2' => array (
                 'attributes' => array (
-                    'label'      => 'List Programs',
-                    'name'       => 'List Programs',
-                    'url'        => 'civicrm/programlist',
+                    'label'      => 'Add Program',
+                    'name'       => 'Add Program',
+                    'url'        => 'civicrm/pumprogram&action=add',
                     'operator'   => null,
                     'separator'  => 0,
                     'parentID'   => $maxKey+1,
