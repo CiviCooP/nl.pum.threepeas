@@ -30,4 +30,10 @@
     <title>Actionprocess</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/pumprogramdivision</path>
+    <page_callback>CRM_Threepeas_Page_Pumprogramdivision</page_callback>
+    <title>Pumprogramdivision</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

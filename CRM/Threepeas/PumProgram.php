@@ -77,7 +77,7 @@ class CRM_Threepeas_PumProgram {
          * array with required parameters
          */
         $mandatoryFields = array("title");
-        if (!self::checkMandatoryFields($mandatoryFields, $params)) {
+        if (!CRM_Threepeas_ThreepeasUtils::checkMandatoryFields($mandatoryFields, $params)) {
             throw new Exception("Missing or empty mandatory params ".
                 implode("; ", $mandatoryFields));
             return $programId;
@@ -174,7 +174,7 @@ class CRM_Threepeas_PumProgram {
      * Function to update program
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-     * @date 11 Fe 2014
+     * @date 11 Feb 2014
      * @param array $params
      * @return array $result
      * @throws Exception when required params not found or empty
@@ -190,7 +190,7 @@ class CRM_Threepeas_PumProgram {
          * array with mandatory parameters
          */
         $mandatoryFields = array("program_id", "title");
-        if (!self::checkMandatoryFields($mandatoryFields, $params)) {
+        if (!CRM_Threepeas_ThreepeasUtils::checkMandatoryFields($mandatoryFields, $params)) {
             throw new Exception("Missing or empty mandatory params ".
                 implode("; ", $mandatoryFields));
             return $result;
