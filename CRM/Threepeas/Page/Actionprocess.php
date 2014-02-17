@@ -96,6 +96,9 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                     case "saveProgram":
                         $this->_submitButton = trim(strip_tags($postValue));
                         break;
+                    case "saveProject":
+                        $this->_submitButton = trim(strip_tags($postValue));
+                        break;
                     default:
                         $this->_data[$postKey] = $postValue;
                 }
@@ -114,7 +117,6 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
      */
     private function setProgramData() {
         $result = array();
-        CRM_Core_Error::debug("data", $this->_data);
         if (empty($this->_data)) {
             return $result;
         }
@@ -146,9 +148,72 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                 case "programEndDate":
                     $result['end_date'] = $dataValue;
                     break;
-                case "is_active":
-                    $result['is_active'] = $dataValue;
+            }
+        }
+        $result['is_active'] = 0;
+        if (isset($this->_data['programIsActive'])) {
+            if ($this->_data['programIsActive'] == 1 || $this->_data['programIsActive'] == "on") {
+                $result['is_active'] = 1;
+            }
+        }
+        return $result;
+    }
+    /**
+     * Function to set the fields in $this->_data into params for project
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 17 Feb 2014
+     * @return array $result
+     * @access private
+     */
+    private function setProjectData() {
+        $result = array();
+        if (empty($this->_data)) {
+            return $result;
+        }
+        foreach ($this->_data as $dataField => $dataValue) {
+            switch($dataField) {
+                case "projectId":
+                    $result['project_id'] = $dataValue;
+                case "projectTitle":
+                    $result['title'] = $dataValue;
                     break;
+                case "projectProgram":
+                    $result['program_id'] = $dataValue;
+                    break;
+                case "projectReason":
+                    $result['reason'] = $dataValue;
+                    break;
+                case "projectWorkDescription":
+                    $result['work_description'] = $dataValue;
+                    break;
+                case "projectQualifications":
+                    $result['qualifications'] = $dataValue;
+                    break;
+                case "projectExpectedResults":
+                    $result['expected_results'] = $dataValue;
+                    break;
+                case "projectSectorCoordinator":
+                    $result['sector_coordinator_id'] = $dataValue;
+                    break;
+                case "projectCountryCoordinator":
+                    $result['country_coordinator_id'] = $dataValue;
+                    break;
+                case "projectOfficer":
+                    $result['project_officer_id'] = $dataValue;
+                    break;
+                case "projectStartDate":
+                    $result['start_date'] = $dataValue;
+                    break;
+                case "projectEndDate":
+                    $result['end_date'] = $dataValue;
+                    break;
+            }
+        }
+        $result['is_active'] = 0;
+        if (isset($this->_data['projectIsActive'])) {
+            if ($this->_data['projectIsActive'] == 1 || $this->_data['projectIsActive'] == "on") {
+                $result['is_active'] = 1;
             }
         }
         return $result;

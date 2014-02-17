@@ -29,15 +29,15 @@
         <table class="form-layout-compressed">
             <tbody>
                 <tr>
-                    <td class="label">{$labels.program_title}</td>
+                    <td class="label">{$labels.programTitle}</td>
                     <td>{$programTitle}</td>
                 </tr>
                 <tr>
-                    <td class="label">{$labels.program_desc}</td>
+                    <td class="label">{$labels.programDescription}</td>
                     <td>{$programDescription}</td>
                 </tr>
                 <tr>
-                    <td class="label">{$labels.program_manager}</td>
+                    <td class="label">{$labels.programManager}</td>
                     <td>{$programManager}</td>
                 </tr>
                 <tr>
@@ -53,7 +53,7 @@
                     <td>{$programRequirements}</td>
                 </tr>
                 <tr>
-                    <td class="label">{$labels.start_date}</td>
+                    <td class="label">{$labels.startDate}</td>
                     {if $action eq 'view'}
                         <td>{$programStartDate}</td>
                     {else}
@@ -62,12 +62,12 @@
                             <input id="{$elementDate}" class="form-text" type="text" value="{$displayStartDate}" 
                                    name="programStartDate" format="dd-mm-yy" endoffset="20" startoffset="20" 
                                    formattype="searchDate" style="display: none;">
-                            {include file="CRM/Threepeas/Page/program_jcal.tpl"}
+                            {include file="CRM/Threepeas/Page/pum_jcal.tpl"}
                         </td>
                     {/if}
                 </tr>
                 <tr>
-                    <td class="label">{$labels.end_date}</td>
+                    <td class="label">{$labels.endDate}</td>
                     {if $action eq 'view'}
                         <td>{$programEndDate}</td>
                     {else}
@@ -76,12 +76,12 @@
                             <input id="{$elementDate}" class="form-text" type="text" value="{$displayEndDate}" 
                                    name="programEndDate" format="dd-mm-yy" endoffset="20" startoffset="20" 
                                    formattype="searchDate" style="display: none;">
-                            {include file="CRM/Threepeas/Page/program_jcal.tpl"}
+                            {include file="CRM/Threepeas/Page/pum_jcal.tpl"}
                         </td>
                     {/if}
                 </tr>
                 <tr>
-                    <td class="label">{$labels.is_active}</td>
+                    <td class="label">{$labels.isActive}</td>
                     <td>{$programIsActive}</td>
                 </tr>
             </tbody>

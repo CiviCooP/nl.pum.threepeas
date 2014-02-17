@@ -37,11 +37,28 @@ class CRM_Threepeas_PumProgram {
         return $result;
     }
     /**
+     * Function to retrieve all active programs
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 10 Feb 2014
+     * @return array $result with data
+     * @access public
+     * @static
+     */
+    public static function getAllActivePrograms() {
+        $result = array();
+        $dao = CRM_Core_DAO::executeQuery("SELECT * FROM civicrm_program WHERE is_active = 1");
+        while ($dao->fetch()) {
+            $result[$dao->id] = self::_daoToArray($dao);
+        }
+        return $result;
+    }
+    /**
      * Function to retrieve single program with program_id
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 10 Feb 2014
-     * @param int $program_id
+     * @param int $programId
      * @return array $result
      * @access public
      * @static
@@ -64,7 +81,7 @@ class CRM_Threepeas_PumProgram {
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 11 Feb 2014
      * @param array $params
-     * @return int $program_id (id fo the created program)
+     * @return int $programId (id fo the created program)
      * @throws Exception when required param missing or empty
      * @throws Exception when program with title already exists in DB
      * @throws Exception when contact_id (manager) is not numeric
@@ -77,7 +94,7 @@ class CRM_Threepeas_PumProgram {
          * array with required parameters
          */
         $mandatoryFields = array("title");
-        if (!CRM_Threepeas_ThreepeasUtils::checkMandatoryFields($mandatoryFields, $params)) {
+        if (!CRM_Utils_ThreepeasUtils::checkMandatoryFields($mandatoryFields, $params)) {
             throw new Exception("Missing or empty mandatory params ".
                 implode("; ", $mandatoryFields));
             return $programId;
@@ -190,7 +207,7 @@ class CRM_Threepeas_PumProgram {
          * array with mandatory parameters
          */
         $mandatoryFields = array("program_id", "title");
-        if (!CRM_Threepeas_ThreepeasUtils::checkMandatoryFields($mandatoryFields, $params)) {
+        if (!CRM_Utils_ThreepeasUtils::checkMandatoryFields($mandatoryFields, $params)) {
             throw new Exception("Missing or empty mandatory params ".
                 implode("; ", $mandatoryFields));
             return $result;
@@ -272,7 +289,7 @@ class CRM_Threepeas_PumProgram {
         }
         
         if (isset($params['is_active'])) {
-            if ($params['is_active'] == 1 || $params['is_active'] == "y") {
+            if ($params['is_active'] == 1) {
                 $fields[] = "is_active = 1";
             } else {
                 $fields[] = "is_active = 0";
@@ -293,10 +310,10 @@ class CRM_Threepeas_PumProgram {
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 11 Feb 2014
-     * @param int $program_id
+     * @param int $programId
      * @return void
-     * @throws Exception when program_id is empty
-     * @throws Exception when program_id is not numeric
+     * @throws Exception when programId is empty
+     * @throws Exception when programId is not numeric
      * @access public
      * @static
      */
@@ -313,10 +330,10 @@ class CRM_Threepeas_PumProgram {
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 11 Feb 2014
-     * @param int $program_id
+     * @param int $programId
      * @return void
-     * @throws Exception when program_id is empty
-     * @throws Exception when program_id is not numeric
+     * @throws Exception when programId is empty
+     * @throws Exception when programId is not numeric
      * @access public
      * @static
      */
@@ -377,7 +394,7 @@ class CRM_Threepeas_PumProgram {
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 11 Feb 2014
      * @param string $title
-     * @return int $program_id
+     * @return int $programId
      * @access public
      * @static
      */
@@ -393,6 +410,28 @@ class CRM_Threepeas_PumProgram {
             $programId = $dao->id;
         }
         return $programId;
+    }
+    /**
+     * Function to get the program title with id
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 11 Feb 2014
+     * @param string $title
+     * @return int $programId
+     * @access public
+     * @static
+     */
+    public static function getProgramTitleWithId($programId) {
+        $programTitle = "";
+        if (empty($programId) || !is_numeric($programId)) {
+            return $programTitle;
+        }
+        $query = "SELECT title FROM civicrm_program WHERE id = $programId";
+        $dao = CRM_Core_DAO::executeQuery($query);
+        if ($dao->fetch()) {
+            $programTitle = $dao->title;
+        }
+        return $programTitle;
     }
     /**
      * Function to populate array with dao
@@ -440,29 +479,6 @@ class CRM_Threepeas_PumProgram {
             $result['is_active'] = $dao->is_active;
         }
         return $result;
-    }
-    /**
-     * Function to check if mandatory fields are in params
-     * 
-     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-     * @date 11 Feb 2014
-     * @param array $mandatoryFields
-     * @param array $params
-     * @return boolean (TRUE if OK, FALSE if error
-     * @access private
-     * @static
-     */
-    private static function checkMandatoryFields($mandatoryFields, $params) {
-        foreach ($mandatoryFields as $mandatoryField) {
-            if (!isset($params[$mandatoryField])) {
-                return FALSE;
-            } else {
-                if (empty($params[$mandatoryField])) {
-                    return FALSE;
-                }
-            }
-        }
-        return TRUE;
     }
 }
 

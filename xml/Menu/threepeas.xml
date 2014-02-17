@@ -36,4 +36,10 @@
     <title>Pumprogramdivision</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/pumproject</path>
+    <page_callback>CRM_Threepeas_Page_Pumproject</page_callback>
+    <title>Pumproject</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

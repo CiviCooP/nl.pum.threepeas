@@ -15,6 +15,7 @@ class CRM_Threepeas_Page_Programlist extends CRM_Core_Page {
     function run() {
         $this->assign('pumProgramUrl', CRM_Utils_System::url('civicrm/pumprogram', null, true));
         $this->assign('delProgramUrl', CRM_Utils_System::url('civicrm/pumaction', null, true));
+        $this->assign('divideProgramUrl', CRM_Utils_System::url('civicrm/pumprogramdivision', null, true));
         $programs = CRM_Threepeas_PumProgram::getAllPrograms();
         $displayPrograms = array();
         foreach ($programs as $program) {

@@ -61,7 +61,7 @@ class CRM_Threepeas_PumProgramDivision {
          * array with required parameters
          */
         $mandatoryFields = array("program_id", "country_id");
-        if (!CRM_Threepeas_ThreepeasUtils::checkMandatoryFields($mandatoryFields, $params)) {
+        if (!CRM_Utils_ThreepeasUtils::checkMandatoryFields($mandatoryFields, $params)) {
             throw new Exception("Missing or empty mandatory params ".
                 implode("; ", $mandatoryFields));
             return $programDivisionId;
@@ -71,13 +71,9 @@ class CRM_Threepeas_PumProgramDivision {
          */
         $numericFields = array("program_id", "country_id", "min_budget", "max_budget", 
             "min_projects", "max_projects");
-        foreach ($numericFields as $numericField) {
-            if (isset($params[$numericField]) && empty($params[$numericField])) {
-                if (!is_numeric($params[$numericField])) {
-                    throw new Exception("Field $numericField has to be numeric");
-                    return $programDivisionId;
-                }
-            }
+        if (!CRM_Utils_ThreepeasUtils::checkNumericFields($numericFields, $params)) {
+            throw new Exception("Fields ".implode(", ", $numericFields)." have to be numeric");
+            return $programDivisionId;
         }       
         $fields = array();
         $fields[] = "program_id = {$params['program_id']}";
@@ -130,7 +126,7 @@ class CRM_Threepeas_PumProgramDivision {
          * array with mandatory parameters
          */
         $mandatoryFields = array("program_division_id", "program_id", "country_id");
-        if (!CRM_Threepeas_ThreepeasUtils::checkMandatoryFields($mandatoryFields, $params)) {
+        if (!CRM_Utils_ThreepeasUtils::checkMandatoryFields($mandatoryFields, $params)) {
             throw new Exception("Missing or empty mandatory params ".
                 implode("; ", $mandatoryFields));
             return $result;
@@ -140,14 +136,10 @@ class CRM_Threepeas_PumProgramDivision {
          */
         $numericFields = array("program_id", "country_id", "min_budget", "max_budget", 
             "min_projects", "max_projects");
-        foreach ($numericFields as $numericField) {
-            if (isset($params[$numericField]) && empty($params[$numericField])) {
-                if (!is_numeric($params[$numericField])) {
-                    throw new Exception("Field $numericField has to be numeric");
-                    return $result;
-                }
-            }
-        }
+        if (!CRM_Utils_ThreepeasUtils::checkNumericFields($numericFields, $params)) {
+            throw new Exception("Fields ".implode(", ", $numericFields)." have to be numeric");
+            return $programDivisionId;
+        }       
         $programDivisionId = $params['program_division_id'];
         $programId = $params['program_id'];
         $countryId = $params['country_id'];

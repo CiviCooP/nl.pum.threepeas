@@ -54,7 +54,7 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 10 Feb 2014
-     * @param type $pumProgram
+     * @param array $pumProgram
      * @access private
      */
     private function buildPageView($pumProgram) {
@@ -120,7 +120,6 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 10 Feb 2014
-     * @param type $pumProgram
      * @access private
      */
     private function buildPageAdd() {
@@ -162,8 +161,8 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
             </textarea>';
         $this->assign('programRequirements', $requirementsHtml);
 
-        $enabledHtml = '<input id="is_active" class="form-checkbox" type="checkbox" 
-            checked="checked" value="1" name="is_active">';
+        $enabledHtml = '<input id="programIsActive" class="form-checkbox" type="checkbox" 
+            checked="checked" value="1" name="programIsActive">';
         $this->assign('programIsActive', $enabledHtml);
     }
     /**
@@ -171,7 +170,7 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 10 Feb 2014
-     * @param type $pumProgram
+     * @param array $pumProgram
      * @access private
      */
     private function buildPageEdit($pumProgram) {
@@ -219,12 +218,12 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
             .$pumProgram['requirements'].'</textarea>';
         $this->assign('programRequirements', $requirementsHtml);
 
-        if ($pumProgram['is_active'] == 1) {
-            $enabledHtml = '<input id="is_active" class="form-checkbox" type="checkbox" 
-                checked="checked" value="1" name="is_active">';
+        if (!isset($pumProgram['is_active']) || $pumProgram['is_active'] == 0) {
+            $enabledHtml = '<input id="program-is_active" class="form-checkbox" type="checkbox" 
+                name="programIsActive">';
         } else {
-            $enabledHtml = '<input id="is_active" class="form-checkbox" type="checkbox" 
-                value="0" name="is_active">';
+            $enabledHtml = '<input id="program-is-active" class="form-checkbox" type="checkbox" 
+                checked="checked" value="1" name="programIsActive">';            
         }
         $this->assign('programIsActive', $enabledHtml);
         
@@ -240,15 +239,15 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
      * @access private
      */
     private function setLabels() {
-        $labels['program_title'] = '<label for="Title">'.ts('Title').'<span class="crm-marker" title="This field is required.">*</span></label>';
-        $labels['program_desc'] = '<label for="Description">'.ts('Description').'</label>';
-        $labels['program_manager'] = '<label for="Manager">'.ts('Manager').'</label>';
+        $labels['programTitle'] = '<label for="Title">'.ts('Title').'<span class="crm-marker" title="This field is required.">*</span></label>';
+        $labels['programDescription'] = '<label for="Description">'.ts('Description').'</label>';
+        $labels['programManager'] = '<label for="Manager">'.ts('Manager').'</label>';
         $labels['budget'] = '<label for="Budget">'.ts('Budget').'<label>';
         $labels['goals'] = '<label for="Goals">'.ts('Goals').'</label>';
         $labels['requirements'] = '<label for="Requirements">'.ts('Requirements').'</label>';
-        $labels['start_date'] = '<label for="Start Date">'.ts('Start Date').'</label>';
-        $labels['end_date'] = '<label for="End Date">'.ts('End Date').'</label>';
-        $labels['is_active'] = '<label for="Is Active">'.ts('Enabled').'</label>';
+        $labels['startDate'] = '<label for="Start Date">'.ts('Start Date').'</label>';
+        $labels['endDate'] = '<label for="End Date">'.ts('End Date').'</label>';
+        $labels['isActive'] = '<label for="Is Active">'.ts('Enabled').'</label>';
         $this->assign('labels', $labels);        
     }
 }

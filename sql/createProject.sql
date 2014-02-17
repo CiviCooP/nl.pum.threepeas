@@ -8,7 +8,7 @@ CREATE TABLE `civicrm_project` (
   `expected_results` text,
   `sector_coordinator_id` int(11) DEFAULT NULL,
   `country_coordinator_id` int(11) DEFAULT NULL,
-  `prof_id` int(11) DEFAULT NULL,
+  `project_officer_id` int(11) DEFAULT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
   `is_active` varchar(45) DEFAULT NULL,

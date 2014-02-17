@@ -101,6 +101,45 @@ function threepeas_civicrm_managed(&$entities) {
             'is_reserved'   =>  1,
             'group_type'    =>  array(2 => 1))
     );
+    $entities[] = array(
+        'module'    => 'nl.pum.threepeas',
+        'name'      => 'Sector Coordinators',
+        'entity'    => 'Group',
+        'params'    => array(
+            'version'       => 3,
+            'name'          => 'Sector Coordinators',
+            'title'         => 'Sector Coordinators',
+            'description'   => 'Group for Possible Sector Coordinators',
+            'is_active'     =>  1,
+            'is_reserved'   =>  1,
+            'group_type'    =>  array(2 => 1))
+    );
+    $entities[] = array(
+        'module'    => 'nl.pum.threepeas',
+        'name'      => 'Country Coordinators',
+        'entity'    => 'Group',
+        'params'    => array(
+            'version'       => 3,
+            'name'          => 'Country Coordinators',
+            'title'         => 'Country Coordinators',
+            'description'   => 'Group for Possible Country Coordinators',
+            'is_active'     =>  1,
+            'is_reserved'   =>  1,
+            'group_type'    =>  array(2 => 1))
+    );
+    $entities[] = array(
+        'module'    => 'nl.pum.threepeas',
+        'name'      => 'Project Officers',
+        'entity'    => 'Group',
+        'params'    => array(
+            'version'       => 3,
+            'name'          => 'Project Officers',
+            'title'         => 'Project Officers',
+            'description'   => 'Group for Possible Project Officers',
+            'is_active'     =>  1,
+            'is_reserved'   =>  1,
+            'group_type'    =>  array(2 => 1))
+    );
   return _threepeas_civix_civicrm_managed($entities);
 }
 
@@ -189,9 +228,9 @@ function threepeas_civicrm_navigationMenu( &$params ) {
             ), 
             '4' => array (
                 'attributes' => array (
-                    'label'      => 'List Products',
-                    'name'       => 'List Products',
-                    'url'        => 'civicrm/productlist',
+                    'label'      => 'Add Project',
+                    'name'       => 'Add Project',
+                    'url'        => 'civicrm/pumproject&action=add',
                     'operator'   => null,
                     'separator'  => 0,
                     'parentID'   => $maxKey+1,
@@ -199,12 +238,12 @@ function threepeas_civicrm_navigationMenu( &$params ) {
                     'active'     => 1
                 ),
                 'child' => null
-            ), 
+            ),
             '5' => array (
                 'attributes' => array (
-                    'label'      => 'Programs Report',
-                    'name'       => 'Programs Report',
-                    'url'        => '#',
+                    'label'      => 'List Products',
+                    'name'       => 'List Products',
+                    'url'        => 'civicrm/productlist',
                     'operator'   => null,
                     'separator'  => 0,
                     'parentID'   => $maxKey+1,
@@ -215,13 +254,26 @@ function threepeas_civicrm_navigationMenu( &$params ) {
             ), 
             '6' => array (
                 'attributes' => array (
+                    'label'      => 'Programs Report',
+                    'name'       => 'Programs Report',
+                    'url'        => '#',
+                    'operator'   => null,
+                    'separator'  => 0,
+                    'parentID'   => $maxKey+1,
+                    'navID'      => 6,
+                    'active'     => 1
+                ),
+                'child' => null
+            ), 
+            '7' => array (
+                'attributes' => array (
                     'label'      => 'Projects Report',
                     'name'       => 'Projects Report',
                     'url'        => '#',
                     'operator'   => null,
                     'separator'  => 1,
                     'parentID'   => $maxKey+1,
-                    'navID'      => 6,
+                    'navID'      => 7,
                     'active'     => 1
                 ),
                 'child' => null

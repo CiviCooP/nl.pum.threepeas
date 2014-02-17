@@ -11,11 +11,11 @@
         <table id="program-table" class="display">
             <thead>
                 <tr>
-                    <th class="sorting" rowspan="1" colspan="1">Title</th>
-                    <th class="sorting" rowspan="1" colspan="1">Program Manager</th>
+                    <th class="sorting-disabled" rowspan="1" colspan="1">Title</th>
+                    <th class="sorting-disabled" rowspan="1" colspan="1">Program Manager</th>
                     <th class="sorting-disabled" rowspan="1" colspan="1">Budget</th>
-                    <th class="sorting" rowspan="1" colspan="1">Start date</th>
-                    <th class="sorting" rowspan="1" colspan="1">End date</th>
+                    <th class="sorting-disabled" rowspan="1" colspan="1">Start date</th>
+                    <th class="sorting-disabled" rowspan="1" colspan="1">End date</th>
                     <th class="sorting-disabled" rowspan="1" colspan="1">Enabled</th>
                     <th class="sorting_disabled" rowspan="1" colspan="1"></th>
                 </tr>
@@ -35,10 +35,10 @@
                         <td>
                             <span>
                                 <a class="action-item" title="View program details" href="{$pumProgramUrl}&action=view&pid={$program.id}">View</a>
-                                <a class="action-item action-item-first" title="Edit program" href="{$pumProgramUrl}&action=edit&pid={$program.id}">Edit</a>
-                                <a class="action-item delete-action" title="Divide budget" href="{$divideProgramUrl}&pid={$program.id}">Divide budget</a>
+                                <a class="action-item" title="Edit program" href="{$pumProgramUrl}&action=edit&pid={$program.id}">Edit</a>
+                                <a class="action-item" title="Divide budget" href="{$divideProgramUrl}&pid={$program.id}">Divide budget</a>
                                 <a class="action-item" title="Drill down program" href="{$drillProgramUrl}&pid={$program.id}">Drill down</a>
-                                <a class="action-item" title="Delete program" href="{$delProgramUrl}&action=delete&pid={$program.id}">Delete</a>
+                                <a class="action-item" title="Delete program" href="{$delProgramUrl}&action=delete&pid={$program.id}&entity=program">Delete</a>
                             </span>
                         </td>
                     </tr>
