@@ -30,7 +30,26 @@ class CRM_Threepeas_PumProject {
      */
     public static function getAllProjects() {
         $result = array();
-        $dao = CRM_Core_DAO::executeQuery("SELECT * FROM civicrm_project ORDER BY program_id");
+        $dao = CRM_Core_DAO::executeQuery("SELECT * FROM civicrm_project 
+            ORDER BY title");
+        while ($dao->fetch()) {
+            $result[$dao->id] = self::_daoToArray($dao);
+        }
+        return $result;
+    }
+    /**
+     * Function to retrieve all active proejcts
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 18 Feb 2014
+     * @return array $result with data
+     * @access public
+     * @static
+     */
+    public static function getAllActiveProjects() {
+        $result = array();
+        $dao = CRM_Core_DAO::executeQuery("SELECT * FROM civicrm_project 
+            WHERE is_active = 1 ORDER BY title");
         while ($dao->fetch()) {
             $result[$dao->id] = self::_daoToArray($dao);
         }
@@ -351,6 +370,53 @@ class CRM_Threepeas_PumProject {
         return;
     }
     /**
+     * Function to add OptionValue for project
+     * 
+     * @author Erik Hommel <erik.hommel@civicoop.org>
+     * @date 18 Feb 2014
+     * @param string $label
+     * @param int $value
+     * @access public
+     * @static
+     */
+    public static function _changeOptionValue($label, $value) {
+        if (empty($label) || empty($value)) {
+            throw new Exception("Label and value can not be empty when adding OptionValue for PUM Project");
+            return;
+        }
+        $optionGroupId = self::_getProjectOptionGroup();
+        if ($optionGroupId != 0) {
+            /*
+             * check if option value already exists and if so get id
+             */
+            $getIdParams = array(
+                'option_group_id'   =>  $optionGroupId,
+                'value'             =>  $value,
+                'return'            =>  "id"
+            );
+            try {
+                $optionValueId = civicrm_api3('OptionValue', 'Getvalue', $getIdParams);
+                $createParams = array(
+                    'id'                =>  $optionValueId,
+                    'option_group_id'   =>  $optionGroupId,
+                    'label'             =>  $label,
+                    'value'             =>  $value,
+                    'is_active'         =>  1,
+                    'is_reserved'       =>  1
+                );
+            } catch (CiviCRM_API3_Exception $e) {
+                $createParams = array(
+                    'option_group_id'   =>  $optionGroupId,
+                    'label'             =>  $label,
+                    'value'             =>  $value,
+                    'is_active'         =>  1,
+                    'is_reserved'       =>  1
+                );
+            }
+            civicrm_api3('OptionValue', 'Create', $createParams);
+        }
+    }
+    /**
      * Function to populate array with dao
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
@@ -405,6 +471,28 @@ class CRM_Threepeas_PumProject {
             $result['is_active'] = $dao->is_active;
         }
         return $result;
+    }
+    /**
+     * Function to retrieve option_group_id of pum_project
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 18 Feb 2014
+     * @return int $optionGroupId
+     * @access private
+     * @static
+     */
+    private static function _getProjectOptionGroup() {
+        $apiParams = array(
+            'name'      =>  "pum_project",
+            'return'    =>  "id"
+        );
+        try {
+            $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', $apiParams);
+        } catch (CiviCRM_API3_Exception $e) {
+            throw new Exception("Could not find OptionGroup for pum_project");
+            $optionGroupId = 0;
+        }
+        return $optionGroupId;
     }
 }
 

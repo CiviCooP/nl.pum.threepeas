@@ -30,46 +30,27 @@
       <name>Email</name>
     </ActivityType>
     <ActivityType>
-      <name>TestEH</name>
-    </ActivityType>
-    <ActivityType>
       <name>Phone Call</name>
     </ActivityType>
 
   </ActivityTypes>
-
-  <ActivitySets>
+<ActivitySets>
     <ActivitySet>
       <name>standard_timeline</name>
-      <label>Standard Timeline</label>
+      <label>Standaard Tijdlijn</label>
       <timeline>true</timeline>
       <ActivityTypes>
         <ActivityType>
           <name>Open Case</name>
           <status>Completed</status>
         </ActivityType>
-        <ActivityType>
-          <name>Phone Call</name>
-          <reference_offset>1</reference_offset>
-          <reference_select>newest</reference_select>
-        </ActivityType>
-        <ActivityType>
-          <name>Follow up</name>
-          <reference_offset>7</reference_offset>
-          <reference_select>newest</reference_select>
-        </ActivityType>
       </ActivityTypes>
     </ActivitySet>
-  </ActivitySets>
+  </ActivitySets> 
 
   <CaseRoles>
     <RelationshipType>
       <name>Case Coordinator</name>
-      <creator>1</creator>
-      <manager>1</manager>
-    </RelationshipType>
-    <RelationshipType>
-      <name>Product Coordinator</name>
       <creator>1</creator>
       <manager>1</manager>
     </RelationshipType>

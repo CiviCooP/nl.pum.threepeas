@@ -42,11 +42,56 @@ function threepeas_civicrm_uninstall() {
 
 /**
  * Implementation of hook_civicrm_enable
+ * - populate option values table for PUM projects with PUM projects if 
+ *   they do not exist yet
  *
+ * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+ * @date 18 Feb 2014
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
 function threepeas_civicrm_enable() {
-  return _threepeas_civix_civicrm_enable();
+    require_once 'CRM/Threepeas/PumProject.php';
+    /*
+     * retrieve option group for pum_project
+     */
+    try {
+        $optionGroup = civicrm_api3('OptionGroup', 'Getsingle', array('name' => "pum_project"));
+        $optionGroupId = $optionGroup['id'];
+    } catch (CiviCRM_API3_Exception $e) {
+        return _threepeas_civix_civicrm_enable();
+    }
+    if ($optionGroupId) {
+        /*
+         * remove all existing option values (directly in database because\
+         * API would force me to do record by record
+         */
+        $delQuery = "DELETE FROM civicrm_option_value WHERE option_group_id = $optionGroupId";
+        CRM_Core_DAO::executeQuery($delQuery);
+        
+        /*
+         * retrieve all active projects and add option values
+         */
+        $noneParams = array(
+            'option_group_id'   =>  $optionGroupId,
+            'value'             =>  0,
+            'label'             =>  '- none',
+            'is_active'         =>  1,
+            'is_reserved'       =>  1
+        );
+        civicrm_api3('OptionValue', 'Create', $noneParams);
+        $pumActiveProjects = CRM_Threepeas_PumProject::getAllActiveProjects();
+        foreach ($pumActiveProjects as $projectId => $activeProject) {
+                $createParams = array(
+                    'option_group_id'   =>  $optionGroupId,
+                    'value'             =>  $projectId,
+                    'label'             =>  $activeProject['title'],
+                    'is_active'         =>  1,
+                    'is_reserved'       =>  1
+                );
+                civicrm_api3('OptionValue', 'Create', $createParams);
+        }
+    }
+    return _threepeas_civix_civicrm_enable();
 }
 
 /**
@@ -243,7 +288,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
                 'attributes' => array (
                     'label'      => 'List Products',
                     'name'       => 'List Products',
-                    'url'        => 'civicrm/productlist',
+                    'url'        => 'civicrm/case/search&reset=1',
                     'operator'   => null,
                     'separator'  => 0,
                     'parentID'   => $maxKey+1,
@@ -280,4 +325,35 @@ function threepeas_civicrm_navigationMenu( &$params ) {
             ) 
         ), 
     );
+}
+/**
+ * Implementation of hook_civicrm_buildForm
+ * 
+ * - add parent select to open case
+ * 
+ * @author Erik Hommel (erik.hommel@civicoop.org)
+ * @date 17 Feb 2014
+ * @param string $formName (name of the form)
+ *        object $form
+ */
+function threepeas_civicrm_buildForm($formName, &$form) {
+    /*
+     * Include case parent for Case
+     */
+    if ($formName == "CRM_Case_Form_Case") {
+        $pumProjects = CRM_Threepeas_PumProject::getAllProjects();
+        $projects = array();
+        foreach ($pumProjects as $pumProjectId => $pumProject) {
+            $projects[$pumProjectId] = $pumProject['title'];
+        }
+        $projects[0] = "- none";
+        asort($projects);
+        $form->addElement('select', 'pumProjects', ts('Part of Project'), $projects);
+        $action = $form->getVar('_action');
+        if ($action == 2) {
+            $defaults = array('pumProjects' => 3);
+            $form->setDefaults($defaults);
+        }
+    }
+
 }

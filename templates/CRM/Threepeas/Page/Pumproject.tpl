@@ -26,12 +26,12 @@
         <table class="form-layout-compressed">
             <tbody>
                 <tr>
-                    <td class="label">{$labels.projectTitle}</td>
-                    <td>{$projectTitle}</td>
-                </tr>
-                <tr>
                     <td class="label">{$labels.projectProgram}</td>
                     <td>{$projectProgram}</td>
+                </tr>
+                <tr>
+                    <td class="label">{$labels.projectTitle}</td>
+                    <td>{$projectTitle}</td>
                 </tr>
                 <tr>
                     <td class="label">{$labels.projectReason}</td>
