@@ -18,6 +18,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
     protected $_redirectUrl = "";
     protected $_submitButton = "";
     protected $_data = array();
+    protected $_requestURL = "";
     /**
      * standard CivCRM page function run
      */
@@ -26,14 +27,15 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
             $session = CRM_Core_Session::singleton();
         }
         /*
-         * retrieve data from $_POST
+         * retrieve data from $_REQUEST
          */
-        $this->retrievePostData();
+        $this->retrieveRequestData();
         /*
          * determine further processing based on entity/action
          */
         if ($this->_submitButton == "Save" || $this->_submitButton == 
-                "Save and divide budget") {
+                "Save and divide budget" || $this->_action == "disable" ||
+                $this->_action == "delete") {
             switch ($this->_entity) {
                 case "program":
                     $entityParams = $this->setProgramData();
@@ -45,6 +47,22 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                         case "edit":
                             $session->setStatus(ts("Program saved succesfully."), ts("Saved"), 'success');
                             CRM_Threepeas_PumProgram::update($entityParams);
+                            break;
+                        case "disable":
+                            $session->setStatus(ts("Program disabled succesfully."), ts("Disabled"), 'success');
+                            CRM_Threepeas_PumProgram::disable($entityParams['program_id']);
+                            break;
+                        case "delete":
+                            /*
+                             * check if program can be deleted
+                             */
+                            $programDeletable = CRM_Threepeas_PumProgram::checkProgramDeleteable($entityParams['program_id']);
+                            if ($programDeletable == FALSE) {
+                                $session->setStatus(ts("Program can not be deleted, has projects attached"), ts("Cancelled"), 'error');
+                            } else {
+                                $session->setStatus(ts("Program succesfully deleted"), ts("Deleted"), 'success');
+                                CRM_Threepeas_PumProgram::delete($entityParams['program_id']);
+                            }
                             break;
                     }
                     break;
@@ -68,19 +86,21 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
         //parent::run();
     }
     /**
-     * Function to retrieve data from POST
+     * Function to retrieve data from REQUEST
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 11 Feb 2014
      * @access private
      */
-    private function retrievePostData() {
-        if (!empty($_POST)) {
-            foreach ($_POST as $postKey => $postValue) {
-                switch($postKey) {
+    private function retrieveRequestData() {
+        CRM_Core_Error::debug("request", $_REQUEST);
+        exit();
+        if (!empty($_REQUEST)) {
+            foreach ($_REQUEST as $requestKey => $requestValue) {
+                switch($requestKey) {
                     case "pumEntity":
-                        $this->_entity = trim(strip_tags($postValue));
-                        switch($postValue) {
+                        $this->_entity = trim(strip_tags($requestValue));
+                        switch($requestValue) {
                             case "program":
                                 $this->_redirectUrl = CRM_Utils_System::url
                                     ('civicrm/programlist', null, TRUE);
@@ -91,21 +111,23 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                         }
                         break;
                     case "pumAction":
-                        $this->_action = trim(strip_tags($postValue));
+                        $this->_action = trim(strip_tags($requestValue));
                         break;
                     case "saveProgram":
-                        $this->_submitButton = trim(strip_tags($postValue));
+                        $this->_submitButton = trim(strip_tags($requestValue));
                         break;
                     case "saveProject":
-                        $this->_submitButton = trim(strip_tags($postValue));
+                        $this->_submitButton = trim(strip_tags($requestValue));
+                        break;
+                    case "q":
+                        $this->_requestURL = $requestValue;
                         break;
                     default:
-                        $this->_data[$postKey] = $postValue;
+                        $this->_data[$requestKey] = $requestValue;
                 }
             }
         }
-        unset($_POST);
-        unset($_REQUEST);
+        unset($_POST, $_REQUEST, $_GET);
     }
     /**
      * Function to set the fields in $this->_data into params for program

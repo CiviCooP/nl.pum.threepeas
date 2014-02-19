@@ -12,7 +12,7 @@
 require_once 'CRM/Core/Page.php';
 
 class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
-    protected $_action = "";
+    protected $_action = 0;
     protected $_programId = 0;
     protected $_programManagerGroup = 0;
     
@@ -114,6 +114,27 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
             $activeHtml = "<tt>[ ]</tt>";
         }
         $this->assign('programIsActive', $activeHtml);
+        /*
+         * retrieve list of program divisions for program
+         */
+        $divisionParams['program_id'] = $pumProgram['id'];
+        $programDivisions = CRM_Threepeas_PumProgramDivision::getAllProgamDivisionsForProgram($divisionParams);
+        $displayDivisions = array();
+        foreach($programDivisions as $programDivision) {
+            $displayDivision = array();
+            $countryParams = array(
+                'id'        =>  $programDivision['country_id'],
+                'return'    =>  "name"
+            );
+            $displayDivision['country'] = civicrm_api3('Country', 'Getvalue', $countryParams);
+            $displayDivision['min_projects'] = $programDivision['min_projects'];
+            $displayDivision['max_projects'] = $programDivision['max_projects'];
+            $displayDivision['min_budget'] = CRM_Utils_Money::format($programDivision['min_budget']);
+            $displayDivision['max_budget'] = CRM_Utils_Money::format($programDivision['max_budget']);
+            $displayDivisions[] = $displayDivision;
+            
+        }
+        $this->assign('programDivisions', $displayDivisions);
     }
     /**
      * Function to build page for add action

@@ -202,6 +202,10 @@ class CRM_Threepeas_PumProject {
             if ($dao->fetch()) {
                 $projectId = $dao->latest_id;
             }
+            /*
+             * add OptionValue for project
+             */
+            self::_changeOptionValue($title, $projectId);
         }
         return $projectId;
     }
@@ -324,6 +328,7 @@ class CRM_Threepeas_PumProject {
             $update = "UPDATE civicrm_project SET ".implode(", ", $fields).
                 " WHERE id = $projectId";
             CRM_Core_DAO::executeQuery($update);
+            self::_changeOptionValue($title, $projectId);            
             $result = self::getProjectById($projectId);
         }
         return $result;
@@ -361,7 +366,6 @@ class CRM_Threepeas_PumProject {
      * @static
      */
     public static function disable($projectId) {
-        return;
         if (empty($projectId) || !is_numeric($projectId)) {
             throw new Exception("Project_id can not be empty and has to be numeric");
         }
@@ -370,16 +374,38 @@ class CRM_Threepeas_PumProject {
         return;
     }
     /**
+     * Function to retrieve all projects for a program
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 18 Feb 2014
+     * @param int $programId
+     * @return array $result
+     * @access public
+     * @static
+     */
+    public static function getAllProjectsByProgramId($programId) {
+        $result = array();
+        if (empty($programId) || !is_numeric($programId)) {
+            return $result;
+        }
+        $query = "SELECT * FROM civicrm_project WHERE program_id = $programId";
+        $dao = CRM_Core_DAO::executeQuery($query);
+        while ($dao->fetch()) {
+            $result[] = self::_daoToArray($dao);
+        }
+        return $result;
+    }
+    /**
      * Function to add OptionValue for project
      * 
      * @author Erik Hommel <erik.hommel@civicoop.org>
      * @date 18 Feb 2014
      * @param string $label
      * @param int $value
-     * @access public
+     * @access private
      * @static
      */
-    public static function _changeOptionValue($label, $value) {
+    private static function _changeOptionValue($label, $value) {
         if (empty($label) || empty($value)) {
             throw new Exception("Label and value can not be empty when adding OptionValue for PUM Project");
             return;

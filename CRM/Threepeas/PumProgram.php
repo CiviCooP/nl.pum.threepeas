@@ -338,7 +338,6 @@ class CRM_Threepeas_PumProgram {
      * @static
      */
     public static function disable($programId) {
-        return;
         if (empty($programId) || !is_numeric($programId)) {
             throw new Exception("Program_id can not be empty and has to be numeric");
         }
@@ -385,8 +384,10 @@ class CRM_Threepeas_PumProgram {
             }
             $programId = self::getProgramIdWithTitle($params['title']);
         }
-        $result = CRM_Threepeas_PumProject::getAllProjectsByProgramId($programId);
-        return $result;
+        if ($programId) {
+            $result = CRM_Threepeas_PumProject::getAllProjectsByProgramId($programId);
+            return $result;
+        }
     }
     /**
      * Function to get the program id with title
@@ -432,6 +433,31 @@ class CRM_Threepeas_PumProgram {
             $programTitle = $dao->title;
         }
         return $programTitle;
+    }
+    /**
+     * Function to check if a program can be deleted. Will return TRUE
+     * if there are no project children for the program
+     * 
+     * @author Erik Hommel
+     * @date 18 Feb 2014
+     * @param int $programId
+     * @return boolean
+     * @throws Exception when programId non-numeric or empty
+     * @access public
+     * @static
+     */
+    public static function checkProgramDeletable($programId) {
+        if (empty($programId) || !is_numeric($programId)) {
+            throw new Exception("ProgramId can not be empty or non numeric to check 
+                if the program can be deletend");
+            return FALSE;
+        }
+        $programProjects = CRM_Threepeas_PumProject::getAllProjectsByProgramId($programId);
+        if (empty($programProjects)) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
     }
     /**
      * Function to populate array with dao
@@ -481,4 +507,3 @@ class CRM_Threepeas_PumProgram {
         return $result;
     }
 }
-

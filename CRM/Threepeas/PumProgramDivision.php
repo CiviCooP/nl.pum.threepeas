@@ -222,7 +222,7 @@ class CRM_Threepeas_PumProgramDivision {
         /*
          * program_id or title is mandatory
          */
-        if (!isset($params['program_id']) || !isset($params['title'])) {
+        if (!isset($params['program_id']) && !isset($params['title'])) {
             throw new Exception("Params has to contain program_id or title");
             return $result;
         }

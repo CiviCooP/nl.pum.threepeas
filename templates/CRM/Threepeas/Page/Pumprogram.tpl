@@ -86,6 +86,9 @@
                 </tr>
             </tbody>
         </table>
+        {if $action eq 'view'}
+            {include file="CRM/Threepeas/Page/CurrentProgramDivisions.tpl"}
+        {/if}                
         <div class="crm-submit-buttons">
             {if $action eq 'view'}
                 <span class="crm-button">
@@ -105,4 +108,3 @@
         </div>
     </div>
 </form>
-
