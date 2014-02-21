@@ -134,7 +134,7 @@ class CRM_Threepeas_Page_Pumprogram extends CRM_Core_Page {
             $displayDivisions[] = $displayDivision;
             
         }
-        $this->assign('programDivisions', $displayDivisions);
+        $this->assign('pumProgramDivisions', $displayDivisions);
     }
     /**
      * Function to build page for add action

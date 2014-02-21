@@ -5,20 +5,22 @@ require_once 'CRM/Core/Page.php';
 class CRM_Threepeas_Page_Pumprogramdivision extends CRM_Core_Page {
     protected $_programId = 0;
     protected $_action = 0;
-    protected $_source = "";
     
     function run() {
         CRM_Utils_System::setTitle(ts('Program Budget Division'));
         
         $this->_action = CRM_Utils_Request::retrieve('action', 'String', $this);
         $this->_programId = CRM_Utils_Request::retrieve('pid', 'Positive', $this);
-        $this->_source = CRM_Utils_Request::retrieve('src', 'String', $this);
-        $doneUrl = "civicrm/".$this->_source;
-        $this->assign("doneUrl", CRM_Utils_System::url($doneUrl, null, true));
+        
+        $this->assign("doneUrl", CRM_Utils_System::url("civicrm/programdivision", null, true));
 
         $submitUrl = CRM_Utils_System::url('civicrm/actionprocess', null, true)
-            ."&pumAction=add&pumEntity=BudgetDivision";
+            ."&pumAction=add&pumEntity=budgetdivision";
         $this->assign('submitUrl', $submitUrl);
+        
+        $deleteUrl = CRM_Utils_System::url('civicrm/actionprocess', null, true)
+            ."&pumAction=delete&pumEntity=budgetdivision";
+        $this->assign('delProgramDivisionUrl', $deleteUrl);
 
         /*
          * retrieve and display program details

@@ -1,13 +1,11 @@
 <h3>Program Details And Budget Division</h3>
 <form id="program-division" name="ProgramDivision" method="post" action={$submitUrl}>
+    <input type="hidden" name="programId" value={$programId}>
     <div class="crm-block crm-form-block">
         <div class="action-link">
             <div id="program-wrapper" class="dataTables_wrapper">
                 <table id="program-table" class="form-layout-compressed">
                     <tbody>
-                        <tr>
-                            <td hidden="1">{$programId}</td>
-                        </tr>
                         <tr>
                             <td>Program title:</td>
                             <td>{$programTitle}</td>

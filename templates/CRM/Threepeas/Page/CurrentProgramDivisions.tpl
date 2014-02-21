@@ -22,9 +22,11 @@
                 <td>{$programDivision.max_budget}</td>
                 <td>{$programDivision.min_budget}</td>
                 <td>
-                    <span>
-                        <a class="action-item" title="Delete dvision" href="{$delProgramDivisionUrl}&action=delete&pid={$programDivision.id}">Delete</a>
-                    </span>
+                    {if $action ne "view"}
+                        <span>
+                            <a class="action-item" title="Delete division" href="{$delProgramDivisionUrl}&action=delete&pid={$programDivision.id}">Delete</a>
+                        </span>
+                    {/if}
                 </td>
             </tr>
             {if $rowClass eq "odd-row"}
