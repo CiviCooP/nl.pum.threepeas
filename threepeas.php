@@ -24,11 +24,31 @@ function threepeas_civicrm_xmlMenu(&$files) {
 
 /**
  * Implementation of hook_civicrm_install
+ * 
+ * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+ * @date 25 Feb 2014
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
 function threepeas_civicrm_install() {
-  return _threepeas_civix_civicrm_install();
+    /*
+     * only install if PUM generic extension active
+     */
+    $localExtensions = civicrm_api3('Extension', 'Get', array());
+    $genericInstalled = FALSE;
+    foreach($localExtensions['values'] as $localExtension) {
+        if ($localExtension['key'] == "nl.pum.generic") {
+            if ($localExtension['is_active'] == 1) {
+                $genericInstalled = TRUE;
+            }
+        }
+    }
+    if ($genericInstalled == FALSE) {
+        throw new Exception("The extension nl.pum.generic has to be installed before 
+            the extension nl.pum.threepeas can be installed");
+        return;
+    }
+    return _threepeas_civix_civicrm_install();
 }
 
 /**
@@ -325,35 +345,4 @@ function threepeas_civicrm_navigationMenu( &$params ) {
             ) 
         ), 
     );
-}
-/**
- * Implementation of hook_civicrm_buildForm
- * 
- * - add parent select to open case
- * 
- * @author Erik Hommel (erik.hommel@civicoop.org)
- * @date 17 Feb 2014
- * @param string $formName (name of the form)
- *        object $form
- */
-function threepeas_civicrm_buildForm($formName, &$form) {
-    /*
-     * Include case parent for Case
-     */
-    if ($formName == "CRM_Case_Form_Case") {
-        $pumProjects = CRM_Threepeas_PumProject::getAllProjects();
-        $projects = array();
-        foreach ($pumProjects as $pumProjectId => $pumProject) {
-            $projects[$pumProjectId] = $pumProject['title'];
-        }
-        $projects[0] = "- none";
-        asort($projects);
-        $form->addElement('select', 'pumProjects', ts('Part of Project'), $projects);
-        $action = $form->getVar('_action');
-        if ($action == 2) {
-            $defaults = array('pumProjects' => 3);
-            $form->setDefaults($defaults);
-        }
-    }
-
 }

@@ -16,12 +16,16 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
      * 
      */
     public function install() {       
-        if (!CRM_Core_DAO::checkTableExists('civicrm_campaign_type_parent')) {
-            $this->executeSqlFile('sql/createCampaignTypeParent.sql');
+        if (!CRM_Core_DAO::checkTableExists('civicrm_program')) {
+            $this->executeSqlFile('sql/createProgram.sql');
+        }
+
+        if (!CRM_Core_DAO::checkTableExists('civicrm_program_division')) {
+            $this->executeSqlFile('sql/createProgramDivision.sql');
         }
         
-        if (!CRM_Core_DAO::checkTableExists('civicrm_campaign_parent')) {
-            $this->executeSqlFile('sql/createCampaignParent.sql');
+        if (!CRM_Core_DAO::checkTableExists('civicrm_project')) {
+            $this->executeSqlFile('sql/createProject.sql');
         }
     }
 }
