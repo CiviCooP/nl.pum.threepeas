@@ -38,12 +38,14 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
             } else {
                 $displayProgramme['is_active'] = ts("No");
             }
-            $displayProgramme['contact_id_manager'] = $programme['contact_id_manager'];
-            $contactParams = array(
-                'id'     =>  $programme['contact_id_manager'],
-                'return' =>  'display_name'
-            );
-            $displayProgramme['manager_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
+            if (isset($programme['contact_id_manager']) && !empty($programme['contact_id_manager'])) {
+                $displayProgramme['contact_id_manager'] = $programme['contact_id_manager'];
+                $contactParams = array(
+                    'id'     =>  $programme['contact_id_manager'],
+                    'return' =>  'display_name'
+                );
+                $displayProgramme['manager_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
+            }
             $displayProgrammes[] = $displayProgramme;
         }
         $this->assign('pumProgrammes', $displayProgrammes);

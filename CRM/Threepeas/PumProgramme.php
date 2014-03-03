@@ -122,22 +122,26 @@ class CRM_Threepeas_PumProgramme {
         }
 
         if (isset($params['contact_id_manager'])) {
-            if (!is_numeric($params['contact_id_manager'])) {
-                throw new Exception("Param contact_id_manager has to be numeric 
-                    but holds ".$params['contact_id_manager']);
-                return $programmeId;
-            } else {
-                $fields[] = "contact_id_manager = {$params['contact_id_manager']}";
+            if (!empty($params['contact_id_manager'])) {
+                if (!is_numeric($params['contact_id_manager'])) {
+                    throw new Exception("Param contact_id_manager has to be numeric 
+                        but holds ".$params['contact_id_manager']);
+                    return $programmeId;
+                } else {
+                    $fields[] = "contact_id_manager = {$params['contact_id_manager']}";
+                }
             }
         }
 
         if (isset($params['budget'])) {
-            if (!is_numeric($params['budget'])) {
-                throw new Exception("Param budget has to be numeric but holds ".
-                    $params['budget']);
-                return $programmeId;
-            } else {
-                $fields[] = "budget = {$params['budget']}";
+            if (!empty($params['budget'])) {
+                if (!is_numeric($params['budget'])) {
+                    throw new Exception("Param budget has to be numeric but holds ".
+                        $params['budget']);
+                    return $programmeId;
+                } else {
+                    $fields[] = "budget = {$params['budget']}";
+                }
             }
         }
         

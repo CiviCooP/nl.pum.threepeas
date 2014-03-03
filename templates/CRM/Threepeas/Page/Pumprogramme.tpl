@@ -16,7 +16,7 @@
                 </span>
             {else}
                 <span class="crm-button">
-                    <input id="save-done-programme" class="validate form-submit default" type="submit" value="Save" name="saveProgramme" accesskey="S">
+                    <input id="save-done-programme" class="validate form-submit default" type="submit" value="Save" name="saveProgramme" onclick="valForm()" accesskey="S">
                 </span>
                 <span class="crm-button">
                     <input id="save-divide-programme" class="validate form-submit default" type="submit" value="Save and divide budget" name="saveProgramme">
@@ -108,3 +108,15 @@
         </div>
     </div>
 </form>
+{literal}
+    <script type="text/javascript">
+    cj("form").submit(function($) {
+        if (!cj('#programme-title').val()) {
+            CRM.alert("Programme title can not be empty!", 'Programme Title empty', 'error');
+            $.preventDefault();
+        } else {
+            return true;
+        }
+    });
+    </script>
+{/literal}
