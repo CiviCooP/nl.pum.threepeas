@@ -38,8 +38,8 @@
                                 <a class="action-item" title="Edit programme" href="{$pumProgrammeUrl}&action=edit&pid={$programme.id}">Edit</a>
                                 <a class="action-item" title="Divide budget" href="{$divideProgrammeUrl}&pid={$programme.id}&src=programmelist">Divide budget</a>
                                 <a class="action-item" title="Drill down programme" href="{$drillProgrammeUrl}&pid={$programme.id}">Drill down</a>
-                                <a class="action-item" title="Disable programme" href="{$delProgrammeUrl}&pumAction=disable&programmeId={$programme.id}&pumEntity=program">Disable</a>
-                                <a class="action-item" title="Delete programme" href="{$delProgrammeUrl}&pumAction=delete&programmeId={$programme.id}&pumEntity=program">Delete</a>
+                                <a class="action-item" title="Disable programme" href="{$delProgrammeUrl}&pumAction=disable&programmeId={$programme.id}&pumEntity=programme">Disable</a>
+                                <a class="action-item" title="Delete programme" href="{$delProgrammeUrl}&pumAction=delete&programmeId={$programme.id}&pumEntity=programme">Delete</a>
                             </span>
                         </td>
                     </tr>

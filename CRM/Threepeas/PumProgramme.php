@@ -450,7 +450,7 @@ class CRM_Threepeas_PumProgramme {
      * @access public
      * @static
      */
-    public static function checkProgrammeDeletable($programmeId) {
+    public static function checkProgrammeDeleteable($programmeId) {
         if (empty($programmeId) || !is_numeric($programmeId)) {
             throw new Exception("ProgrammeId can not be empty or non numeric to check 
                 if the programme can be deletend");

@@ -74,7 +74,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                                 /*
                                  * check if program can be deleted
                                  */
-                                $programDeletable = CRM_Threepeas_PumProgramme::checkProgrammeDeleteable($entityParams['programme_id']);
+                                $programmeDeletable = CRM_Threepeas_PumProgramme::checkProgrammeDeleteable($entityParams['programme_id']);
                                 if ($programmeDeletable == FALSE) {
                                     $session->setStatus(ts("Programme can not be deleted, has projects attached"), ts("Cancelled"), 'error');
                                 } else {

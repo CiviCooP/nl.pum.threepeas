@@ -112,9 +112,10 @@
     <script type="text/javascript">
     cj("form").submit(function($) {
         if (!cj('#programme-title').val()) {
-            CRM.alert("Programme title can not be empty!", 'Programme Title empty', 'error');
+            CRM.alert("Programme title can not be empty!", "Validate Error", "error");
             $.preventDefault();
         } else {
+            
             return true;
         }
     });
