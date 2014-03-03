@@ -155,7 +155,7 @@ class CRM_Threepeas_PumProgramme {
             if (!empty($params['start_date'])) {
                 $startDate = date("Ymd", strtotime($params['start_date']));
             } else {
-                $startDate = "";
+                $startDate = NULL;
             }
             $fields[] = "start_date = '$startDate'";
         }
@@ -164,7 +164,7 @@ class CRM_Threepeas_PumProgramme {
             if (!empty($params['end_date'])) {
                 $endDate = date("Ymd", strtotime($params['end_date']));
             } else {
-                $endDate = "";
+                $endDate = NULL;
             }
             $fields[] = "end_date = '$endDate'";
         }
@@ -274,7 +274,7 @@ class CRM_Threepeas_PumProgramme {
             if (!empty($params['start_date'])) {
                 $startDate = date("Ymd", strtotime($params['start_date']));
             } else {
-                $startDate = "";
+                $startDate = NULL;
             }
             $fields[] = "start_date = '$startDate'";
         }
@@ -283,7 +283,7 @@ class CRM_Threepeas_PumProgramme {
             if (!empty($params['end_date'])) {
                 $endDate = date("Ymd", strtotime($params['end_date']));
             } else {
-                $endDate = "";
+                $endDate = NULL;
             }
             $fields[] = "end_date = '$endDate'";
         }

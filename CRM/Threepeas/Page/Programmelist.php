@@ -23,8 +23,16 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
             $displayProgramme['id'] = $programme['id'];
             $displayProgramme['title'] = $programme['title'];
             $displayProgramme['budget'] = CRM_Utils_Money::format($programme['budget']);
-            $displayProgramme['start_date'] = date("d-m-Y", strtotime($programme['start_date']));
-            $displayProgramme['end_date'] = date("d-m-Y", strtotime($programme['end_date']));
+            if (isset($programme['start_date'])) {
+                $displayProgramme['start_date'] = date("d-m-Y", strtotime($programme['start_date']));
+            } else {
+                $displayProgramme['start_date'] = NULL;
+            }
+            if (isset($programme['end_date'])) {
+                $displayProgramme['end_date'] = date("d-m-Y", strtotime($programme['end_date']));
+            } else {
+                $displayProgramma['end_date'] = NULL;
+            }
             if ($programme['is_active'] == 1) {
                 $displayProgramme['is_active'] = ts("Yes");
             } else {
