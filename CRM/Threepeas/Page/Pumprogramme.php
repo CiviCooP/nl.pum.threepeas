@@ -57,7 +57,7 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
      * @param array $pumProgramme
      * @access private
      */
-    private function buildPageView($pumProgram) {
+    private function buildPageView($pumProgramme) {
         $doneUrl = CRM_Utils_System::url('civicrm/programmelist', null, true);
         $this->assign('doneUrl', $doneUrl);
         
@@ -189,10 +189,10 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 10 Feb 2014
-     * @param array $pumProgram
+     * @param array $pumProgramme
      * @access private
      */
-    private function buildPageEdit($pumProgram) {
+    private function buildPageEdit($pumProgramme) {
         $this->assign('action', 'edit');
         $this->assign('programmeId', $this->_programmeId);
         
@@ -243,8 +243,13 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
         }
         $this->assign('programmeIsActive', $enabledHtml);
         
-        $this->assign('displayStartDate', date("d-m-Y", strtotime($pumProgramme['start_date'])));
-        $this->assign('displayEndDate', date("d-m-Y", strtotime($pumProgramme['end_date'])));
+        if (isset($pumProgramme['start_date']) && !empty($pumProgramme['start_date'])) {
+            $this->assign('displayStartDate', date("d-m-Y", strtotime($pumProgramme['start_date'])));
+        }
+        
+        if (isset($pumProgramme['end_date']) && !empty($pumProgramme['end_date'])) {
+            $this->assign('displayEndDate', date("d-m-Y", strtotime($pumProgramme['end_date'])));
+        }
 
     }
     /**
