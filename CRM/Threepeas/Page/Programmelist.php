@@ -31,7 +31,7 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
             if (isset($programme['end_date'])) {
                 $displayProgramme['end_date'] = date("d-m-Y", strtotime($programme['end_date']));
             } else {
-                $displayProgramma['end_date'] = NULL;
+                $displayProgramme['end_date'] = NULL;
             }
             if ($programme['is_active'] == 1) {
                 $displayProgramme['is_active'] = ts("Yes");
