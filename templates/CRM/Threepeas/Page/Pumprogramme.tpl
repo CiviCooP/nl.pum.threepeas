@@ -1,5 +1,5 @@
 <h3>{$action|capitalize} Program</h3>
-<form id="programme-edit" name="Programme" method="post" action={$submitProgramUrl}>
+<form id="programme-edit" name="Programme" method="post" action={$submitProgrammeUrl}>
     
     {* hidden fields to pass on entity and action to processing class *}
     <input type="hidden" name= "pumEntity" value="programme">

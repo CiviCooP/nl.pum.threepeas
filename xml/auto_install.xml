@@ -4,7 +4,7 @@
   <CustomGroups>
     <CustomGroup>
       <name>caseProject</name>
-      <title>caseProject</title>
+      <title>PUM Project</title>
       <extends>Case</extends>
       <style>Inline</style>
       <collapse_display>1</collapse_display>

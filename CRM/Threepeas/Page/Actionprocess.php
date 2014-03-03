@@ -40,7 +40,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
             if (in_array($this->_entity, $validEntities)) {
                 switch ($this->_entity) {
                     case "programme":
-                        $entityParams = $this->setProgramData();
+                        $entityParams = $this->setProgrammeData();
                         switch ($this->_action) {
                             case "add":
                                 $session->setStatus(ts("Programme added succesfully."), ts("Added"), 'success');
@@ -175,6 +175,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
      * @access private
      */
     private function setProgrammeData() {
+       CRM_Core_Error::debug("data", $this->_data);
         $result = array();
         if (empty($this->_data)) {
             return $result;
@@ -202,10 +203,18 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                     $result['requirements'] = $dataValue;
                     break;
                 case "programmeStartDate":
-                    $result['start_date'] = $dataValue;
+                    if (empty($dataValue)) {
+                        $result['start_date'] = "";
+                    } else {
+                        $result['start_date'] = $dataValue;
+                    }
                     break;
                 case "programmeEndDate":
-                    $result['end_date'] = $dataValue;
+                    if (empty($dataValue)) {
+                        $result['end_date'] = "";
+                    } else {
+                        $result['end_date'] = $dataValue;
+                    }
                     break;
             }
         }
@@ -215,6 +224,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                 $result['is_active'] = 1;
             }
         }
+        exit();
         return $result;
     }
     /**

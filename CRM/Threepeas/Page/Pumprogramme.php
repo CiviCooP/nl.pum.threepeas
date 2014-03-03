@@ -156,8 +156,7 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
             name="programmeTitle" size="80" maxlength="80">';
         $this->assign('programmeTitle', $titleHtml);
         
-        $descriptionHtml='<textarea name="programmeDescription" rows="3" cols="80">
-            </textarea>';
+        $descriptionHtml='<textarea name="programmeDescription" rows="3" cols="80"></textarea>';
         $this->assign('programmeDescription', $descriptionHtml);
         
         $programmeManagerHtml = '<select id="programme-manager" name="programmeManager" 
@@ -178,8 +177,7 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
         $goalsHtml='<textarea name="programmeGoals" rows="3" cols="80"></textarea>';
         $this->assign('programmeGoals', $goalsHtml);
         
-        $requirementsHtml='<textarea name="programmeRequirements" rows="3" cols="80">
-            </textarea>';
+        $requirementsHtml='<textarea name="programmeRequirements" rows="3" cols="80"></textarea>';
         $this->assign('programmeRequirements', $requirementsHtml);
 
         $enabledHtml = '<input id="programmeIsActive" class="form-checkbox" type="checkbox" 
@@ -208,8 +206,7 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
             name="programmeTitle" value="'.$pumProgramme['title'].'">';
         $this->assign('programmeTitle', $titleHtml);
         
-        $descriptionHtml='<textarea name="programmeDescription" rows="3" cols="80">'
-            .$pumProgramme['description'].'</textarea>';
+        $descriptionHtml='<textarea name="programmeDescription" rows="3" cols="80">'.$pumProgramme['description'].'</textarea>';
         $this->assign('programmeDescription', $descriptionHtml);
         
         $programmeManagerHtml = '<select id="programme-manager" name="programmeManager" 
@@ -231,12 +228,10 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
             name="programmeBudget" value="'.$pumProgramme['budget'].'">';
         $this->assign('programmeBudget', $budgetHtml);
 
-        $goalsHtml='<textarea name="programmeGoals" rows="3" cols="80">'
-            .$pumProgramme['goals'].'</textarea>';
+        $goalsHtml='<textarea name="programmeGoals" rows="3" cols="80">'.$pumProgramme['goals'].'</textarea>';
         $this->assign('programmeGoals', $goalsHtml);
         
-        $requirementsHtml='<textarea name="programmeRequirements" rows="3" cols="80">'
-            .$pumProgramme['requirements'].'</textarea>';
+        $requirementsHtml='<textarea name="programmeRequirements" rows="3" cols="80">'.$pumProgramme['requirements'].'</textarea>';
         $this->assign('programmeRequirements', $requirementsHtml);
 
         if (!isset($pumProgramme['is_active']) || $pumProgramme['is_active'] == 0) {
