@@ -217,7 +217,7 @@ class CRM_Threepeas_PumProgrammeDivision {
      * @access public
      * @static
      */
-    public static function getAllProgrammeDivisionsForProgram($params) {
+    public static function getAllProgrammeDivisionsForProgramme($params) {
         $result = array();
         /*
          * programme_id or title is mandatory

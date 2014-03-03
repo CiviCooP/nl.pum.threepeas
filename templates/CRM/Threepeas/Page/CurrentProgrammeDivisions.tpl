@@ -17,14 +17,15 @@
                 <td hidden="1">{$programmeDivision.id}</td>
                 <td hidden="1">{$programmeDivision.program_id}</td>
                 <td>{$programmeDivision.country}</td>
-                <td>{$programmeDivision.max_projects}</td>
                 <td>{$programmeDivision.min_projects}</td>
-                <td>{$programmeDivision.max_budget}</td>
+                <td>{$programmeDivision.max_projects}</td>
                 <td>{$programmeDivision.min_budget}</td>
+                <td>{$programmeDivision.max_budget}</td>
                 <td>
                     {if $action ne "view"}
                         <span>
-                            <a class="action-item" title="Delete division" href="{$delProgrammeDivisionUrl}&action=delete&pid={$programmeDivision.id}">Delete</a>
+                            <a class="action-item" title="Delete division" href="
+                               {$delProgrammeDivisionUrl}&action=delete&pid={$programmeDivision.id}&programmeId={$programmeId}">Delete</a>
                         </span>
                     {/if}
                 </td>

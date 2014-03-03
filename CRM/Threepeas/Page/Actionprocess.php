@@ -108,16 +108,15 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                                 break;
                             case "delete":
                                 $programmeDivisionId = $this->_data['pid'];
-                                CRM_Threepeas_PumProgramDivision::delete($programmeDivisionId);
+                                CRM_Threepeas_PumProgrammeDivision::delete($programmeDivisionId);
                                 $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', null, TRUE);
-                                $this->_redirectUrl .= "&pid=".$this->_data['pid'];
+                                $this->_redirectUrl .= "&pid=".$this->_data['programmeId'];
                                 break;
                         }
                         break;
                 }
             }
         }
-        
         CRM_Utils_System::redirect($this->_redirectUrl);
         //parent::run();
     }
@@ -298,13 +297,13 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
             switch($dataField) {
                 case "programmeId":
                     $result['programme_id'] = $dataValue;
-                case "programDivisionCountry":
+                case "programmeDivisionCountry":
                     $result['country_id'] = $dataValue;
                     break;
                 case "programmeDivisionMinProjects":
                     $result['min_projects'] = $dataValue;
                     break;
-                case "programDivisionMaxProjects":
+                case "programmeDivisionMaxProjects":
                     $result['max_projects'] = $dataValue;
                     break;
                 case "programmeDivisionMinBudget":

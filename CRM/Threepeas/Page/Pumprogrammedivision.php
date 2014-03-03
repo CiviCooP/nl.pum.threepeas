@@ -38,12 +38,14 @@ class CRM_Threepeas_Page_Pumprogrammedivision extends CRM_Core_Page {
         
         $this->assign("programmeId", $this->_programmeId);
         $this->assign("programmeTitle", "<strong>{$programmeData['title']}</strong>");
-        $contactParams = array(
-            'id'        =>  $programmeData['contact_id_manager'],
-            'return'    =>  "display_name"
-        );
-        $programmeManagerName = civicrm_api3('Contact', 'Getvalue', $contactParams);
-        $this->assign("programmeManager", "<strong>$programmeManagerName</strong>");
+        if (isset($programmeData['contact_id_manager']) && !empty($programmeData['contact_id_manager'])) {
+            $contactParams = array(
+                'id'        =>  $programmeData['contact_id_manager'],
+                'return'    =>  "display_name"
+            );
+            $programmeManagerName = civicrm_api3('Contact', 'Getvalue', $contactParams);
+            $this->assign("programmeManager", "<strong>$programmeManagerName</strong>");
+        }
         $programmeBudget = CRM_Utils_Money::format($programmeData['budget']);
         $this->assign("programmeBudget", "<strong>$programmeBudget</strong>");
         /*
