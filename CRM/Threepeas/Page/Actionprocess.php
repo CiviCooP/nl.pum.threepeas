@@ -26,7 +26,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
         if (!isset($session)) {
             $session = CRM_Core_Session::singleton();
         }
-        $validActions = array("add", "edit", "disable", "delete");
+        $validActions = array("add", "edit", "disable", "delete", "enable");
         $validEntities = array("programme", "project", "budgetdivision");
         
         /*
@@ -65,6 +65,10 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                                     $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', null, TRUE);
                                     $this->_redirectUrl .= "&pid=".$entityParams['programme_id'];
                                 }
+                                break;
+                            case "enable":
+                                $session->setStatus(ts("Programme enabled succesfully."), ts("Enabled"), 'success');
+                                CRM_Threepeas_PumProgramme::enable($entityParams['programme_id']);
                                 break;
                             case "disable":
                                 $session->setStatus(ts("Programme disabled succesfully."), ts("Disabled"), 'success');
@@ -163,7 +167,6 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                 }
             }
         }
-        CRM_Core_Error::debug("request", $_REQUEST);
         unset($_POST, $_REQUEST, $_GET);
     }
     /**

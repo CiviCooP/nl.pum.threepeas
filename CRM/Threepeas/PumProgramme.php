@@ -350,6 +350,26 @@ class CRM_Threepeas_PumProgramme {
         return;
     }
     /**
+     * Function to enable a programme
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 3 Mar 2014
+     * @param int $programmeId
+     * @return void
+     * @throws Exception when programmeId is empty
+     * @throws Exception when programmeId is not numeric
+     * @access public
+     * @static
+     */
+    public static function enable($programmeId) {
+        if (empty($programmeId) || !is_numeric($programmeId)) {
+            throw new Exception("Programme_id can not be empty and has to be numeric");
+        }
+        $update = "UPDATE civicrm_programme SET is_active = 1 WHERE id = $programmeId";
+        CRM_Core_DAO::executeQuery($update);
+        return;
+    }
+    /**
      * Function to retrieve all projects for a programme
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>

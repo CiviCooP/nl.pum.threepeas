@@ -13,11 +13,9 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
     function run() {
-        $this->assign('pumProgrammeUrl', CRM_Utils_System::url('civicrm/pumprogramme', null, true));
-        $this->assign('delProgrammeUrl', CRM_Utils_System::url('civicrm/actionprocess', null, true));
-        $this->assign('divideProgrammeUrl', CRM_Utils_System::url('civicrm/pumprogrammedivision', null, true));
         $programmes = CRM_Threepeas_PumProgramme::getAllProgrammes();
         $displayProgrammes = array();
+        
         foreach ($programmes as $programme) {
             $displayProgramme = array();
             $displayProgramme['id'] = $programme['id'];
@@ -48,6 +46,26 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
                 );
                 $displayProgramme['manager_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
             }
+            /*
+             * set page actions, first generic part (view, edit, divide budget)
+             * then in foreach the specifics (enable or disable and delete only if allowed)
+             */
+            $programmeUrl = CRM_Utils_System::url('civicrm/pumprogramme', null, true)."&pid=".$programme['id'];
+            $delUrl = CRM_Utils_System::url('civicrm/actionprocess', null, true)."&programmeId=".$programme['id']."&pumEntity=programme";
+            $divideUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', null, true)."&pid=".$programme['id'];
+            $pageActions = array();
+            $pageActions[] = '<a class="action-item" title="View programme details" href="'.$programmeUrl.'&action=view">View</a>';
+            $pageActions[] = '<a class="action-item" title="Edit programme" href="'.$programmeUrl. '&action=edit">Edit</a>';
+            $pageActions[] = '<a class="action-item" title="Divide budget" href="'.$divideUrl.'">Divide budget</a>';
+            if ($programme['is_active'] == 1) {
+                $pageActions[] = '<a class="action-item" title="Disable programme" href="'.$delUrl.'&pumAction=disable">Disable</a>';
+            } else {
+                $pageActions[] = '<a class="action-item" title="Enable programme" href="'.$delUrl.'&pumAction=enable">Enable</a>';                
+            }
+            if (CRM_Threepeas_PumProgramme::checkProgrammeDeleteable($programme['id'])) {
+                $pageActions[] = '<a class="action-item" title="Delete programme" href="'.$delUrl.'&pumAction=delete">Delete</a>';
+            }
+            $displayProgramme['actions'] = $pageActions;
             $displayProgrammes[] = $displayProgramme;
         }
         $this->assign('pumProgrammes', $displayProgrammes);
