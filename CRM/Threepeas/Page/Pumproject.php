@@ -79,7 +79,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
         if (isset($pumProject['title'])) {
             $this->assign('projectTitle', $pumProject['title']);
         }
-        if (isset($pumProject['programme_id'])) {
+        if (isset($pumProject['programme_id']) && !empty($pumProject['programme_id'])) {
             $programmeTitle = CRM_Threepeas_PumProgramme::getProgrammeTitleWithId($pumProject['programme_id']);
             $programmeUrl = CRM_Utils_System::url("civicrm/pumprogramme", null, true).
                 "&action=view&pid=".$pumProject['programme_id'];
@@ -106,7 +106,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
                 rows="3" cols="80">'.$pumProject['expected_results'].'</textarea>';
             $this->assign('projectExpectedResults', $expectedResultsHtml);
         }
-        if (isset($pumProject['sector_coordinator_id'])) {
+        if (isset($pumProject['sector_coordinator_id']) && !empty($pumProject['sector_coordinator_id'])) {
             $sectorParams = array(
                 'id'     =>  $pumProject['sector_coordinator_id'],
                 'return' =>  'display_name'
@@ -118,7 +118,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
             $this->assign('projectSectorCoordinator', $sectorHtml);
             
         }
-        if (isset($pumProject['country_coordinator_id'])) {
+        if (isset($pumProject['country_coordinator_id']) && !empty($pumProject['country_coordinator_id'])) {
             $countryParams = array(
                 'id'     =>  $pumProject['country_coordinator_id'],
                 'return' =>  'display_name'
@@ -130,7 +130,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
             $this->assign('projectCountryCoordinator', $countryHtml);
             
         }
-        if (isset($pumProject['project_officer_id'])) {
+        if (isset($pumProject['project_officer_id']) && !empty($pumProject['project_officer_id'])) {
             $officerParams = array(
                 'id'     =>  $pumProject['project_officer_id'],
                 'return' =>  'display_name'
@@ -181,7 +181,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
             name="projectTitle" size="80" maxlength="80">';
         $this->assign('projectTitle', $titleHtml);
         
-        $programHtml = '<select id="project-programme" name="projectProgramme" 
+        $programmeHtml = '<select id="project-programme" name="projectProgramme" 
             class="form-select"><option value="0">- none</option>';        
         $apiProgrammes = civicrm_api3('PumProgramme', 'Get', array());
         foreach ($apiProgrammes['values'] as $programmeId => $programme) {
@@ -191,20 +191,16 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
         $programmeHtml .= '</select>';
         $this->assign('projectProgramme', $programmeHtml);
         
-        $reasonHtml='<textarea name="projectReason" rows="3" cols="80">
-            </textarea>';
+        $reasonHtml='<textarea name="projectReason" rows="3" cols="80"></textarea>';
         $this->assign('projectReason', $reasonHtml);
         
-        $workDescriptionHtml='<textarea name="projectWorkDescription" rows="3" cols="80">
-            </textarea>';
+        $workDescriptionHtml='<textarea name="projectWorkDescription" rows="3" cols="80"></textarea>';
         $this->assign('projectWorkDescription', $workDescriptionHtml);
         
-        $qualificationsHtml='<textarea name="projectQualifications" rows="3" cols="80">
-            </textarea>';
+        $qualificationsHtml='<textarea name="projectQualifications" rows="3" cols="80"></textarea>';
         $this->assign('projectQualifications', $qualificationsHtml);
         
-        $expectedResultsHtml='<textarea name="projectExpectedResults" rows="3" cols="80">
-            </textarea>';
+        $expectedResultsHtml='<textarea name="projectExpectedResults" rows="3" cols="80"></textarea>';
         $this->assign('projectExpectedResults', $expectedResultsHtml);
         
         $sectorHtml = '<select id="project-sector-coordinator" name="projectSectorCoordinator" 
@@ -262,7 +258,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
         $cancelUrl = CRM_Utils_System::url('civicrm/projectlist', null, true);
         $this->assign('cancelUrl', $cancelUrl);
         
-        $titleHtml = '<input id="programme-title" type="text" class="form-text" 
+        $titleHtml = '<input id="project-title" type="text" class="form-text" 
             name="projectTitle" value="'.$pumProject['title'].'">';
         $this->assign('projectTitle', $titleHtml);
         
@@ -281,20 +277,16 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
         $programmeHtml .= '</select>';
         $this->assign('projectProgramme', $programmeHtml);
         
-        $reasonHtml='<textarea name="projectReason" rows="3" cols="80">'
-            .$pumProject['reason'].'</textarea>';
+        $reasonHtml='<textarea name="projectReason" rows="3" cols="80">'.$pumProject['reason'].'</textarea>';
         $this->assign('projectReason', $reasonHtml);
         
-        $workDescriptionHtml='<textarea name="projectWorkDescription" rows="3" 
-            cols="80">'.$pumProject['work_description'].'</textarea>';
+        $workDescriptionHtml='<textarea name="projectWorkDescription" rows="3" cols="80">'.$pumProject['work_description'].'</textarea>';
         $this->assign('projectWorkDescription', $workDescriptionHtml);
         
-        $qualificationsUrl='<textarea name="projectQualifications" rows="3" 
-            cols="80">'.$pumProject['qualifications'].'</textarea>';
+        $qualificationsUrl='<textarea name="projectQualifications" rows="3" cols="80">'.$pumProject['qualifications'].'</textarea>';
         $this->assign('projectQualifications', $qualificationsUrl);
         
-        $expectedResultsHtml='<textarea name="projectExpectedResults" rows="3" 
-            cols="80">'.$pumProject['expected_results'].'</textarea>';
+        $expectedResultsHtml='<textarea name="projectExpectedResults" rows="3" cols="80">'.$pumProject['expected_results'].'</textarea>';
         $this->assign('projectExpectedResults', $expectedResultsHtml);
         
         $sectorHtml = '<select id="project-sector-coordinator" name="projectSectorCoordinator" 
@@ -351,10 +343,12 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
         }
         $this->assign('projectIsActive', $enabledHtml);
         
-        $this->assign('displayStartDate', date("d-m-Y", strtotime($pumProject['start_date'])));
-        $this->assign('displayEndDate', date("d-m-Y", strtotime($pumProject['end_date'])));
-        
-
+        if (isset($pumProject['start_date']) && !empty($pumProject['start_date'])) {
+            $this->assign('displayStartDate', date("d-m-Y", strtotime($pumProject['start_date'])));
+        }
+        if (isset($pumProject['start_date']) && !empty($pumProject['start_date'])) {
+            $this->assign('displayEndDate', date("d-m-Y", strtotime($pumProject['end_date'])));
+        }
     }
     /**
      * Function to set labels for page fields
@@ -365,7 +359,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
      */
     private function setLabels() {
         $labels['projectTitle'] = '<label for="Title">'.ts('Title').'<span class="crm-marker" title="This field is required.">*</span></label>';
-        $labels['projectProgramme'] = '<label for="Programme">'.ts('Programme').'<span class="crm-marker" title="This field is required.">*</span></label>';
+        $labels['projectProgramme'] = '<label for="Programme">'.ts('Programme').'</label>';
         $labels['projectReason'] = '<label for="Reason">'.ts('Reason For Project').'</label>';
         $labels['projectWorkDescription'] = '<label for="Work Description">'.ts('Work Description').'</label>';
         $labels['projectQualifications'] = '<label for="Qualifications">'.ts('Qualifications').'</label>';

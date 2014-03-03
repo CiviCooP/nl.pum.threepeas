@@ -111,3 +111,16 @@
         </div>
     </div>
 </form>
+{literal}
+    <script type="text/javascript">
+    cj("form").submit(function($) {
+        if (!cj('#project-title').val()) {
+            cj("#project-title").focus();
+            CRM.alert("Project title can not be empty!", "Title Empty", "error");
+            $.preventDefault();
+        } else {
+            return true;
+        }
+    });
+    </script>
+{/literal}

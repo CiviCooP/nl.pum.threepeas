@@ -71,16 +71,8 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                                 CRM_Threepeas_PumProgramme::disable($entityParams['programme_id']);
                                 break;
                             case "delete":
-                                /*
-                                 * check if program can be deleted
-                                 */
-                                $programmeDeletable = CRM_Threepeas_PumProgramme::checkProgrammeDeleteable($entityParams['programme_id']);
-                                if ($programmeDeletable == FALSE) {
-                                    $session->setStatus(ts("Programme can not be deleted, has projects attached"), ts("Cancelled"), 'error');
-                                } else {
-                                    $session->setStatus(ts("Programme succesfully deleted"), ts("Deleted"), 'success');
-                                    CRM_Threepeas_PumProgramme::delete($entityParams['programme_id']);
-                                }
+                                $session->setStatus(ts("Programme succesfully deleted"), ts("Deleted"), 'success');
+                                CRM_Threepeas_PumProgramme::delete($entityParams['programme_id']);
                                 break;
                         }
                         break;
@@ -94,6 +86,14 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                             case "edit":
                                 $session->setStatus(ts("Project saved succesfully."), ts("Saved"), 'success');
                                 CRM_Threepeas_PumProject::update($entityParams);
+                                break;
+                            case "disable":
+                                $session->setStatus(ts("Project disabled succesfully."), ts("Disabled"), 'success');
+                                CRM_Threepeas_PumProject::disable($entityParams['project_id']);
+                                break;
+                            case "delete":
+                                $session->setStatus(ts("Project succesfully deleted"), ts("Deleted"), 'success');
+                                CRM_Threepeas_PumProject::delete($entityParams['project_id']);
                                 break;
                         }
                         break; 
@@ -163,6 +163,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                 }
             }
         }
+        CRM_Core_Error::debug("request", $_REQUEST);
         unset($_POST, $_REQUEST, $_GET);
     }
     /**
@@ -265,10 +266,14 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                     $result['project_officer_id'] = $dataValue;
                     break;
                 case "projectStartDate":
-                    $result['start_date'] = $dataValue;
+                    if (!empty($dataValue)) {
+                        $result['start_date'] = $dataValue;
+                    }
                     break;
                 case "projectEndDate":
-                    $result['end_date'] = $dataValue;
+                    if (!empty($dataValue)) {
+                        $result['end_date'] = $dataValue;
+                    }
                     break;
             }
         }

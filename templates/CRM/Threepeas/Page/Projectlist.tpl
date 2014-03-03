@@ -44,7 +44,8 @@
                                 <a class="action-item" title="View project details" href="{$pumProjectUrl}&action=view&pid={$project.id}">View</a>
                                 <a class="action-item" title="Edit project" href="{$pumProjectUrl}&action=edit&pid={$project.id}">Edit</a>
                                 <a class="action-item" title="Drill down project" href="{$drillProjectUrl}&pid={$project.id}">Drill down</a>
-                                <a class="action-item" title="Delete project" href="{$delProjectUrl}&action=delete&pid={$project.id}&entity=project">Delete</a>
+                                <a class="action-item" title="Disable project" href="{$delProjectUrl}&pumAction=disable&projectId={$project.id}&pumEntity=project">Disable</a>
+                                <a class="action-item" title="Delete project" href="{$delProjectUrl}&pumAction=delete&projectId={$project.id}&pumEntity=project">Delete</a>
                             </span>
                         </td>
                     </tr>
