@@ -27,7 +27,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
             $session = CRM_Core_Session::singleton();
         }
         $validActions = array("add", "edit", "disable", "delete");
-        $validEntities = array("program", "project", "budgetdivision");
+        $validEntities = array("programme", "project", "budgetdivision");
         
         /*
          * retrieve data from $_REQUEST
@@ -39,47 +39,47 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
         if (in_array($this->_action, $validActions)) {
             if (in_array($this->_entity, $validEntities)) {
                 switch ($this->_entity) {
-                    case "program":
+                    case "programme":
                         $entityParams = $this->setProgramData();
                         switch ($this->_action) {
                             case "add":
-                                $session->setStatus(ts("Program added succesfully."), ts("Added"), 'success');
-                                $programId = CRM_Threepeas_PumProgram::add($entityParams);
+                                $session->setStatus(ts("Programme added succesfully."), ts("Added"), 'success');
+                                $programmeId = CRM_Threepeas_PumProgramme::add($entityParams);
                                 /*
                                  * if clicked 'Save and divide budget', redirect to 
                                  * budget division page
                                  */
                                 if ($this->_submitButton == "Save and divide budget") {
-                                    $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogramdivision', null, TRUE);
-                                    $this->_redirectUrl .= "&pid=$programId";
+                                    $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', null, TRUE);
+                                    $this->_redirectUrl .= "&pid=$programmeId";
                                 }
                                 break;
                             case "edit":
-                                $session->setStatus(ts("Program saved succesfully."), ts("Saved"), 'success');
-                                CRM_Threepeas_PumProgram::update($entityParams);
+                                $session->setStatus(ts("Programme saved succesfully."), ts("Saved"), 'success');
+                                CRM_Threepeas_PumProgramme::update($entityParams);
                                 /*
                                  * if clicked 'Save and divide budget', redirect to 
                                  * budget division page
                                  */
                                 if ($this->_submitButton == "Save and divide budget") {
-                                    $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogramdivision', null, TRUE);
-                                    $this->_redirectUrl .= "&pid=".$entityParams['program_id'];
+                                    $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', null, TRUE);
+                                    $this->_redirectUrl .= "&pid=".$entityParams['programme_id'];
                                 }
                                 break;
                             case "disable":
-                                $session->setStatus(ts("Program disabled succesfully."), ts("Disabled"), 'success');
-                                CRM_Threepeas_PumProgram::disable($entityParams['program_id']);
+                                $session->setStatus(ts("Programme disabled succesfully."), ts("Disabled"), 'success');
+                                CRM_Threepeas_PumProgramme::disable($entityParams['programme_id']);
                                 break;
                             case "delete":
                                 /*
                                  * check if program can be deleted
                                  */
-                                $programDeletable = CRM_Threepeas_PumProgram::checkProgramDeleteable($entityParams['program_id']);
-                                if ($programDeletable == FALSE) {
-                                    $session->setStatus(ts("Program can not be deleted, has projects attached"), ts("Cancelled"), 'error');
+                                $programDeletable = CRM_Threepeas_PumProgramme::checkProgrammeDeleteable($entityParams['programme_id']);
+                                if ($programmeDeletable == FALSE) {
+                                    $session->setStatus(ts("Programme can not be deleted, has projects attached"), ts("Cancelled"), 'error');
                                 } else {
-                                    $session->setStatus(ts("Program succesfully deleted"), ts("Deleted"), 'success');
-                                    CRM_Threepeas_PumProgram::delete($entityParams['program_id']);
+                                    $session->setStatus(ts("Programme succesfully deleted"), ts("Deleted"), 'success');
+                                    CRM_Threepeas_PumProgramme::delete($entityParams['programme_id']);
                                 }
                                 break;
                         }
@@ -101,15 +101,15 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                         switch ($this->_action) {
                             case "add":
                                 $entityParams = $this->setBudgetDivisionData();
-                                $session->setStatus(ts("Program Budget Division row added"), ts("Added"), 'success');
-                                CRM_Threepeas_PumProgramDivision::add($entityParams);
-                                $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogramdivision', null, TRUE);
-                                $this->_redirectUrl .= "&pid=".$this->_data['programId'];
+                                $session->setStatus(ts("Programme Budget Division row added"), ts("Added"), 'success');
+                                CRM_Threepeas_PumProgrammeDivision::add($entityParams);
+                                $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', null, TRUE);
+                                $this->_redirectUrl .= "&pid=".$this->_data['programmeId'];
                                 break;
                             case "delete":
-                                $programDivisionId = $this->_data['pid'];
-                                CRM_Threepeas_PumProgramDivision::delete($programDivisionId);
-                                $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogramdivision', null, TRUE);
+                                $programmeDivisionId = $this->_data['pid'];
+                                CRM_Threepeas_PumProgramDivision::delete($programmeDivisionId);
+                                $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', null, TRUE);
                                 $this->_redirectUrl .= "&pid=".$this->_data['pid'];
                                 break;
                         }
@@ -135,9 +135,9 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                     case "pumEntity":
                         $this->_entity = trim(strip_tags($requestValue));
                         switch($requestValue) {
-                            case "program":
+                            case "programme":
                                 $this->_redirectUrl = CRM_Utils_System::url
-                                    ('civicrm/programlist', null, TRUE);
+                                    ('civicrm/programmelist', null, TRUE);
                                 break;
                             case "project":
                                 $this->_redirectUrl = CRM_Utils_System::url
@@ -148,13 +148,13 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                     case "pumAction":
                         $this->_action = trim(strip_tags($requestValue));
                         break;
-                    case "saveProgram":
+                    case "saveProgramme":
                         $this->_submitButton = trim(strip_tags($requestValue));
                         break;
                     case "saveProject":
                         $this->_submitButton = trim(strip_tags($requestValue));
                         break;
-                    case "saveProgramDivision":
+                    case "saveProgrammeDivision":
                         $this->_submitButton = "Save";
                     case "q":
                         $this->_requestURL = $requestValue;
@@ -167,51 +167,51 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
         unset($_POST, $_REQUEST, $_GET);
     }
     /**
-     * Function to set the fields in $this->_data into params for program
+     * Function to set the fields in $this->_data into params for programme
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 11 Feb 2014
      * @return array $result
      * @access private
      */
-    private function setProgramData() {
+    private function setProgrammeData() {
         $result = array();
         if (empty($this->_data)) {
             return $result;
         }
         foreach ($this->_data as $dataField => $dataValue) {
             switch($dataField) {
-                case "programId":
-                    $result['program_id'] = $dataValue;
-                case "programTitle":
+                case "programmeId":
+                    $result['programme_id'] = $dataValue;
+                case "programmeTitle":
                     $result['title'] = $dataValue;
                     break;
-                case "programDescription":
+                case "programmeDescription":
                     $result['description'] = $dataValue;
                     break;
-                case "programManager":
+                case "programmeManager":
                     $result['contact_id_manager'] = $dataValue;
                     break;
-                case "programBudget":
+                case "programmeBudget":
                     $result['budget'] = $dataValue;
                     break;
-                case "programGoals":
+                case "programmeGoals":
                     $result['goals'] = $dataValue;
                     break;
-                case "programRequirements":
+                case "programmeRequirements":
                     $result['requirements'] = $dataValue;
                     break;
-                case "programStartDate":
+                case "programmeStartDate":
                     $result['start_date'] = $dataValue;
                     break;
-                case "programEndDate":
+                case "programmeEndDate":
                     $result['end_date'] = $dataValue;
                     break;
             }
         }
         $result['is_active'] = 0;
-        if (isset($this->_data['programIsActive'])) {
-            if ($this->_data['programIsActive'] == 1 || $this->_data['programIsActive'] == "on") {
+        if (isset($this->_data['programmeIsActive'])) {
+            if ($this->_data['programmeIsActive'] == 1 || $this->_data['programmeIsActive'] == "on") {
                 $result['is_active'] = 1;
             }
         }
@@ -237,8 +237,8 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                 case "projectTitle":
                     $result['title'] = $dataValue;
                     break;
-                case "projectProgram":
-                    $result['program_id'] = $dataValue;
+                case "projectProgramme":
+                    $result['programme_id'] = $dataValue;
                     break;
                 case "projectReason":
                     $result['reason'] = $dataValue;
@@ -278,7 +278,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
         return $result;
     }
     /**
-     * Function to set the fields in $this->_data into params for program
+     * Function to set the fields in $this->_data into params for programme
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 11 Feb 2014
@@ -292,21 +292,21 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
         }
         foreach ($this->_data as $dataField => $dataValue) {
             switch($dataField) {
-                case "programId":
-                    $result['program_id'] = $dataValue;
+                case "programmeId":
+                    $result['programme_id'] = $dataValue;
                 case "programDivisionCountry":
                     $result['country_id'] = $dataValue;
                     break;
-                case "programDivisionMinProjects":
+                case "programmeDivisionMinProjects":
                     $result['min_projects'] = $dataValue;
                     break;
                 case "programDivisionMaxProjects":
                     $result['max_projects'] = $dataValue;
                     break;
-                case "programDivisionMinBudget":
+                case "programmeDivisionMinBudget":
                     $result['min_budget'] = $dataValue;
                     break;
-                case "programDivisionMaxBudget":
+                case "programmeDivisionMaxBudget":
                     $result['max_budget'] = $dataValue;
                     break;
             }

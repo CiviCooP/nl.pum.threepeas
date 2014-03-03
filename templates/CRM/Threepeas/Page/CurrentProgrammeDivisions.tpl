@@ -12,19 +12,19 @@
     </thead>
     <tbody>
         {assign var="rowClass" value="odd-row"}
-        {foreach from=$pumProgramDivisions item=programDivision}
+        {foreach from=$pumProgrammeDivisions item=programmeDivision}
             <tr id="row1" class={$rowClass}>
-                <td hidden="1">{$programDivision.id}</td>
-                <td hidden="1">{$programDivison.program_id}</td>
-                <td>{$programDivision.country}</td>
-                <td>{$programDivision.max_projects}</td>
-                <td>{$programDivision.min_projects}</td>
-                <td>{$programDivision.max_budget}</td>
-                <td>{$programDivision.min_budget}</td>
+                <td hidden="1">{$programmeDivision.id}</td>
+                <td hidden="1">{$programmeDivision.program_id}</td>
+                <td>{$programmeDivision.country}</td>
+                <td>{$programmeDivision.max_projects}</td>
+                <td>{$programmeDivision.min_projects}</td>
+                <td>{$programmeDivision.max_budget}</td>
+                <td>{$programmeDivision.min_budget}</td>
                 <td>
                     {if $action ne "view"}
                         <span>
-                            <a class="action-item" title="Delete division" href="{$delProgramDivisionUrl}&action=delete&pid={$programDivision.id}">Delete</a>
+                            <a class="action-item" title="Delete division" href="{$delProgrammeDivisionUrl}&action=delete&pid={$programmeDivision.id}">Delete</a>
                         </span>
                     {/if}
                 </td>

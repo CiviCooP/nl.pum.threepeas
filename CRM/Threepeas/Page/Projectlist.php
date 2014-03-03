@@ -22,8 +22,8 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
             $displayProject['id'] = $project['id'];
             $displayProject['title'] = $project['title'];
             
-            $displayProject['program_id'] = $project['program_id'];
-            $displayProject['program_name'] = CRM_Threepeas_PumProgram::getProgramTitleWithId($project['program_id']);
+            $displayProject['programme_id'] = $project['program_id'];
+            $displayProject['programme_name'] = CRM_Threepeas_PumProgramme::getProgrammeTitleWithId($project['programme_id']);
             
             $displayProject['sector_coordinator_id'] = $project['sector_coordinator_id'];
             $contactParams = array(

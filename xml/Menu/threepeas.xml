@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <menu>
   <item>
-    <path>civicrm/programlist</path>
-    <page_callback>CRM_Threepeas_Page_Programlist</page_callback>
-    <title>Programlist</title>
+    <path>civicrm/programmelist</path>
+    <page_callback>CRM_Threepeas_Page_Programmelist</page_callback>
+    <title>Programmelist</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
@@ -13,15 +13,9 @@
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
-    <path>civicrm/productlist</path>
-    <page_callback>CRM_Threepeas_Page_Productlist</page_callback>
-    <title>Productlist</title>
-    <access_arguments>access CiviCRM</access_arguments>
-  </item>
-  <item>
-    <path>civicrm/pumprogram</path>
-    <page_callback>CRM_Threepeas_Page_Pumprogram</page_callback>
-    <title>Pumprogram</title>
+    <path>civicrm/pumprogramme</path>
+    <page_callback>CRM_Threepeas_Page_Pumprogramme</page_callback>
+    <title>Pumprogramme</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
@@ -31,9 +25,9 @@
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
-    <path>civicrm/pumprogramdivision</path>
-    <page_callback>CRM_Threepeas_Page_Pumprogramdivision</page_callback>
-    <title>Pumprogramdivision</title>
+    <path>civicrm/pumprogrammedivision</path>
+    <page_callback>CRM_Threepeas_Page_Pumprogrammedivision</page_callback>
+    <title>Pumprogrammedivision</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>

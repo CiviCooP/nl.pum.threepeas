@@ -24,30 +24,10 @@ function threepeas_civicrm_xmlMenu(&$files) {
 
 /**
  * Implementation of hook_civicrm_install
- * 
- * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
- * @date 25 Feb 2014
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
+
+ *  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
 function threepeas_civicrm_install() {
-    /*
-     * only install if PUM generic extension active
-     */
-    $localExtensions = civicrm_api3('Extension', 'Get', array());
-    $genericInstalled = FALSE;
-    foreach($localExtensions['values'] as $localExtension) {
-        if ($localExtension['key'] == "nl.pum.generic") {
-            if ($localExtension['is_active'] == 1) {
-                $genericInstalled = TRUE;
-            }
-        }
-    }
-    if ($genericInstalled == FALSE) {
-        throw new Exception("The extension nl.pum.generic has to be installed before 
-            the extension nl.pum.threepeas can be installed");
-        return;
-    }
     return _threepeas_civix_civicrm_install();
 }
 
@@ -155,13 +135,13 @@ function threepeas_civicrm_managed(&$entities) {
      */
     $entities[] = array(
         'module'    => 'nl.pum.threepeas',
-        'name'      => 'Program Managers',
+        'name'      => 'Programme Managers',
         'entity'    => 'Group',
         'params'    => array(
             'version'       => 3,
-            'name'          => 'Program Managers',
-            'title'         => 'Program Managers',
-            'description'   => 'Group for Possible Program Managers',
+            'name'          => 'Programme Managers',
+            'title'         => 'Programme Managers',
+            'description'   => 'Group for Possible Programme Managers',
             'is_active'     =>  1,
             'is_reserved'   =>  1,
             'group_type'    =>  array(2 => 1))
@@ -231,7 +211,7 @@ function threepeas_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
 }
 /**
  * Implementation of hook civicrm_navigationMenu
- * to create a programs, projects and products menu and menu items
+ * to create a programmes, projects and products menu and menu items
  * 
  * @author Erik Hommel (erik.hommel@civicoop.org http://www.civicoop.org)
  * @date 29 Jan 2013
@@ -241,7 +221,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
     $maxKey = ( max( array_keys($params) ) );
     $params[$maxKey+1] = array (
         'attributes' => array (
-            'label'      => 'Programs, Projects and Products',
+            'label'      => 'Programmes, Projects and Products',
             'name'       => 'Programs, Projects and Products',
             'url'        => null,
             'permission' => null,
@@ -254,9 +234,9 @@ function threepeas_civicrm_navigationMenu( &$params ) {
         'child' =>  array (
             '1' => array (
                 'attributes' => array (
-                    'label'      => 'List Programs',
-                    'name'       => 'List Programs',
-                    'url'        => 'civicrm/programlist',
+                    'label'      => 'List Programmes',
+                    'name'       => 'List Programmes',
+                    'url'        => 'civicrm/programmelist',
                     'operator'   => null,
                     'separator'  => 0,
                     'parentID'   => $maxKey+1,
@@ -267,9 +247,9 @@ function threepeas_civicrm_navigationMenu( &$params ) {
             ), 
             '2' => array (
                 'attributes' => array (
-                    'label'      => 'Add Program',
-                    'name'       => 'Add Program',
-                    'url'        => 'civicrm/pumprogram&action=add',
+                    'label'      => 'Add Programme',
+                    'name'       => 'Add Programme',
+                    'url'        => 'civicrm/pumprogramme&action=add',
                     'operator'   => null,
                     'separator'  => 0,
                     'parentID'   => $maxKey+1,
@@ -319,8 +299,8 @@ function threepeas_civicrm_navigationMenu( &$params ) {
             ), 
             '6' => array (
                 'attributes' => array (
-                    'label'      => 'Programs Report',
-                    'name'       => 'Programs Report',
+                    'label'      => 'Programmes Report',
+                    'name'       => 'Programmes Report',
                     'url'        => '#',
                     'operator'   => null,
                     'separator'  => 0,

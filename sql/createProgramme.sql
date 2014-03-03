@@ -1,4 +1,4 @@
-CREATE TABLE `civicrm_program` (
+CREATE TABLE `civicrm_programme` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(80) DEFAULT NULL,
   `description` text,

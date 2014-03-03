@@ -1,22 +1,22 @@
-<h3>Program Details And Budget Division</h3>
-<form id="program-division" name="ProgramDivision" method="post" action={$submitUrl}>
-    <input type="hidden" name="programId" value={$programId}>
+<h3>Programme Details And Budget Division</h3>
+<form id="programme-division" name="ProgrammeDivision" method="post" action={$submitUrl}>
+    <input type="hidden" name="programmeId" value={$programmeId}>
     <div class="crm-block crm-form-block">
         <div class="action-link">
-            <div id="program-wrapper" class="dataTables_wrapper">
-                <table id="program-table" class="form-layout-compressed">
+            <div id="programme-wrapper" class="dataTables_wrapper">
+                <table id="programme-table" class="form-layout-compressed">
                     <tbody>
                         <tr>
-                            <td>Program title:</td>
-                            <td>{$programTitle}</td>
+                            <td>Programme title:</td>
+                            <td>{$programmeTitle}</td>
                         </tr>
                         <tr>    
-                            <td>Program manager:</td>
-                            <td>{$programManager}</td>
+                            <td>Programme manager:</td>
+                            <td>{$programmeManager}</td>
                         </tr>
                         <tr>
-                            <td>Program budget:</td>
-                            <td>{$programBudget}</td>
+                            <td>Programme budget:</td>
+                            <td>{$programmeBudget}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -25,7 +25,7 @@
                 </a>
             </div>
         </div>
-        <div id="program-division-wrapper" class="dataTables_wrapper">
+        <div id="programme-division-wrapper" class="dataTables_wrapper">
             <table id="new-division-table" class="display">
                 <tbody>
                     <tr id="head-new-row" class="odd-row">
@@ -44,14 +44,14 @@
                         <td>{$newMaxBudget}</td>
                         <td>
                             <span class="crm-button">
-                                <input id="save-program-division" class="validate form-submit default" type="submit" value="Add" name="saveProgramDivision" accesskey="S">
+                                <input id="save-programme-division" class="validate form-submit default" type="submit" value="Add" name="saveProgrammeDivision" accesskey="S">
                             </span>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        {include file="CRM/Threepeas/Page/CurrentProgramDivisions.tpl"}
+        {include file="CRM/Threepeas/Page/CurrentProgrammeDivisions.tpl"}
         <div class="action-link">
             <a class="button" href="{$doneUrl}">
                 <span><div class="form-button"></div>Done</span>

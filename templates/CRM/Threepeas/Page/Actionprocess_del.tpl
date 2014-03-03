@@ -1,1 +1,0 @@
-{* dummy template created because civix used *}

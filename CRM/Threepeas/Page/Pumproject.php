@@ -79,12 +79,12 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
         if (isset($pumProject['title'])) {
             $this->assign('projectTitle', $pumProject['title']);
         }
-        if (isset($pumProject['program_id'])) {
-            $programTitle = CRM_Threepeas_PumProgram::getProgramTitleWithId($pumProject['program_id']);
-            $programUrl = CRM_Utils_System::url("civicrm/pumprogram", null, true).
-                "&action=view&pid=".$pumProject['program_id'];
-            $programHtml = '<a href="'.$programUrl.'">'.$programTitle.'</a>';
-            $this->assign('projectProgram', $programHtml);
+        if (isset($pumProject['programme_id'])) {
+            $programmeTitle = CRM_Threepeas_PumProgramme::getProgrammeTitleWithId($pumProject['programme_id']);
+            $programmeUrl = CRM_Utils_System::url("civicrm/pumprogramme", null, true).
+                "&action=view&pid=".$pumProject['programme_id'];
+            $programmeHtml = '<a href="'.$programmeUrl.'">'.$programmeTitle.'</a>';
+            $this->assign('projectProgramme', $programmeHtml);
         }
         if (isset($pumProject['reason'])) {
             $reasonHtml='<textarea readonly="readonly" name="project_reason" 
@@ -181,15 +181,15 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
             name="projectTitle" size="80" maxlength="80">';
         $this->assign('projectTitle', $titleHtml);
         
-        $programHtml = '<select id="project-program" name="projectProgram" 
+        $programHtml = '<select id="project-programme" name="projectProgramme" 
             class="form-select"><option value="0">- none</option>';        
-        $apiPrograms = civicrm_api3('PumProgram', 'Get', array());
-        foreach ($apiPrograms['values'] as $programId => $program) {
-            $programHtml .= '<option value="'.$programId.'">'.
-                    $program['title'].'</option>';
+        $apiProgrammes = civicrm_api3('PumProgramme', 'Get', array());
+        foreach ($apiProgrammes['values'] as $programmeId => $programme) {
+            $programmeHtml .= '<option value="'.$programmeId.'">'.
+                    $programme['title'].'</option>';
         }
-        $programHtml .= '</select>';
-        $this->assign('projectProgram', $programHtml);
+        $programmeHtml .= '</select>';
+        $this->assign('projectProgramme', $programmeHtml);
         
         $reasonHtml='<textarea name="projectReason" rows="3" cols="80">
             </textarea>';
@@ -242,7 +242,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
         
         $enabledHtml = '<input id="is_active" class="form-checkbox" type="checkbox" 
             checked="checked" value="1" name="is_active">';
-        $this->assign('programIsActive', $enabledHtml);
+        $this->assign('projectIsActive', $enabledHtml);
     }
     /**
      * Function to build page for edit action
@@ -262,24 +262,24 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
         $cancelUrl = CRM_Utils_System::url('civicrm/projectlist', null, true);
         $this->assign('cancelUrl', $cancelUrl);
         
-        $titleHtml = '<input id="program-title" type="text" class="form-text" 
+        $titleHtml = '<input id="programme-title" type="text" class="form-text" 
             name="projectTitle" value="'.$pumProject['title'].'">';
         $this->assign('projectTitle', $titleHtml);
         
-        $programHtml = '<select id="project-program" name="projectProgram" 
+        $programmeHtml = '<select id="project-programme" name="projectProgramme" 
             class="form-select"><option value="0">- none</option>';        
-        $apiPrograms = civicrm_api3('PumProgram', 'Get', array());
-        foreach ($apiPrograms['values'] as $programId => $program) {
-            if ($programId == $pumProject['program_id']) {
-                $programHtml .= '<option selected="selected" value="'.$programId.'">'.
-                    $program['title'].'</option>';
+        $apiProgrammes = civicrm_api3('PumProgramme', 'Get', array());
+        foreach ($apiProgrammes['values'] as $programmeId => $programme) {
+            if ($programmeId == $pumProject['programme_id']) {
+                $programmeHtml .= '<option selected="selected" value="'.$programmeId.'">'.
+                    $programme['title'].'</option>';
             } else {
-                $programHtml .= '<option value="'.$programId.'">'.
-                    $program['title'].'</option>';
+                $programmeHtml .= '<option value="'.$programmeId.'">'.
+                    $programme['title'].'</option>';
             }
         }
-        $programHtml .= '</select>';
-        $this->assign('projectProgram', $programHtml);
+        $programmeHtml .= '</select>';
+        $this->assign('projectProgramme', $programmeHtml);
         
         $reasonHtml='<textarea name="projectReason" rows="3" cols="80">'
             .$pumProject['reason'].'</textarea>';
@@ -365,7 +365,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
      */
     private function setLabels() {
         $labels['projectTitle'] = '<label for="Title">'.ts('Title').'<span class="crm-marker" title="This field is required.">*</span></label>';
-        $labels['projectProgram'] = '<label for="Program">'.ts('Program').'<span class="crm-marker" title="This field is required.">*</span></label>';
+        $labels['projectProgramme'] = '<label for="Programme">'.ts('Programme').'<span class="crm-marker" title="This field is required.">*</span></label>';
         $labels['projectReason'] = '<label for="Reason">'.ts('Reason For Project').'</label>';
         $labels['projectWorkDescription'] = '<label for="Work Description">'.ts('Work Description').'</label>';
         $labels['projectQualifications'] = '<label for="Qualifications">'.ts('Qualifications').'</label>';

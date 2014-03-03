@@ -85,8 +85,8 @@ class CRM_Threepeas_PumProject {
      * @param array $params
      * @return int $projectId (id fo the created project)
      * @throws Exception when required param missing or empty
-     * @throws Exception when project with title and program_id already exists in DB
-     * @throws Exception when program_id, sector_coordinator_id, country_coordinator_id 
+     * @throws Exception when project with title and programme_id already exists in DB
+     * @throws Exception when programme_id, sector_coordinator_id, country_coordinator_id 
      *         or project_officer_id is not numeric
      * @access public
      * @static
@@ -103,39 +103,39 @@ class CRM_Threepeas_PumProject {
             return $projectId;
         }
         /*
-         * if no program_id, then program_id = 0
+         * if no programme_id, then programme_id = 0
          */
-        if (!isset($params['program_id'])) {
-            $programId = 0;
+        if (!isset($params['programme_id'])) {
+            $programmeId = 0;
         } else {
-            $programId = $params['program_id'];
+            $programmeId = $params['programme_id'];
         }
         /*
          * check numeric fields
          */
-        $numericFields = array("program_id", "sector_coordinator_id", 
+        $numericFields = array("programme_id", "sector_coordinator_id", 
             "country_coordinator_id", "project_officer_id");
         if (!CRM_Utils_ThreepeasUtils::checkNumericFields($numericFields, $params)) {
             throw new Exception("Fields ".implode(", ", $numericFields)." have to be numeric");
             return $projectId;
         }
         /*
-         * check if title does not exist yet (has to be unique) for the program
+         * check if title does not exist yet (has to be unique) for the programme
          */
         $title = CRM_Core_DAO::escapeString($params['title']);
         $query = "SELECT COUNT(*) AS count_title FROM civicrm_project 
-            WHERE title = '$title' AND program_id = $programId";
+            WHERE title = '$title' AND programme_id = $programmeId";
         $dao = CRM_Core_DAO::executeQuery($query);
         if ($dao->fetch()) {
             if ($dao->count_title > 0) {
-                throw new Exception("Program with title $title already exists");
-                return $programId;
+                throw new Exception("Programme with title $title already exists");
+                return $programmeId;
             }
         }
         
         $fields = array();
         $fields[] = "title = '$title'";
-        $fields[] = "program_id = $programId";
+        $fields[] = "programme_id = $programmeId";
 
         if (isset($params['reason'])) {
             $reason = CRM_Core_DAO::escapeString($params['reason']);
@@ -217,7 +217,7 @@ class CRM_Threepeas_PumProject {
      * @param array $params
      * @return array $result
      * @throws Exception when required params not found or empty
-     * @throws Exception when project_id, program_id, sector_coordinator_id, country_coordinator_id 
+     * @throws Exception when project_id, programme_id, sector_coordinator_id, country_coordinator_id 
      *         or project_officer_id is not numeric
      * @throws Exception when no project with id found
      * @access public
@@ -235,13 +235,13 @@ class CRM_Threepeas_PumProject {
             return $result;
         }
         $projectId = $params['project_id'];
-        if (!isset($params['program_id'])) {
-            $params['program_id'] = 0;
+        if (!isset($params['programme_id'])) {
+            $params['programme_id'] = 0;
         } 
         /*
          * check numeric fields
          */
-        $numericFields = array("project_id", "program_id", "sector_coordinator_id", 
+        $numericFields = array("project_id", "programme_id", "sector_coordinator_id", 
             "country_coordinator_id", "project_officer_id");
         if (!CRM_Utils_ThreepeasUtils::checkNumericFields($numericFields, $params)) {
             throw new Exception("Fields ".implode(", ", $numericFields)." have to be numeric");
@@ -259,12 +259,12 @@ class CRM_Threepeas_PumProject {
             }
         }
         
-        $programId = $params['program_id'];
+        $programmeId = $params['programme_id'];
         $fields = array();
         
         $title = CRM_Core_DAO::escapeString($params['title']);
         $fields[] = "title = '$title'";
-        $fields[] = "program_id = $programId";
+        $fields[] = "programme_id = $programmeId";
         
         if (isset($params['reason'])) {
             $reason = CRM_Core_DAO::escapeString($params['reason']);
@@ -354,7 +354,7 @@ class CRM_Threepeas_PumProject {
         return;
     }
     /**
-     * Function to disable a program
+     * Function to disable a project
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 17 Feb 2014
@@ -378,17 +378,17 @@ class CRM_Threepeas_PumProject {
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 18 Feb 2014
-     * @param int $programId
+     * @param int $programmeId
      * @return array $result
      * @access public
      * @static
      */
-    public static function getAllProjectsByProgramId($programId) {
+    public static function getAllProjectsByProgrammeId($programmeId) {
         $result = array();
-        if (empty($programId) || !is_numeric($programId)) {
+        if (empty($programmeId) || !is_numeric($programmeId)) {
             return $result;
         }
-        $query = "SELECT * FROM civicrm_project WHERE program_id = $programId";
+        $query = "SELECT * FROM civicrm_project WHERE programme_id = $programmeId";
         $dao = CRM_Core_DAO::executeQuery($query);
         while ($dao->fetch()) {
             $result[] = self::_daoToArray($dao);
@@ -463,8 +463,8 @@ class CRM_Threepeas_PumProject {
         if (isset($dao->title)) {
             $result['title'] = $dao->title;
         }
-        if (isset($dao->program_id)) {
-            $result['program_id'] = $dao->program_id;
+        if (isset($dao->programme_id)) {
+            $result['programme_id'] = $dao->programme_id;
         }
         if (isset($dao->reason)) {
             $result['reason'] = $dao->reason;

@@ -1,7 +1,7 @@
 CREATE TABLE `civicrm_project` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(80) DEFAULT NULL,
-  `program_id` int(11) DEFAULT NULL,
+  `programme_id` int(11) DEFAULT NULL,
   `reason` text,
   `work_description` text,
   `qualifications` text,
@@ -14,7 +14,7 @@ CREATE TABLE `civicrm_project` (
   `is_active` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `PROGRAM_id` (`program_id`)
+  KEY `PROGRAMME_id` (`programme_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 
 

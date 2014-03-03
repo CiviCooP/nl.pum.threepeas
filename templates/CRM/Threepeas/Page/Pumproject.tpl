@@ -26,8 +26,8 @@
         <table class="form-layout-compressed">
             <tbody>
                 <tr>
-                    <td class="label">{$labels.projectProgram}</td>
-                    <td>{$projectProgram}</td>
+                    <td class="label">{$labels.projectProgramme}</td>
+                    <td>{$projectProgramme}</td>
                 </tr>
                 <tr>
                     <td class="label">{$labels.projectTitle}</td>

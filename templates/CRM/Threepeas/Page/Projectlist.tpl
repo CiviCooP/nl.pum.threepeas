@@ -27,12 +27,12 @@
                 {foreach from=$pumProjects item=project}
                     <tr id="row1" class={$rowClass}>
                         <td hidden="1">{$project.id}</td>
-                        <td hidden="1">{$project.program_id}</td>
+                        <td hidden="1">{$project.programme_id}</td>
                         <td hidden="1">{$project.sector_coordinator_id}</td>
                         <td hidden="1">{$project.country_coordinator_id}</td>
                         <td hidden="1">{$project.project_officer_id}</td>                        
                         <td>{$project.title}</td>
-                        <td>{$project.program_name}</td>
+                        <td>{$project.programme_name}</td>
                         <td>{$project.sector_coordinator_name}</td>
                         <td>{$project.country_coordinator_name}</td>
                         <td>{$project.project_officer_name}</td>
@@ -44,7 +44,7 @@
                                 <a class="action-item" title="View project details" href="{$pumProjectUrl}&action=view&pid={$project.id}">View</a>
                                 <a class="action-item" title="Edit project" href="{$pumProjectUrl}&action=edit&pid={$project.id}">Edit</a>
                                 <a class="action-item" title="Drill down project" href="{$drillProjectUrl}&pid={$project.id}">Drill down</a>
-                                <a class="action-item" title="Delete program" href="{$delProjectUrl}&action=delete&pid={$project.id}&entity=project">Delete</a>
+                                <a class="action-item" title="Delete project" href="{$delProjectUrl}&action=delete&pid={$project.id}&entity=project">Delete</a>
                             </span>
                         </td>
                     </tr>
