@@ -3,7 +3,7 @@
         The existing Projects are listed below. You can add, edit, drill down or delete them from this screen. 
     </div>
     <div class="action-link">
-        <a class="button new-option" href="{$pumProjectUrl}&action=add">
+        <a class="button new-option" href="{$addUrl}&action=add">
             <span><div class="icon add-icon"></div>Add Projects</span>
         </a>
     </div>
@@ -41,11 +41,9 @@
                         <td>{$project.is_active}</td>
                         <td>
                             <span>
-                                <a class="action-item" title="View project details" href="{$pumProjectUrl}&action=view&pid={$project.id}">View</a>
-                                <a class="action-item" title="Edit project" href="{$pumProjectUrl}&action=edit&pid={$project.id}">Edit</a>
-                                <a class="action-item" title="Drill down project" href="{$drillProjectUrl}&pid={$project.id}">Drill down</a>
-                                <a class="action-item" title="Disable project" href="{$delProjectUrl}&pumAction=disable&projectId={$project.id}&pumEntity=project">Disable</a>
-                                <a class="action-item" title="Delete project" href="{$delProjectUrl}&pumAction=delete&projectId={$project.id}&pumEntity=project">Delete</a>
+                                {foreach from=$project.actions item=actionLink}
+                                    {$actionLink}
+                                {/foreach}
                             </span>
                         </td>
                     </tr>
@@ -59,7 +57,7 @@
         </table>    
     </div>
     <div class="action-link">
-        <a class="button new-option" href="{$pumProjectUrl}&action=add">
+        <a class="button new-option" href="{$addUrl}&action=add">
             <span><div class="icon add-icon"></div>Add Projects</span>
         </a>
     </div>

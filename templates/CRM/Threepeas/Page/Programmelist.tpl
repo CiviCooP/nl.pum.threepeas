@@ -3,7 +3,7 @@
         The existing Programmes are listed below. You can add, edit, drill down or delete them from this screen. 
     </div>
     <div class="action-link">
-        <a class="button new-option" href="{$pumProgrammeUrl}&action=add">
+        <a class="button new-option" href="{$addUrl}&action=add">
             <span><div class="icon add-icon"></div>Add Programme</span>
         </a>
     </div>
@@ -50,7 +50,7 @@
         </table>    
     </div>
     <div class="action-link">
-        <a class="button new-option" href="{$pumProgrammeUrl}&action=add">
+        <a class="button new-option" href="{$addUrl}&action=add">
             <span><div class="icon add-icon"></div>Add Programme</span>
         </a>
     </div>

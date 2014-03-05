@@ -57,7 +57,7 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
             $pageActions = array();
             $pageActions[] = '<a class="action-item" title="View programme details" href="'.$programmeUrl.'&action=view">View</a>';
             $pageActions[] = '<a class="action-item" title="Edit programme" href="'.$programmeUrl. '&action=edit">Edit</a>';
-            $pageActions[] = '<a class="action-item" title="Drill down programme" href="'.$drillUrl.'">Drill down"</a>';
+            $pageActions[] = '<a class="action-item" title="Drill down programme" href="'.$drillUrl.'">Drill Down</a>';
             $pageActions[] = '<a class="action-item" title="Divide budget" href="'.$divideUrl.'">Divide budget</a>';
             if ($programme['is_active'] == 1) {
                 $pageActions[] = '<a class="action-item" title="Disable programme" href="'.$delUrl.'&pumAction=disable">Disable</a>';
@@ -71,6 +71,8 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
             $displayProgrammes[] = $displayProgramme;
         }
         $this->assign('pumProgrammes', $displayProgrammes);
+        $addUrl = CRM_Utils_System::url('civicrm/pumprogramme', null, true)."&action=add";
+        $this->assign('addUrl', $addUrl);
         parent::run();
   }
 }

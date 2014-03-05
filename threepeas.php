@@ -222,7 +222,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
     $params[$maxKey+1] = array (
         'attributes' => array (
             'label'      => 'Programmes, Projects and Products',
-            'name'       => 'Programs, Projects and Products',
+            'name'       => 'Programmes, Projects and Products',
             'url'        => null,
             'permission' => null,
             'operator'   => null,
