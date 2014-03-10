@@ -50,6 +50,28 @@ function threepeas_civicrm_uninstall() {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
 function threepeas_civicrm_enable() {
+    /*
+     * check if extension org.civicoop.general.api.country is active
+     * Required for countries in budget division
+     */
+    $countryApiInstalled = FALSE;
+    try {
+        $extensions = civicrm_api3('Extension', 'Get', array());
+        foreach ($extensions['values'] as $extension) {
+            if ($extension['key'] == "org.civicoop.general.api.country") {
+                if ($extension['status'] == "installed") {
+                    $countryApiInstalled == TRUE;
+                }
+            }
+        }        
+    } catch (CiviCRM_API3_Exception $e) {
+        $countryApiInstalled = FALSE;
+    }
+    if ($countryApiInstalled == FALSE) {
+        CRM_Core_Session::setStatus(ts('Extension is not enabled, could not find the required extension org.civicoop.general.api.country'), ts('Error'), 'error');
+        return;
+    }
+    
     require_once 'CRM/Threepeas/PumProject.php';
     /*
      * retrieve option group for pum_project
