@@ -67,55 +67,54 @@ function threepeas_civicrm_enable() {
     } catch (CiviCRM_API3_Exception $e) {
         $countryApiInstalled = FALSE;
     }
-    if ($countryApiInstalled == FALSE) {
+    if ($countryApiInstalled == TRUE) {
+        require_once 'CRM/Threepeas/PumProject.php';
+        /*
+         * retrieve option group for pum_project
+         */
+        try {
+            $optionGroup = civicrm_api3('OptionGroup', 'Getsingle', array('name' => "pum_project"));
+            $optionGroupId = $optionGroup['id'];
+        } catch (CiviCRM_API3_Exception $e) {
+            return _threepeas_civix_civicrm_enable();
+        }
+        if ($optionGroupId) {
+            /*
+             * remove all existing option values (directly in database because\
+             * API would force me to do record by record
+             */
+            $delQuery = "DELETE FROM civicrm_option_value WHERE option_group_id = $optionGroupId";
+            CRM_Core_DAO::executeQuery($delQuery);
+
+            /*
+             * retrieve all active projects and add option values
+             */
+            $noneParams = array(
+                'option_group_id'   =>  $optionGroupId,
+                'value'             =>  0,
+                'label'             =>  '- none',
+                'is_active'         =>  1,
+                'is_reserved'       =>  1
+            );
+            civicrm_api3('OptionValue', 'Create', $noneParams);
+            $pumActiveProjects = CRM_Threepeas_PumProject::getAllActiveProjects();
+            foreach ($pumActiveProjects as $projectId => $activeProject) {
+                    $createParams = array(
+                        'option_group_id'   =>  $optionGroupId,
+                        'value'             =>  $projectId,
+                        'label'             =>  $activeProject['title'],
+                        'is_active'         =>  1,
+                        'is_reserved'       =>  1
+                    );
+                    civicrm_api3('OptionValue', 'Create', $createParams);
+            }
+        }
+        return _threepeas_civix_civicrm_enable();
+    } else {
         CRM_Core_Session::setStatus(ts('Extension is not enabled, could not find the required extension org.civicoop.general.api.country'), ts('Error'), 'error');
         return;
     }
-    
-    require_once 'CRM/Threepeas/PumProject.php';
-    /*
-     * retrieve option group for pum_project
-     */
-    try {
-        $optionGroup = civicrm_api3('OptionGroup', 'Getsingle', array('name' => "pum_project"));
-        $optionGroupId = $optionGroup['id'];
-    } catch (CiviCRM_API3_Exception $e) {
-        return _threepeas_civix_civicrm_enable();
-    }
-    if ($optionGroupId) {
-        /*
-         * remove all existing option values (directly in database because\
-         * API would force me to do record by record
-         */
-        $delQuery = "DELETE FROM civicrm_option_value WHERE option_group_id = $optionGroupId";
-        CRM_Core_DAO::executeQuery($delQuery);
-        
-        /*
-         * retrieve all active projects and add option values
-         */
-        $noneParams = array(
-            'option_group_id'   =>  $optionGroupId,
-            'value'             =>  0,
-            'label'             =>  '- none',
-            'is_active'         =>  1,
-            'is_reserved'       =>  1
-        );
-        civicrm_api3('OptionValue', 'Create', $noneParams);
-        $pumActiveProjects = CRM_Threepeas_PumProject::getAllActiveProjects();
-        foreach ($pumActiveProjects as $projectId => $activeProject) {
-                $createParams = array(
-                    'option_group_id'   =>  $optionGroupId,
-                    'value'             =>  $projectId,
-                    'label'             =>  $activeProject['title'],
-                    'is_active'         =>  1,
-                    'is_reserved'       =>  1
-                );
-                civicrm_api3('OptionValue', 'Create', $createParams);
-        }
-    }
-    return _threepeas_civix_civicrm_enable();
 }
-
 /**
  * Implementation of hook_civicrm_disable
  *
