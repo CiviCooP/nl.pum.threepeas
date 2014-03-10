@@ -111,8 +111,7 @@ function threepeas_civicrm_enable() {
         }
         return _threepeas_civix_civicrm_enable();
     } else {
-        CRM_Core_Session::setStatus(ts('Extension is not enabled, could not find the required extension org.civicoop.general.api.country'), ts('Error'), 'error');
-        return;
+      CRM_Core_Error::fatal("Could not enable extension, the required extension org.civicoop.general.api.country is not active in this environment!");
     }
 }
 /**
