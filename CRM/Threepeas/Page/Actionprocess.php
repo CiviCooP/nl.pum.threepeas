@@ -91,6 +91,10 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                                 $session->setStatus(ts("Project saved succesfully."), ts("Saved"), 'success');
                                 CRM_Threepeas_PumProject::update($entityParams);
                                 break;
+                            case "enable":
+                                $session->setStatus(ts("Project enabled succesfully."), ts("Enable"), 'success');
+                                CRM_Threepeas_PumProject::enable($entityParams['project_id']);
+                                break;
                             case "disable":
                                 $session->setStatus(ts("Project disabled succesfully."), ts("Disabled"), 'success');
                                 CRM_Threepeas_PumProject::disable($entityParams['project_id']);

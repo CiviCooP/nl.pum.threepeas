@@ -374,6 +374,26 @@ class CRM_Threepeas_PumProject {
         return;
     }
     /**
+     * Function to enable a project
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 17 Feb 2014
+     * @param int $projectId
+     * @return void
+     * @throws Exception when projectId is empty
+     * @throws Exception when projectId is not numeric
+     * @access public
+     * @static
+     */
+    public static function enable($projectId) {
+        if (empty($projectId) || !is_numeric($projectId)) {
+            throw new Exception("Project_id can not be empty and has to be numeric");
+        }
+        $update = "UPDATE civicrm_project SET is_active = 1 WHERE id = $projectId";
+        CRM_Core_DAO::executeQuery($update);
+        return;
+    }
+    /**
      * Function to retrieve all projects for a program
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
@@ -394,6 +414,177 @@ class CRM_Threepeas_PumProject {
             $result[] = self::_daoToArray($dao);
         }
         return $result;
+    }
+    /**
+     * Function to retrieve all active projects for a program sorted by title
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 5 Mar 2014
+     * @param int $programmeId
+     * @return array $result
+     * @access public
+     * @static
+     */
+    public static function getAllActiveProjectsByProgrammeId($programmeId) {
+        $result = array();
+        if (empty($programmeId) || !is_numeric($programmeId)) {
+            return $result;
+        }
+        $query = "SELECT * FROM civicrm_project WHERE programme_id = $programmeId AND is_active = 1 ORDER BY title";
+        $dao = CRM_Core_DAO::executeQuery($query);
+        while ($dao->fetch()) {
+            $result[] = self::_daoToArray($dao);
+        }
+        return $result;
+    }
+    /**
+     * Function to check if a proejct can be deleted. Will return TRUE
+     * if there are no case children for the project
+     * 
+     * @author Erik Hommel
+     * @date 3 Mar 2014
+     * @param int $projectId
+     * @return boolean
+     * @throws Exception when $projectId non-numeric or empty
+     * @access public
+     * @static
+     */
+    public static function checkProjectDeleteable($projectId) {
+        if (empty($projectId) || !is_numeric($projectId)) {
+            throw new Exception("ProjectId can not be empty or non numeric to check 
+                if the project can be deleted");
+            return FALSE;
+        }
+        $projectCases = self::getAllCasesByProjectId($projectId);
+        if (empty($projectCases)) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+    /**
+     * Function to retrieve all cases for a project
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 3 Mar 2014
+     * @param int $projectId
+     * @return array $result
+     * @access public
+     * @static
+     */
+    public static function getAllCasesByProjectId($projectId) {
+        $result = array();
+        /*
+         * return empty if projectId empty or non-numeric
+         */
+        if (empty($projectId) || !is_numeric($projectId)) {
+            return $result;
+        }
+        /*
+         * retrieve custom table for cases and custom field for project
+         */
+        $customGroupParams = array(
+            'name'      =>  "caseProject",
+        );
+        try {
+            $customGroup = civicrm_api3('CustomGroup', 'Getsingle', $customGroupParams);
+            if (isset($customGroup['table_name'])) {
+                $customTableName = $customGroup['table_name'];
+            } else {
+                return $result;
+            }
+            if (isset($customGroup['id'])) {
+                $customGroupId = $customGroup['id'];
+            } else {
+                return $result;
+            }
+            $customFieldParams = array(
+                'custom_group_id'   =>  $customGroupId,
+                'name'              =>  "Project",
+                'return'            =>  'column_name'
+            );
+            try {
+                $customProjectField = civicrm_api3('CustomField', 'Getvalue', $customFieldParams);
+                /*
+                 * select all entity_ids (case_ids) with $projectId
+                 */
+                $caseQuery = "SELECT entity_id FROM $customTableName WHERE $customProjectField = $projectId";
+                $caseDao = CRM_Core_DAO::executeQuery($caseQuery);
+                while ($caseDao->fetch()) {
+                    /*
+                     * retrieve case data for each case and put in result array
+                     */
+                    $caseParams = array(
+                        'is_deleted'    => 0,
+                        'id'            => $caseDao->entity_id
+                    );
+                    $case = civicrm_api3('Case', 'Getsingle', $caseParams);
+                    /*
+                     * retrieve client
+                     */
+                    foreach ($case['client_id'] as $caseClient) {
+                        $caseClientId = $caseClient;
+                        break;
+                    }
+                    $caseResult = array();
+                    $caseResult['case_id'] = $case['id'];
+                    $caseResult['subject'] = $case['subject'];
+                    $caseResult['start_date'] = $case['start_date'];
+                    $caseResult['end_date'] = $case['end_date'];
+                    $caseResult['client_id'] = $caseClientId;
+                    /*
+                     * get case type option value
+                     */
+                    $caseTypeGroupParams = array(
+                        'name'  =>  "case_type",
+                    ); 
+                    try {
+                        $caseTypeApi = civicrm_api3('OptionGroup', 'Getsingle', $caseTypeGroupParams);
+                        $caseTypeGroupId = $caseTypeApi['id'];
+                        $caseTypeValueParams = array(
+                            'option_group_id'   =>  $caseTypeGroupId,
+                            'value'             =>  $case['case_type_id'],
+                            'return'            =>  "label"
+                        );
+                        try {
+                            $caseResult['case_type'] = civicrm_api3('OptionValue', 'GetValue', $caseTypeValueParams);
+                        } catch (CiviCRM_API3_Exception $e) {
+                            $caseResult['case_type'] = "";
+                        }
+                    } catch (CiviCRM_API3_Exception $e) {
+                        $caseResult['case_type'] = "";
+                    }
+                    /*
+                     * get case status option value
+                     */
+                    $caseStatusGroupParams = array(
+                        'name'  =>  "case_status",
+                    ); 
+                    try {
+                        $caseStatusApi = civicrm_api3('OptionGroup', 'Getsingle', $caseStatusGroupParams);
+                        $caseStatusGroupId = $caseStatusApi['id'];
+                        $caseStatusValueParams = array(
+                            'option_group_id'   =>  $caseStatusGroupId,
+                            'value'             =>  $case['status_id'],
+                            'return'            =>  "label"
+                        );
+                        try {
+                            $caseResult['case_status'] = civicrm_api3('OptionValue', 'GetValue', $caseStatusValueParams);
+                        } catch (CiviCRM_API3_Exception $e) {
+                            $caseResult['case_status'] = "";
+                        }
+                    } catch (CiviCRM_API3_Exception $e) {
+                        $caseResult['case_status'] = "";
+                    }
+                    $result[$case['id']] = $caseResult;
+                }
+                return $result;
+            } catch (CiviCRM_API3_Exception $e) {
+                return $result;
+            }
+        } catch (CiviCRM_API3_Exception $e) {
+            return $result;
+        }
     }
     /**
      * Function to add OptionValue for project

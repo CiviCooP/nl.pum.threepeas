@@ -12,7 +12,7 @@
             <thead>
                 <tr>
                     <th class="sorting-disabled" rowspan="1" colspan="1">Title</th>
-                    <th class="sorting-disabled" rowspan="1" colspan="1">Parent Program</th>
+                    <th class="sorting-disabled" rowspan="1" colspan="1">Parent Programme</th>
                     <th class="sorting-disabled" rowspan="1" colspan="1">Sector Coordinator</th>
                     <th class="sorting-disabled" rowspan="1" colspan="1">Country Coordinator</th>
                     <th class="sorting-disabled" rowspan="1" colspan="1">Project Officer</th>

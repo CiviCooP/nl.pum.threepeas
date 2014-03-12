@@ -13,6 +13,7 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
     function run() {
+        CRM_Utils_System::setTitle(ts('List of Programmes'));
         $programmes = CRM_Threepeas_PumProgramme::getAllProgrammes();
         $displayProgrammes = array();
         

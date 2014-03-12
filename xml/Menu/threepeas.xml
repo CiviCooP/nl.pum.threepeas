@@ -36,4 +36,10 @@
     <title>Pumproject</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/pumdrill</path>
+    <page_callback>CRM_Threepeas_Page_Pumdrill</page_callback>
+    <title>Pumdrill</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

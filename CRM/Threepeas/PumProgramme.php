@@ -473,7 +473,7 @@ class CRM_Threepeas_PumProgramme {
     public static function checkProgrammeDeleteable($programmeId) {
         if (empty($programmeId) || !is_numeric($programmeId)) {
             throw new Exception("ProgrammeId can not be empty or non numeric to check 
-                if the programme can be deletend");
+                if the programme can be deleted");
             return FALSE;
         }
         $programmeProjects = CRM_Threepeas_PumProject::getAllProjectsByProgrammeId($programmeId);
