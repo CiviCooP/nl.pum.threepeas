@@ -60,7 +60,7 @@ function threepeas_civicrm_enable() {
         foreach ($extensions['values'] as $extension) {
             if ($extension['key'] == "org.civicoop.general.api.country") {
                 if ($extension['status'] == "installed") {
-                    $countryApiInstalled == TRUE;
+                    $countryApiInstalled = TRUE;
                 }
             }
         }        
