@@ -3,7 +3,7 @@
         The existing Programmes are listed below. You can add, edit, drill down or delete them from this screen. 
     </div>
     <div class="action-link">
-        <a class="button new-option" href="{$addUrl}&action=add">
+        <a class="button new-option" href="{$addUrl}">
             <span><div class="icon add-icon"></div>Add Programme</span>
         </a>
     </div>
