@@ -77,8 +77,7 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
                 'return' =>  'display_name'
             );
             $managerName = civicrm_api3('Contact', 'Getvalue', $contactParams);
-            $managerUrl = CRM_Utils_System::url('civicrm/contact/view', null, true).
-                    "&rest=1&cid=".$pumProgramme['contact_id_manager'];
+            $managerUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$pumProgramme['contact_id_manager'], true);
             $managerHtml = '<a href="'.$managerUrl.'">'.$managerName.'</a>';
             $this->assign('programmeManager', $managerHtml);
             

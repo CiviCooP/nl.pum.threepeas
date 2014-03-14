@@ -50,7 +50,7 @@
         </table>    
     </div>
     <div class="action-link">
-        <a class="button new-option" href="{$addUrl}&action=add">
+        <a class="button new-option" href="{$addUrl}">
             <span><div class="icon add-icon"></div>Add Programme</span>
         </a>
     </div>

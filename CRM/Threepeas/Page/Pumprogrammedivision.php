@@ -23,12 +23,10 @@ class CRM_Threepeas_Page_Pumprogrammedivision extends CRM_Core_Page {
         
         $this->assign("doneUrl", CRM_Utils_System::url("civicrm/programmedivision", null, true));
 
-        $submitUrl = CRM_Utils_System::url('civicrm/actionprocess', null, true)
-            ."&pumAction=add&pumEntity=budgetdivision";
+        $submitUrl = CRM_Utils_System::url('civicrm/actionprocess', 'pumAction=add&pumEntity=budgetdivision', true);
         $this->assign('submitUrl', $submitUrl);
         
-        $deleteUrl = CRM_Utils_System::url('civicrm/actionprocess', null, true)
-            ."&pumAction=delete&pumEntity=budgetdivision";
+        $deleteUrl = CRM_Utils_System::url('civicrm/actionprocess', 'pumAction=delete&pumEntity=budgetdivision', true);
         $this->assign('delProgrammeDivisionUrl', $deleteUrl);
 
         /*

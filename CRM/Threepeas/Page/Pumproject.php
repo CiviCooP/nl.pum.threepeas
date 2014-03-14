@@ -81,8 +81,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
         }
         if (isset($pumProject['programme_id']) && !empty($pumProject['programme_id'])) {
             $programmeTitle = CRM_Threepeas_PumProgramme::getProgrammeTitleWithId($pumProject['programme_id']);
-            $programmeUrl = CRM_Utils_System::url("civicrm/pumprogramme", null, true).
-                "&action=view&pid=".$pumProject['programme_id'];
+            $programmeUrl = CRM_Utils_System::url("civicrm/pumprogramme", 'action=view&pid='.$pumProject['programme_id'], true);
             $programmeHtml = '<a href="'.$programmeUrl.'">'.$programmeTitle.'</a>';
             $this->assign('projectProgramme', $programmeHtml);
         }
@@ -112,8 +111,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
                 'return' =>  'display_name'
             );
             $sectorName = civicrm_api3('Contact', 'Getvalue', $sectorParams);
-            $sectorUrl = CRM_Utils_System::url('civicrm/contact/view', null, true).
-                    "&rest=1&cid=".$pumProject['sector_coordinator_id'];
+            $sectorUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$pumProject['sector_coordinator_id'], true);
             $sectorHtml = '<a href="'.$sectorUrl.'">'.$sectorName.'</a>';
             $this->assign('projectSectorCoordinator', $sectorHtml);
             
@@ -124,8 +122,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
                 'return' =>  'display_name'
             );
             $countryName = civicrm_api3('Contact', 'Getvalue', $countryParams);
-            $countryUrl = CRM_Utils_System::url('civicrm/contact/view', null, true).
-                    "&rest=1&cid=".$pumProject['country_coordinator_id'];
+            $countryUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$pumProject['country_coordinator_id'], true);
             $countryHtml = '<a href="'.$countryUrl.'">'.$countryName.'</a>';
             $this->assign('projectCountryCoordinator', $countryHtml);
             
@@ -136,8 +133,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
                 'return' =>  'display_name'
             );
             $officerName = civicrm_api3('Contact', 'Getvalue', $officerParams);
-            $officerUrl = CRM_Utils_System::url('civicrm/contact/view', null, true).
-                    "&rest=1&cid=".$pumProject['project_officer_id'];
+            $officerUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$pumProject['project_officer_id'], true);
             $officerHtml = '<a href="'.$officerUrl.'">'.$officerName.'</a>';
             $this->assign('projectOfficer', $officerHtml);
             

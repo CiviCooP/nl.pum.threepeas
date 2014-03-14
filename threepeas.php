@@ -269,7 +269,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
                 'attributes' => array (
                     'label'      => 'Add Programme',
                     'name'       => 'Add Programme',
-                    'url'        => 'civicrm/pumprogramme&action=add',
+                    'url'        => CRM_Utils_System::url('civicrm/pumprogramme', 'action=add', true),
                     'operator'   => null,
                     'separator'  => 0,
                     'parentID'   => $maxKey+1,
@@ -295,7 +295,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
                 'attributes' => array (
                     'label'      => 'Add Project',
                     'name'       => 'Add Project',
-                    'url'        => 'civicrm/pumproject&action=add',
+                    'url'        => CRM_Utils_System::url('civicrm/pumproject', 'action=add', true),
                     'operator'   => null,
                     'separator'  => 0,
                     'parentID'   => $maxKey+1,
@@ -308,7 +308,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
                 'attributes' => array (
                     'label'      => 'List Products',
                     'name'       => 'List Products',
-                    'url'        => 'civicrm/case/search&reset=1',
+                    'url'        => CRM_Utils_System::url('civicrm/case/search', 'reset=1', true),
                     'operator'   => null,
                     'separator'  => 0,
                     'parentID'   => $maxKey+1,

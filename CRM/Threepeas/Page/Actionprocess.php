@@ -50,8 +50,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                                  * budget division page
                                  */
                                 if ($this->_submitButton == "Save and divide budget") {
-                                    $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', null, TRUE);
-                                    $this->_redirectUrl .= "&pid=$programmeId";
+                                    $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', 'pid='.$programmeId, TRUE);
                                 }
                                 break;
                             case "edit":
@@ -62,8 +61,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                                  * budget division page
                                  */
                                 if ($this->_submitButton == "Save and divide budget") {
-                                    $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', null, TRUE);
-                                    $this->_redirectUrl .= "&pid=".$entityParams['programme_id'];
+                                    $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', 'pid='.$entityParams['programme_id'], TRUE);
                                 }
                                 break;
                             case "enable":
@@ -111,14 +109,12 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                                 $entityParams = $this->setBudgetDivisionData();
                                 $session->setStatus(ts("Programme Budget Division row added"), ts("Added"), 'success');
                                 CRM_Threepeas_PumProgrammeDivision::add($entityParams);
-                                $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', null, TRUE);
-                                $this->_redirectUrl .= "&pid=".$this->_data['programmeId'];
+                                $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', 'pid='.$this->_data['programmeId'], TRUE);
                                 break;
                             case "delete":
                                 $programmeDivisionId = $this->_data['pid'];
                                 CRM_Threepeas_PumProgrammeDivision::delete($programmeDivisionId);
-                                $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', null, TRUE);
-                                $this->_redirectUrl .= "&pid=".$this->_data['programmeId'];
+                                $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', 'pid='.$this->_data['programmeId'], TRUE);
                                 break;
                         }
                         break;

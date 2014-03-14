@@ -74,27 +74,29 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
              * set page actions, first generic part (view, edit)
              * then in foreach the specifics (enable or disable and delete only if allowed)
              */
-            $projectUrl = CRM_Utils_System::url('civicrm/pumproject', null, true)."&pid=".$project['id'];
-            $drillUrl = CRM_Utils_System::url('civicrm/pumdrill', null, true)."&pumEntity=project&pid=".$project['id'];
-            $delUrl = CRM_Utils_System::url('civicrm/actionprocess', null, true)."&projectId=".$project['id']."&pumEntity=project";
+            $editUrl = CRM_Utils_System::url('civicrm/pumproject', "action=edit&pid=".$project['id'], true);
+            $viewUrl = CRM_Utils_System::url('civicrm/pumproject', "action=view&pid=".$project['id'], true);
+            $drillUrl = CRM_Utils_System::url('civicrm/pumdrill', "pumEntity=project&pid=".$project['id'], true);
+            $disableUrl = CRM_Utils_System::url('civicrm/actionprocess', "pumAction=disable&pumEntity=project&projectId=".$project['id'], true);
+            $enableUrl = CRM_Utils_System::url('civicrm/actionprocess', "pumAction=enable&pumEntity=project&projectId=".$project['id'], true);
+            $delUrl = CRM_Utils_System::url('civicrm/actionprocess', "pumAction=delete&pumEntity=project&projectId=".$project['id'], true);
             $pageActions = array();
-            $pageActions[] = '<a class="action-item" title="View project details" href="'.$projectUrl.'&action=view">View</a>';
-            $pageActions[] = '<a class="action-item" title="Edit project" href="'.$projectUrl.'&action=edit">Edit</a>';
+            $pageActions[] = '<a class="action-item" title="View project details" href="'.$viewUrl.'">View</a>';
+            $pageActions[] = '<a class="action-item" title="Edit project" href="'.$editUrl.'">Edit</a>';
             $pageActions[] = '<a class="action-item" title="Drill down project" href="'.$drillUrl.'">Drill Down</a>';
-            $pageActions[] = '<a class="action-item" title="View project details" href="'.$projectUrl.'&action=view">View</a>';
             if ($project['is_active'] == 1) {
-                $pageActions[] = '<a class="action-item" title="Disable project" href="'.$delUrl.'&pumAction=disable">Disable</a>';
+                $pageActions[] = '<a class="action-item" title="Disable project" href="'.$disableUrl.'">Disable</a>';
             } else {
-                $pageActions[] = '<a class="action-item" title="Enable project" href="'.$delUrl.'&pumAction=enable">Enable</a>';                
+                $pageActions[] = '<a class="action-item" title="Enable project" href="'.$enableUrl.'">Enable</a>';                
             }
             if (CRM_Threepeas_PumProject::checkProjectDeleteable($project['id'])) {
-                $pageActions[] = '<a class="action-item" title="Delete project" href="'.$delUrl.'&pumAction=delete">Delete</a>';
+                $pageActions[] = '<a class="action-item" title="Delete project" href="'.$delUrl.'">Delete</a>';
             }
             $displayProject['actions'] = $pageActions;
             $displayProjects[] = $displayProject;
         }
         $this->assign('pumProjects', $displayProjects);
-        $addUrl = CRM_Utils_System::url('civicrm/pumproject', null, true)."&action=add";
+        $addUrl = CRM_Utils_System::url('civicrm/pumproject', 'action=add', true);
         $this->assign('addUrl', $addUrl);
         parent::run();
   }

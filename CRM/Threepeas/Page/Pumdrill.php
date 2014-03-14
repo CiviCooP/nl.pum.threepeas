@@ -89,7 +89,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
                 }
                 $row['project_officer_name'] = $projectOfficerName;
                 
-                $projectUrl = CRM_Utils_System::url('civicrm/pumproject', null, true)."&action=view&pid=".$project['id'];
+                $projectUrl = CRM_Utils_System::url('civicrm/pumproject', 'action=view&pid='.$project['id'], true);
                 $projectHtml = '<a href="'.$projectUrl. '">'.$project['title'].'</a>';
                 $row['project_title'] = $projectHtml;
                 
@@ -120,7 +120,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
                         }
                         $row['project_officer_name'] = $projectOfficerName;
 
-                        $projectUrl = CRM_Utils_System::url('civicrm/pumproject', null, true)."&action=view&pid=".$project['id'];
+                        $projectUrl = CRM_Utils_System::url('civicrm/pumproject', 'action=view&pid='.$project['id'], true);
                         $projectHtml = '<a href="'.$projectUrl. '">'.$project['title'].'</a>';
                         $row['project_title'] = $projectHtml;
 
@@ -133,8 +133,9 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
                             $row['project_active'] = "No";
                         }
                         $firstRow = FALSE;
-                    }                    
-                    $caseUrl = CRM_Utils_System::url('civicrm/contact/view/case', null, true)."&reset=1&action=view&id=".$case['case_id']."&cid=".$case['client_id'];
+                    }
+                    $caseUrlParams = "reset=1&action=view&id=".$case['case_id']."&cid=".$case['client_id'];
+                    $caseUrl = CRM_Utils_System::url('civicrm/contact/view/case', $caseUrlParams, true);
                     $caseHtml = '<a href="'.$caseUrl.'">'.$case['subject'].'</a>';
                     
                     $row['case_subject'] = $caseHtml;
