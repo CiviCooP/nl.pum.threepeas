@@ -1,5 +1,11 @@
 <h3>{$pageTitle}</h3>
 <div class="crm-content-block crm-block">
+    <div class="crm-submit-buttons">
+        <span class="crm-button">
+            <input id="done-drill" class="form-button" type="button" value="Done" name="done" onclick="window.location='{$doneUrl}'">
+        </span>
+    </div>
+
     <div id="programme-drill-wrapper" class="dataTables_wrapper">
         <table id="programme-drill-table" class="display">
             <thead>
@@ -39,4 +45,9 @@
             </tbody>
         </table>    
     </div>
+    <div class="crm-submit-buttons">
+        <span class="crm-button">
+            <input id="done-drill" class="form-button" type="button" value="Done" name="done" onclick="window.location='{$doneUrl}'">
+        </span>
+    </div>            
 </div>
