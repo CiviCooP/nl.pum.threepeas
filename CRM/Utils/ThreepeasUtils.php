@@ -46,7 +46,8 @@ class CRM_Utils_ThreepeasUtils {
      */
     public static function checkNumericFields($numericFields, $params) {
         foreach ($numericFields as $numericField) {
-            if (isset($params[$numericField]) && !is_numeric($params[$numericField])) {
+            if (isset($params[$numericField]) && !empty($params[$numericField]) &&
+                    !is_numeric($params[$numericField])) {
                 return FALSE;
             } 
         }

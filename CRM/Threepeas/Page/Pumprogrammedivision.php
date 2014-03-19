@@ -93,12 +93,20 @@ class CRM_Threepeas_Page_Pumprogrammedivision extends CRM_Core_Page {
             $displayDivision['programme_id'] = $this->_programmeId;
             $displayDivision['country'] = $apiCountries['values']
                     [$programmeDivision['country_id']]['name'];
-            $displayDivision['min_projects'] = $programmeDivision['min_projects'];
-            $displayDivision['max_projects'] = $programmeDivision['max_projects'];
-            $displayDivision['min_budget'] = CRM_Utils_Money::format(
+            if (isset($programmeDivision['min_projects'])) {
+                $displayDivision['min_projects'] = $programmeDivision['min_projects'];
+            }
+            if (isset($programmeDivision['max_projects'])) {
+                $displayDivision['max_projects'] = $programmeDivision['max_projects'];
+            }
+            if (isset($programmeDivision['min_budget'])) {
+                $displayDivision['min_budget'] = CRM_Utils_Money::format(
                     $programmeDivision['min_budget']);
-            $displayDivision['max_budget'] = CRM_Utils_Money::format(
+            }
+            if (isset($programmeDivision['max_budget'])) {
+                $displayDivision['max_budget'] = CRM_Utils_Money::format(
                     $programmeDivision['max_budget']);
+            }
             $displayDivisions[] = $displayDivision;
         }
         $this->assign("pumProgrammeDivisions", $displayDivisions);

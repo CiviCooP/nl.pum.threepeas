@@ -59,4 +59,20 @@
         </div>
     </div>
 </form>
-
+{* validation: nothing to add if no min/max projects and no min/max budget *}            
+{literal}
+    <script type="text/javascript">
+    cj("form").submit(function($) {
+        if (!cj('#programme-division-min-projects').val() 
+                && !cj('#programme-division-max-projects').val()
+                && !cj('#programme-division-min-budget').val()
+                && !cj('#programme-division-max-budget').val()) {
+            cj("#programme-division-min-projects").focus();
+            CRM.alert("There is nothing to add!", "No data entered", "error");
+            $.preventDefault();
+        } else {
+            return true;
+        }
+    });
+    </script>
+{/literal}

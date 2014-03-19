@@ -76,32 +76,39 @@ class CRM_Threepeas_PumProgrammeDivision {
             return $programmeDivisionId;
         }       
         $fields = array();
-        $fields[] = "programme_id = {$params['programme_id']}";
-        $fields[] = "country_id = {$params['country_id']}";
+        /*
+         * only process if one of the min/max fields is entered
+         */
+        if (!empty($params['min_projects']) || !empty($params['max_projects'])
+                || !empty($params['min_budget']) || !empty($params['max_budget'])) {
+            
+            $fields[] = "programme_id = {$params['programme_id']}";
+            $fields[] = "country_id = {$params['country_id']}";
 
-        if (isset($params['min_projects'])) {
-            $fields[] = "min_projects = {$params['min_projects']}";
-        }      
+            if (isset($params['min_projects']) && !empty($params['min_projects'])) {
+                $fields[] = "min_projects = {$params['min_projects']}";
+            }      
 
-        if (isset($params['max_projects'])) {
-            $fields[] = "max_projects = {$params['max_projects']}";
-        }      
+            if (isset($params['max_projects']) && !empty($params['max_projects'])) {
+                $fields[] = "max_projects = {$params['max_projects']}";
+            }      
 
-        if (isset($params['min_budget'])) {
-            $fields[] = "min_budget = {$params['min_budget']}";
-        }      
+            if (isset($params['min_budget']) && !empty($params['min_budget'])) {
+                $fields[] = "min_budget = {$params['min_budget']}";
+            }      
 
-        if (isset($params['max_budget'])) {
-            $fields[] = "max_budget = {$params['max_budget']}";
-        }      
-        
-        if (!empty($fields)) {
-            $insert = "INSERT INTO civicrm_programme_division SET ".implode(", ", $fields);
-            CRM_Core_DAO::executeQuery($insert);
-            $query = "SELECT MAX(id) AS latest_id FROM civicrm_programme_division";
-            $dao = CRM_Core_DAO::executeQuery($query);
-            if ($dao->fetch()) {
-                $programmeDivisionId = $dao->latest_id;
+            if (isset($params['max_budget']) && !empty($params['max_budget'])) {
+                $fields[] = "max_budget = {$params['max_budget']}";
+            }      
+
+            if (!empty($fields)) {
+                $insert = "INSERT INTO civicrm_programme_division SET ".implode(", ", $fields);
+                CRM_Core_DAO::executeQuery($insert);
+                $query = "SELECT MAX(id) AS latest_id FROM civicrm_programme_division";
+                $dao = CRM_Core_DAO::executeQuery($query);
+                if ($dao->fetch()) {
+                    $programmeDivisionId = $dao->latest_id;
+                }
             }
         }
         return $programmeDivisionId;
