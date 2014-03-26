@@ -14,7 +14,12 @@ require_once 'CRM/Core/Page.php';
 class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     function run() {
         CRM_Utils_System::setTitle(ts('List of Projects'));
-        $projects = CRM_Threepeas_PumProject::getAllProjects();
+        $customerId = CRM_Utils_Request::retrieve('cid', 'Positive', $this);
+        if (!empty($customerId)) {
+            $projects = CRM_Threepeas_PumProject::getAllProjectsByCustomerId($customerId);
+        } else { 
+            $projects = CRM_Threepeas_PumProject::getAllProjects();
+        }
         $displayProjects = array();
         foreach ($projects as $project) {
             $displayProject = array();

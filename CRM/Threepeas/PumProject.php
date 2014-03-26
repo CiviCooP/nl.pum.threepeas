@@ -424,7 +424,29 @@ class CRM_Threepeas_PumProject {
         return $result;
     }
     /**
-     * Function to retrieve all active projects for a program sorted by title
+     * Function to retrieve all projects for a customer
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 26 Mar 2014
+     * @param int $customerId
+     * @return array $result
+     * @access public
+     * @static
+     */
+    public static function getAllProjectsByCustomerId($customerId) {
+        $result = array();
+        if (empty($customerId) || !is_numeric($customerId)) {
+            return $result;
+        }
+        $query = "SELECT * FROM civicrm_project WHERE customer_id = $customerId";
+        $dao = CRM_Core_DAO::executeQuery($query);
+        while ($dao->fetch()) {
+            $result[] = self::_daoToArray($dao);
+        }
+        return $result;
+    }
+    /**
+     * Function to retrieve all active projects for a customer sorted by title
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 5 Mar 2014
@@ -721,6 +743,28 @@ class CRM_Threepeas_PumProject {
             $optionGroupId = 0;
         }
         return $optionGroupId;
+    }
+    /**
+     * Function to count the number of projects for a customer
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 26 Mar 2014
+     * @param int $customerId
+     * @return int $countProjects
+     * @access public
+     * static
+     */
+    public static function countCustomerProjects($customerId) {
+        $countProjects = 0;
+        if (empty($customerId) || !is_numeric($customerId)) {
+            return $countProjects;
+        }
+        $dao = CRM_Core_DAO::executeQuery("SELECT COUNT(*) AS countProjects FROM
+            civicrm_project WHERE customer_id = $customerId");
+        if ($dao->fetch()) {
+            $countProjects = $dao->countProjects;
+        }
+        return $countProjects;
     }
 }
 

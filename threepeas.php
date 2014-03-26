@@ -346,3 +346,36 @@ function threepeas_civicrm_navigationMenu( &$params ) {
         ), 
     );
 }
+/**
+ * Implementation of hook civicrm_tabs to add a tab for Projects for 
+ * contract subtype Customer
+ * 
+ * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+ * @date 26 Mar 2014
+ */
+ function threepeas_civicrm_tabs(&$tabs, $contactID) {
+     /*
+      * first check if contact_subtype is customer
+      */
+     $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $contactID));
+     $customerType = FALSE;
+     foreach ($contact['contact_sub_type'] as $contactSubType) {
+         if ($contactSubType == "Customer") {
+             $customerType = TRUE;
+         }
+     }
+     foreach ($tabs as $tab) {
+         if ($tab['title'] == "Cases") {
+             $projectWeight = $tab['weight']++;
+         }
+     }
+     $projectCount = CRM_Threepeas_PumProject::countCustomerProjects($contactID);
+     $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactID);
+     if ($customerType) {
+             $tabs[] = array( 'id'    => 'customerProjects',
+                'url'       => $projectUrl,
+                'title'     => 'Projects',
+                'weight'    => $projectWeight,
+                'count'     => $projectCount);
+     }
+ }
