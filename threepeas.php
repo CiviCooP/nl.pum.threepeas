@@ -365,7 +365,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
          }
      }
      foreach ($tabs as $tab) {
-         if ($tab['title'] == "Cases") {
+         if ($tab['title'] == ts("Cases")) {
              $projectWeight = $tab['weight']++;
          }
      }
