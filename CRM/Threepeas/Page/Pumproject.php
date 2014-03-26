@@ -17,25 +17,54 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
     protected $_sectorCoordinatorGroup = 0;
     protected $_countryCoordinatorGroup = 0;
     protected $_projectOfficerGroup = 0;
+    protected $_customerContactType = "";
     
     function run() {
         $this->_action = CRM_Utils_Request::retrieve('action', 'String', $this);
         $this->_projectId = CRM_Utils_Request::retrieve('pid', 'Positive', $this);
         
-        $sectorCoordinatorGroup = civicrm_api3('Group', 'Getsingle', array('title' => "Sector Coordinators"));
-        if (isset($sectorCoordinatorGroup['id'])) {
-            $this->_sectorCoordinatorGroup = $sectorCoordinatorGroup['id'];
+        $sectorCoordinatorParams = array(
+            'title' => "Sector Coordinators",
+            'return'=> "id"
+        );
+        try {
+            $this->_sectorCoordinatorGroup = civicrm_api3('Group', 'Getvalue', $sectorCoordinatorParams);
+        } catch (CiviCRM_API3_Exception $e) {
+            throw new Exception('Could not find a group for Sector Coordinators, message from API Group Getvalue : '.$e->getMessage());
         }
         
-        $countryCoordinatorGroup = civicrm_api3('Group', 'Getsingle', array('title' => "Country Coordinators"));
-        if (isset($countryCoordinatorGroup['id'])) {
-            $this->_countryCoordinatorGroup = $countryCoordinatorGroup['id'];
+        $countryCoordinatorParams = array(
+            'title' => "Country Coordinators",
+            'return'=> "id"
+        );
+        try {
+            $this->_countryCoordinatorGroup = civicrm_api3('Group', 'Getvalue', $countryCoordinatorParams);
+        } catch (CiviCRM_API3_Exception $e) {
+            throw new Exception('Could not find a group for Country Coordinators, message from API Group Getvalue : '.$e->getMessage());
         }
         
-        $projectOfficerGroup = civicrm_api3('Group', 'Getsingle', array('title' => "Project Officers"));
-        if (isset($projectOfficerGroup['id'])) {
-            $this->_projectOfficerGroup = $projectOfficerGroup['id'];
+        $projectOfficerParams = array(
+            'title' => "Project Officers",
+            'return'=> "id"
+        );
+        try {
+            $this->_projectOfficerGroup = civicrm_api3('Group', 'Getvalue', $projectOfficerParams);
+        } catch (CiviCRM_API3_Exception $e) {
+            throw new Exception('Could not find a group for Project Officers, message from API Group Getvalue : '.$e->getMessage());
         }
+        
+        $this->_customerContactType = "Customer";
+        $customerContactTypeParams = array(
+            'name'  =>  $this->_customerContactType,
+            'return'=>  "id"
+        );
+        try {
+            civicrm_api3('ContactType', 'Getvalue', $customerContactTypeParams);
+        } catch (CiviCRM_API3_Exception $e) {
+            $this->_customerContactType = "";
+            throw new Exception('Could not find a contact subtype for Customer, message from API ContactType Getvalue : '.$e->getMessage());
+        }
+        
         /*
          * retrieve project data if not add
          */
@@ -84,6 +113,16 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
             $programmeUrl = CRM_Utils_System::url("civicrm/pumprogramme", 'action=view&pid='.$pumProject['programme_id'], true);
             $programmeHtml = '<a href="'.$programmeUrl.'">'.$programmeTitle.'</a>';
             $this->assign('projectProgramme', $programmeHtml);
+        }
+        if (isset($pumProject['customer_id']) && !empty($pumProject['customer_id'])) {
+            $customerParams = array(
+                'id'     =>  $pumProject['customer_id'],
+                'return' =>  'display_name'
+            );
+            $customerName = civicrm_api3('Contact', 'Getvalue', $customerParams);
+            $customerUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$pumProject['customer_id'], true);
+            $customerHtml = '<a href="'.$customerUrl.'">'.$customerName.'</a>';
+            $this->assign('projectCustomer', $customerHtml);
         }
         if (isset($pumProject['reason'])) {
             $reasonHtml='<textarea readonly="readonly" name="project_reason" 
@@ -186,6 +225,15 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
         }
         $programmeHtml .= '</select>';
         $this->assign('projectProgramme', $programmeHtml);
+
+        $customerHtml = '<select id="project-customer" name="projectCustomer" 
+            class="form-select"><option value="0">- select</option>';
+        $customers = civicrm_api3('Contact', 'Get', array('contact_sub_type' => $this->_customerContactType));
+        foreach ($customers['values'] as $customerId => $customer) {
+            $customerHtml .= '<option value="'.$customerId.'">'.$customer['display_name'].'</option>';
+        }
+        $customerHtml .= '</select>';
+        $this->assign('projectCustomer', $customerHtml);
         
         $reasonHtml='<textarea name="projectReason" rows="3" cols="80"></textarea>';
         $this->assign('projectReason', $reasonHtml);
@@ -273,6 +321,21 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
         $programmeHtml .= '</select>';
         $this->assign('projectProgramme', $programmeHtml);
         
+        $customerHtml = '<select id="project-customer" name="projectCustomer" 
+            class="form-select">';
+        $customers = civicrm_api3('Contact', 'Get', array('contact_sub_type' => $this->_customerContactType));
+        foreach ($customers['values'] as $customerId => $customer) {
+            if ($customerId == $pumProject['customer_id']) {
+                $customerHtml .= '<option selected="selected" value="'.
+                    $customerId.'">'.$customer['display_name'].'</option>';                
+            } else {
+                $customerHtml .= '<option value="'.$customerId.'">'.
+                    $customer['display_name'].'</option>';
+            }
+        }
+        $customerHtml .= '</select>';
+        $this->assign('projectCustomer', $customerHtml);
+        
         $reasonHtml='<textarea name="projectReason" rows="3" cols="80">'.$pumProject['reason'].'</textarea>';
         $this->assign('projectReason', $reasonHtml);
         
@@ -356,6 +419,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
     private function setLabels() {
         $labels['projectTitle'] = '<label for="Title">'.ts('Title').'<span class="crm-marker" title="This field is required.">*</span></label>';
         $labels['projectProgramme'] = '<label for="Programme">'.ts('Programme').'</label>';
+        $labels['projectCustomer'] = '<label for="Customer">'.ts('Customer').'</label>';
         $labels['projectReason'] = '<label for="Reason">'.ts('Reason For Project').'</label>';
         $labels['projectWorkDescription'] = '<label for="Work Description">'.ts('Work Description').'</label>';
         $labels['projectQualifications'] = '<label for="Qualifications">'.ts('Qualifications').'</label>';

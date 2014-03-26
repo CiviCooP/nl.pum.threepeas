@@ -37,13 +37,13 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
          * prepare page based on action (edit=0, add=1, view=4, delete=8)
          */
         switch($this->_action) {
-            case 0:
+            case CRM_Core_Action::UPDATE:
                 $this->buildPageEdit($pumProgramme);
                 break;
-            case 1:
+            case CRM_Core_Action::ADD:
                 $this->buildPageAdd();
                 break;
-            case 4:
+            case CRM_Core_Action::VIEW:
                 $this->buildPageView($pumProgramme);
                 break;
         }
@@ -126,10 +126,18 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
                 'return'    =>  "name"
             );
             $displayDivision['country'] = civicrm_api3('Country', 'Getvalue', $countryParams);
-            $displayDivision['min_projects'] = $programmeDivision['min_projects'];
-            $displayDivision['max_projects'] = $programmeDivision['max_projects'];
-            $displayDivision['min_budget'] = CRM_Utils_Money::format($programmeDivision['min_budget']);
-            $displayDivision['max_budget'] = CRM_Utils_Money::format($programmeDivision['max_budget']);
+            if (isset($programmeDivision['min_projects']) && !empty($programmeDivision['min_projects'])) {
+                $displayDivision['min_projects'] = $programmeDivision['min_projects'];
+            }
+            if (isset($programmeDivision['max_projects']) && !empty($programmeDivision['max_projects'])) {
+                $displayDivision['max_projects'] = $programmeDivision['max_projects'];
+            }
+            if (isset($programmeDivision['min_budget']) && !empty($programmeDivision['min_budget'])) {
+                $displayDivision['min_budget'] = CRM_Utils_Money::format($programmeDivision['min_budget']);
+            }
+            if (isset($programmeDivision['max_budget']) && !empty($programmeDivision['max_budget'])) {
+                $displayDivision['max_budget'] = CRM_Utils_Money::format($programmeDivision['max_budget']);
+            }
             $displayDivisions[] = $displayDivision;
             
         }

@@ -34,6 +34,10 @@
                     <td>{$projectTitle}</td>
                 </tr>
                 <tr>
+                    <td class="label">{$labels.projectCustomer}</td>
+                    <td>{$projectCustomer}</td>
+                </tr>
+                <tr>
                     <td class="label">{$labels.projectReason}</td>
                     <td>{$projectReason}</td>
                 </tr>
@@ -114,10 +118,18 @@
 {literal}
     <script type="text/javascript">
     cj("form").submit(function($) {
-        if (!cj('#project-title').val()) {
-            cj("#project-title").focus();
-            CRM.alert("Project title can not be empty!", "Title Empty", "error");
-            $.preventDefault();
+        var selectedCustomer = cj('#project-customer option:selected').text();
+        if (!cj('#project-title').val() || selectedCustomer === "- select") {
+            if (!cj('#project-title').val()) {
+                cj("#project-title").focus();
+                CRM.alert("Project title can not be empty!", "Title Empty", "error");
+                $.preventDefault();
+            }
+            if (selectedCustomer === "- select") {
+                cj("#project-customer").focus();
+                CRM.alert("You have to select a project customer!", "Customer Empty", "error");
+                $.preventDefault();                
+            }
         } else {
             return true;
         }

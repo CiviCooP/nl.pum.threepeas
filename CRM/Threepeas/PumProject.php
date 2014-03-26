@@ -114,7 +114,7 @@ class CRM_Threepeas_PumProject {
          * check numeric fields
          */
         $numericFields = array("programme_id", "sector_coordinator_id", 
-            "country_coordinator_id", "project_officer_id");
+            "country_coordinator_id", "project_officer_id", "customer_id");
         if (!CRM_Utils_ThreepeasUtils::checkNumericFields($numericFields, $params)) {
             throw new Exception("Fields ".implode(", ", $numericFields)." have to be numeric");
             return $projectId;
@@ -140,6 +140,10 @@ class CRM_Threepeas_PumProject {
         if (isset($params['reason'])) {
             $reason = CRM_Core_DAO::escapeString($params['reason']);
             $fields[] = "reason = '$reason'";
+        }
+        
+        if (isset($params['customer_id'])) {
+            $fields[] = "customer_id = {$params['customer_id']}";
         }
 
         if (isset($params['work_description'])) {
@@ -269,6 +273,10 @@ class CRM_Threepeas_PumProject {
         if (isset($params['reason'])) {
             $reason = CRM_Core_DAO::escapeString($params['reason']);
             $fields[] = "reason = '$reason'";
+        }
+        
+        if (isset($params['customer_id'])) {
+            $fields[] = "customer_id = {$params['customer_id']}";
         }
 
         if (isset($params['work_description'])) {
@@ -656,6 +664,9 @@ class CRM_Threepeas_PumProject {
         }
         if (isset($dao->programme_id)) {
             $result['programme_id'] = $dao->programme_id;
+        }
+        if (isset($dao->customer_id)) {
+            $result['customer_id'] = $dao->customer_id;
         }
         if (isset($dao->reason)) {
             $result['reason'] = $dao->reason;

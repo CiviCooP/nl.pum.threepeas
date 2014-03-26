@@ -23,9 +23,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
      * standard CivCRM page function run
      */
     function run() {
-        if (!isset($session)) {
-            $session = CRM_Core_Session::singleton();
-        }
+        $session = CRM_Core_Session::singleton();
         $validActions = array("add", "edit", "disable", "delete", "enable");
         $validEntities = array("programme", "project", "budgetdivision");
         
@@ -50,7 +48,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                                  * budget division page
                                  */
                                 if ($this->_submitButton == "Save and divide budget") {
-                                    $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', 'pid='.$programmeId, TRUE);
+                                    $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', 'pid='.$programmeId);
                                 }
                                 break;
                             case "edit":
@@ -61,7 +59,7 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                                  * budget division page
                                  */
                                 if ($this->_submitButton == "Save and divide budget") {
-                                    $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', 'pid='.$entityParams['programme_id'], TRUE);
+                                    $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', 'pid='.$entityParams['programme_id']);
                                 }
                                 break;
                             case "enable":
@@ -109,12 +107,12 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                                 $entityParams = $this->setBudgetDivisionData();
                                 $session->setStatus(ts("Programme Budget Division row added"), ts("Added"), 'success');
                                 CRM_Threepeas_PumProgrammeDivision::add($entityParams);
-                                $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', 'pid='.$this->_data['programmeId'], TRUE);
+                                $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', 'pid='.$this->_data['programmeId']);
                                 break;
                             case "delete":
                                 $programmeDivisionId = $this->_data['pid'];
                                 CRM_Threepeas_PumProgrammeDivision::delete($programmeDivisionId);
-                                $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', 'pid='.$this->_data['programmeId'], TRUE);
+                                $this->_redirectUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', 'pid='.$this->_data['programmeId']);
                                 break;
                         }
                         break;
@@ -122,7 +120,6 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
             }
         }
         CRM_Utils_System::redirect($this->_redirectUrl);
-        //parent::run();
     }
     /**
      * Function to retrieve data from REQUEST
@@ -140,11 +137,11 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                         switch($requestValue) {
                             case "programme":
                                 $this->_redirectUrl = CRM_Utils_System::url
-                                    ('civicrm/programmelist', null, TRUE);
+                                    ('civicrm/programmelist');
                                 break;
                             case "project":
                                 $this->_redirectUrl = CRM_Utils_System::url
-                                    ('civicrm/projectlist', null, TRUE);
+                                    ('civicrm/projectlist');
                                 break;
                         }
                         break;
@@ -246,6 +243,9 @@ class CRM_Threepeas_Page_Actionprocess extends CRM_Core_Page {
                     break;
                 case "projectProgramme":
                     $result['programme_id'] = $dataValue;
+                    break;
+                case "projectCustomer":
+                    $result['customer_id'] = $dataValue;
                     break;
                 case "projectReason":
                     $result['reason'] = $dataValue;

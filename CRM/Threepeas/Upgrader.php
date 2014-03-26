@@ -28,4 +28,18 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
             $this->executeSqlFile('sql/createProject.sql');
         }
     }
+    /**
+     * Upgrade 1001 - add customer_id to project table
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 26 Mar 2014
+     */
+      public function upgrade_1001() {
+          $this->ctx->log->info('Applying update 1001 (add customer_id to civicrm_project table)');
+          if (CRM_Core_DAO::checkTableExists('civicrm_project')) {
+              if (!CRM_Core_DAO::checkFieldExists('civicrm_project', 'customer_id')) {
+                  CRM_Core_DAO::executeQuery("ALTER TABLE civicrm_project ADD COLUMN customer_id INT(11) DEFAULT NULL");
+              }
+          }
+          return TRUE;
+      }
 }
