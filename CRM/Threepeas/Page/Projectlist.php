@@ -83,7 +83,7 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
              * set page actions, first generic part (view, edit)
              * then in foreach the specifics (enable or disable and delete only if allowed)
              */
-            $editUrl = CRM_Utils_System::url('civicrm/pumproject', "action=edit&pid=".$project['id'], true);
+            $editUrl = CRM_Utils_System::url('civicrm/pumproject', "action=update&pid=".$project['id'], true);
             $viewUrl = CRM_Utils_System::url('civicrm/pumproject', "action=view&pid=".$project['id'], true);
             $drillUrl = CRM_Utils_System::url('civicrm/pumdrill', "pumEntity=project&pid=".$project['id'], true);
             $disableUrl = CRM_Utils_System::url('civicrm/actionprocess', "pumAction=disable&pumEntity=project&projectId=".$project['id'], true);

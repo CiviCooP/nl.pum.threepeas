@@ -51,7 +51,7 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
              * set page actions, first generic part (view, edit, divide budget)
              * then in foreach the specifics (enable or disable and delete only if allowed)
              */
-            $editUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=edit&pid={$programme['id']}");
+            $editUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=update&pid={$programme['id']}");
             $viewUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=view&pid={$programme['id']}");
             $delUrl = CRM_Utils_System::url('civicrm/actionprocess', "pumAction=detele&pumEntity=programme&programmeId={$programme['id']}");
             $drillUrl = CRM_Utils_System::url('civicrm/pumdrill', 'pumEntity=programme&pid='.$programme['id']);

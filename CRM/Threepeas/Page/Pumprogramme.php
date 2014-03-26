@@ -1,6 +1,6 @@
 <?php
 /**
- * Page Pumprogramme to add, edit, view or delete a programme (PUM)
+ * Page Pumprogramme to add, update, view or delete a programme (PUM)
  * 
  * @author Erik Hommel <erik.hommel@civicoop.org>
  * @date 10 Feb 2014
@@ -26,7 +26,7 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
         /*
          * retrieve programme data if not add
          */
-        if ($this->_action != 1) {
+        if ($this->_action != CRM_Core_Action::ADD) {
             $pumProgramme = CRM_Threepeas_PumProgramme::getProgrammeById($this->_programmeId);
         }
         /*
@@ -34,7 +34,7 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
          */
         $this->setLabels();
         /*
-         * prepare page based on action (edit=0, add=1, view=4, delete=8)
+         * prepare page based on action
          */
         switch($this->_action) {
             case CRM_Core_Action::UPDATE:
@@ -192,7 +192,7 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
         $this->assign('programmeIsActive', $enabledHtml);
     }
     /**
-     * Function to build page for edit action
+     * Function to build page for update action
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
      * @date 10 Feb 2014
@@ -200,7 +200,7 @@ class CRM_Threepeas_Page_Pumprogramme extends CRM_Core_Page {
      * @access private
      */
     private function buildPageEdit($pumProgramme) {
-        $this->assign('action', 'edit');
+        $this->assign('action', 'update');
         $this->assign('programmeId', $this->_programmeId);
         
         $submitUrl = CRM_Utils_System::url('civicrm/actionprocess', null, true);
