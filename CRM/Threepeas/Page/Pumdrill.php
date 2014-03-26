@@ -255,9 +255,15 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
                         'id'                    =>  $subActivity,
                         'is_current_revision'   =>  1
                     );
-                    $activityDetails = civicrm_api3('Activity', 'Getsingle', $actParams);
-                    $subActHtml = '<a href="'.$subActUrl.'">'.$activityDetails['subject'].'</a>';
-                    $row['activity'] = $subActHtml;
+                    try {
+                        $activityDetails = civicrm_api3('Activity', 'Getsingle', $actParams);
+                    } catch (CiviCRM_API3_Exception $e) {
+                        throw new Exception("Could not find an activity with id $subActivity, error from API Activity Getsingle : ".$e->getMessage());
+                    }                    
+                    if (isset($activityDetails['subject'])) {
+                        $subActHtml = '<a href="'.$subActUrl.'">'.$activityDetails['subject'].'</a>';
+                        $row['activity'] = $subActHtml;
+                    } 
                     
                     $actTypeGroupParams = array(
                         'name'      => 'activity_type',
