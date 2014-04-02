@@ -20,6 +20,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
     protected $_customerContactType = "";
     
     function run() {
+        CRM_Utils_System::setTitle(ts('Project Proposal'));
         $this->_action = CRM_Utils_Request::retrieve('action', 'String', $this);
         $this->_projectId = CRM_Utils_Request::retrieve('pid', 'Positive', $this);
         
