@@ -206,7 +206,7 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
      */
     private function buildPageAdd() {
         $this->assign('action', 'add');
-        
+        $defaultCustomerId = $this->_getDefaultCustomerId();
         $submitUrl = CRM_Utils_System::url('civicrm/actionprocess', null, true);
         $this->assign('submitProjectUrl', $submitUrl);
 
@@ -231,7 +231,12 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
             class="form-select"><option value="0">- select</option>';
         $customers = civicrm_api3('Contact', 'Get', array('contact_sub_type' => $this->_customerContactType));
         foreach ($customers['values'] as $customerId => $customer) {
-            $customerHtml .= '<option value="'.$customerId.'">'.$customer['display_name'].'</option>';
+            if (!empty($defaultCustomerId) && $customerId == $defaultCustomerId) {
+                $customerHtml .= '<option selected="selected" value="'.
+                    $customerId.'">'.$customer['display_name'].'</option>';                                
+            } else {
+                $customerHtml .= '<option value="'.$customerId.'">'.$customer['display_name'].'</option>';
+            }
         }
         $customerHtml .= '</select>';
         $this->assign('projectCustomer', $customerHtml);
@@ -432,5 +437,42 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
         $labels['projectEndDate'] = '<label for="End Date">'.ts('End Date').'</label>';
         $labels['projectIsActive'] = '<label for="Is Active">'.ts('Enabled').'</label>';
         $this->assign('labels', $labels);        
+    }
+    /**
+     * Function to check userContext and set default customer if contact in context
+     * is customer
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 2 Apr 2014
+     * @return int $customerId
+     * @access private
+     */
+    private function _getDefaultCustomerId() {
+        $customerId = 0;
+        /*
+         * retrieve userContext
+         */
+        $session = CRM_Core_Session::singleton();
+        $userContext = $session->readUserContext();
+        $contextParts = explode('&amp;', $userContext);
+        foreach ($contextParts as $contextPart) {
+            if (substr($contextPart, 0, 4) == 'cid=') {
+                $contactId = substr($contextPart, 4);
+            }
+        }
+        /*
+         * if contactId is customer, set customerId
+         */
+        if (isset($contactId)) {
+            $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $contactId));
+            if (!empty($contact['contact_sub_type'])) {
+                foreach ($contact['contact_sub_type'] as $contactSubType) {
+                    if ($contactSubType == "Customer") {
+                        $customerId = $contactId;
+                    }
+                }
+            }
+        }
+        return $customerId;
     }
 }

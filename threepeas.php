@@ -319,13 +319,26 @@ function threepeas_civicrm_navigationMenu( &$params ) {
             ), 
             '6' => array (
                 'attributes' => array (
+                    'label'      => 'Add Product',
+                    'name'       => 'Programmes Report',
+                    'url'        => CRM_Utils_System::url('civicrm/case/add', 'reset=1&action=add&atype=13&context=standalone'),
+                    'operator'   => null,
+                    'separator'  => 0,
+                    'parentID'   => $maxKey+1,
+                    'navID'      => 7,
+                    'active'     => 1
+                ),
+                'child' => null                
+            ),
+            '7' => array (
+                'attributes' => array (
                     'label'      => 'Programmes Report',
                     'name'       => 'Programmes Report',
                     'url'        => '#',
                     'operator'   => null,
                     'separator'  => 0,
                     'parentID'   => $maxKey+1,
-                    'navID'      => 6,
+                    'navID'      => 7,
                     'active'     => 1
                 ),
                 'child' => null
@@ -353,29 +366,32 @@ function threepeas_civicrm_navigationMenu( &$params ) {
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @date 26 Mar 2014
  */
- function threepeas_civicrm_tabs(&$tabs, $contactID) {
+function threepeas_civicrm_tabs(&$tabs, $contactID) {
      /*
       * first check if contact_subtype is customer
       */
      $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $contactID));
      $customerType = FALSE;
-     foreach ($contact['contact_sub_type'] as $contactSubType) {
-         if ($contactSubType == "Customer") {
-             $customerType = TRUE;
-         }
-     }
-     foreach ($tabs as $tab) {
-         if ($tab['title'] == ts("Cases")) {
-             $projectWeight = $tab['weight']++;
-         }
-     }
-     $projectCount = CRM_Threepeas_PumProject::countCustomerProjects($contactID);
-     $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactID);
-     if ($customerType) {
-             $tabs[] = array( 'id'    => 'customerProjects',
-                'url'       => $projectUrl,
-                'title'     => 'Projects',
-                'weight'    => $projectWeight,
-                'count'     => $projectCount);
-     }
- }
+     if (!empty($contact['contact_sub_type'])) {
+        foreach ($contact['contact_sub_type'] as $contactSubType) {
+               if ($contactSubType == "Customer") {
+                   $customerType = TRUE;
+               }
+        }
+        foreach ($tabs as $tab) {
+           if ($tab['title'] == ts("Cases")) {
+               $projectWeight = $tab['weight']++;
+           }
+        }
+        $projectCount = CRM_Threepeas_PumProject::countCustomerProjects($contactID);
+        $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactID);
+        if ($customerType) {
+               $tabs[] = array( 
+                  'id'    => 'customerProjects',
+                  'url'       => $projectUrl,
+                  'title'     => 'Projects',
+                  'weight'    => $projectWeight,
+                  'count'     => $projectCount);
+        }
+    }
+}

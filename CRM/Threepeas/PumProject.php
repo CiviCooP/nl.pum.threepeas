@@ -38,6 +38,29 @@ class CRM_Threepeas_PumProject {
         return $result;
     }
     /**
+     * Function to retrieve projects based on any search criteria in params
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 2 Apr 2014
+     * @param array $params
+     * @return array $result
+     * @access public
+     * @static
+     */
+    public static function get($params) {
+        if (empty($params)) {
+            $result = self::getAllProjects();
+            return $result;
+        }
+        $tableFields = self::fields();
+        foreach ($tableFields as $tableField) {
+            if (isset($params[$tableField])) {
+                
+            }
+        }
+        
+    }
+    /**
      * Function to retrieve all active proejcts
      * 
      * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
@@ -676,49 +699,14 @@ class CRM_Threepeas_PumProject {
     private static function _daoToArray($dao) {
         $result = array();
         if (empty($dao)) {
-            return $result;
+            return $result; 
         }
-        if (isset($dao->id)) {
-            $result['id'] = $dao->id;
-        }
-        if (isset($dao->title)) {
-            $result['title'] = $dao->title;
-        }
-        if (isset($dao->programme_id)) {
-            $result['programme_id'] = $dao->programme_id;
-        }
-        if (isset($dao->customer_id)) {
-            $result['customer_id'] = $dao->customer_id;
-        }
-        if (isset($dao->reason)) {
-            $result['reason'] = $dao->reason;
-        }
-        if (isset($dao->work_description)) {
-            $result['work_description'] = $dao->work_description;
-        }
-        if (isset($dao->qualifications)) {
-            $result['qualifications'] = $dao->qualifications;
-        }
-        if (isset($dao->expected_results)) {
-            $result['expected_results'] = $dao->expected_results;
-        }
-        if (isset($dao->sector_coordinator_id)) {
-            $result['sector_coordinator_id'] = $dao->sector_coordinator_id;
-        }
-        if (isset($dao->country_coordinator_id)) {
-            $result['country_coordinator_id'] = $dao->country_coordinator_id;
-        }
-        if (isset($dao->project_officer_id)) {
-            $result['project_officer_id'] = $dao->project_officer_id;
-        }
-        if (isset($dao->start_date)) {
-            $result['start_date'] = $dao->start_date;
-        }
-        if (isset($dao->end_date)) {
-            $result['end_date'] = $dao->end_date;
-        }
-        if (isset($dao->is_active)) {
-            $result['is_active'] = $dao->is_active;
+        $fields = self::fields();
+        foreach ($fields as $field) {
+            $fieldName = $field['name'];
+            if (isset($dao->$fieldName)) {
+                $result[$fieldName] = $dao->$fieldName;
+            }
         }
         return $result;
     }
@@ -765,6 +753,26 @@ class CRM_Threepeas_PumProject {
             $countProjects = $dao->countProjects;
         }
         return $countProjects;
+    }
+    /**
+     * Function to return a list of all fields in table civicrm_pumproject
+     * 
+     * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+     * @date 2 Apr 2014
+     * @return array $fields
+     * @access public
+     * @static
+     */
+    public static function fields() {
+        $fields = array();
+        $daoColumns = CRM_Core_DAO::executeQuery('DESCRIBE civicrm_project');
+        while ($daoColumns->fetch()) {
+            $field = array();
+            $field['name'] = $daoColumns->Field;
+            $field['type'] = $daoColumns->Type;
+            $fields[] = $field;
+        }
+        return $fields;
     }
 }
 
