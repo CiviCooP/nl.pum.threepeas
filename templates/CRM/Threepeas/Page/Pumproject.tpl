@@ -14,12 +14,18 @@
                 <span class="crm-button">
                     <input id="done-project" class="form-button" type="button" value="Done" name="done" onclick="window.location='{$doneUrl}'">
                 </span>
+                <span class="crm-button">
+                    <input id="add-product" class="from-button" type="button" value="Add product" name="add_product" onclick="window.location='{$addCaseUrl}'">
+                </span>
             {else}
                 <span class="crm-button">
                     <input id="save-done-project" class="validate form-submit default" type="submit" value="Save" name="saveProject" accesskey="S">
                 </span>
                 <span class="crm-button">
                     <input id="cancel-project" class="form-button" type="button" value="Cancel" name="cancel" onclick="window.location='{$cancelUrl}'">
+                </span>
+                <span class="crm-button">
+                    <input id="add-product" class="from-button" type="button" value="Add product" name="add_product" onclick="window.location='{$addCaseUrl}'">
                 </span>
             {/if}
         </div>
@@ -104,12 +110,18 @@
                 <span class="crm-button">
                     <input id="done-project" class="form-button" type="button" value="Done" name="done" onclick="window.location='{$doneUrl}'">
                 </span>
+                <span class="crm-button">
+                    <input id="add-product" class="from-button" type="button" value="Add product" name="add_product" onclick="window.location='{$addCaseUrl}'">
+                </span>
             {else}
                 <span class="crm-button">
                     <input id="save-done-project" class="validate form-submit default" type="submit" value="Save" name="saveProject" accesskey="S">
                 </span>
                 <span class="crm-button">
                     <input id="cancel-project" class="form-button" type="button" value="Cancel" name="cancel" onclick="window.location='{$cancelUrl}'">
+                </span>
+                <span class="crm-button">
+                    <input id="add-product" class="from-button" type="button" value="Add product" name="add_product" onclick="window.location='{$addCaseUrl}'">
                 </span>
             {/if}
         </div>

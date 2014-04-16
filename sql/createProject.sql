@@ -10,12 +10,15 @@ CREATE TABLE `civicrm_project` (
   `country_coordinator_id` int(11) DEFAULT NULL,
   `project_officer_id` int(11) DEFAULT NULL,
   `customer_id` int(11) DEFAULT NULL,
+  `country_id` int(11) DEFAULT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
   `is_active` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `PROGRAMME_id` (`programme_id`)
+  KEY `PROGRAMME_id` (`programme_id`),
+  KEY `CUSTOMER_id` (`customer_id`),
+  KEY `COUNTRY_id` (`country_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 
 

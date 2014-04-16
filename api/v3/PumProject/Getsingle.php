@@ -14,19 +14,22 @@ function _civicrm_api3_pum_project_getsingle_spec(&$spec) {
 
 /**
  * PumProject.Getsingle API
+ * 
+ * Returns a single project record based on any of the fields in the 
+ * table. 
  *
  * @param array $params
  * @return array API result descriptor
  * @see civicrm_api3_create_success
  * @see civicrm_api3_create_error
- * @throws API_Exception
+ * @throws CiviCRM_API3_Exception when more than one record was found
  */
 function civicrm_api3_pum_project_getsingle($params) {
   if (array_key_exists('project_id', $params) && !empty($params['project_id'])) {
     $returnValues = CRM_Threepeas_PumProject::getProjectById($params['project_id']);
     return civicrm_api3_create_success($returnValues, $params, 'PumProject', 'Getsingle');
   } else {
-    throw new API_Exception('Params has to contain a valid project_id');
+    throw new API_Exception('Expected 1 records but found '.$recordCount);
   }
 }
 

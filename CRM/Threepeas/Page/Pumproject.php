@@ -15,11 +15,15 @@ class CRM_Threepeas_Page_Pumproject extends CRM_Core_Page {
     protected $_action = "";
     protected $_projectId = 0;
     protected $_sectorCoordinatorGroup = 0;
-    protected $_countryCoordinatorGroup = 0;
+    protected $_countryCoordinatoGroup = 0;
     protected $_projectOfficerGroup = 0;
     protected $_customerContactType = "";
     
     function run() {
+        
+        $caseAddUrl = CRM_Utils_System::url('civicrm/case/add', 'reset=1&action=add&cid=&context=case', true);
+        $this->assign('addCaseUrl', $caseAddUrl);
+        
         CRM_Utils_System::setTitle(ts('Project Proposal'));
         $this->_action = CRM_Utils_Request::retrieve('action', 'String', $this);
         $this->_projectId = CRM_Utils_Request::retrieve('pid', 'Positive', $this);
