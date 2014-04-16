@@ -28,7 +28,7 @@ function threepeas_civicrm_xmlMenu(&$files) {
  *  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
 function threepeas_civicrm_install() {
-    return _threepeas_civix_civicrm_install();
+  return _threepeas_civix_civicrm_install();
 }
 
 /**
@@ -50,69 +50,68 @@ function threepeas_civicrm_uninstall() {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
 function threepeas_civicrm_enable() {
-    /*
-     * check if extension org.civicoop.general.api.country is active
-     * Required for countries in budget division
-     */
+  /*
+   * check if extension org.civicoop.general.api.country is active
+   * Required for countries in budget division
+   */
+  $countryApiInstalled = FALSE;
+  try {
+    $extensions = civicrm_api3('Extension', 'Get', array());
+    foreach ($extensions['values'] as $extension) {
+      if ($extension['key'] == "org.civicoop.general.api.country") {
+        if ($extension['status'] == "installed") {
+          $countryApiInstalled = TRUE;
+        }
+      }
+    }        
+  } catch (CiviCRM_API3_Exception $e) {
     $countryApiInstalled = FALSE;
+  }
+  if ($countryApiInstalled == TRUE) {
+    require_once 'CRM/Threepeas/PumProject.php';
+    /*
+     * retrieve option group for pum_project
+     */
     try {
-        $extensions = civicrm_api3('Extension', 'Get', array());
-        foreach ($extensions['values'] as $extension) {
-            if ($extension['key'] == "org.civicoop.general.api.country") {
-                if ($extension['status'] == "installed") {
-                    $countryApiInstalled = TRUE;
-                }
-            }
-        }        
+      $optionGroup = civicrm_api3('OptionGroup', 'Getsingle', array('name' => "pum_project"));
+      $optionGroupId = $optionGroup['id'];
     } catch (CiviCRM_API3_Exception $e) {
-        $countryApiInstalled = FALSE;
+      return _threepeas_civix_civicrm_enable();
     }
-    if ($countryApiInstalled == TRUE) {
-        require_once 'CRM/Threepeas/PumProject.php';
-        /*
-         * retrieve option group for pum_project
-         */
-        try {
-            $optionGroup = civicrm_api3('OptionGroup', 'Getsingle', array('name' => "pum_project"));
-            $optionGroupId = $optionGroup['id'];
-        } catch (CiviCRM_API3_Exception $e) {
-            return _threepeas_civix_civicrm_enable();
-        }
-        if ($optionGroupId) {
-            /*
-             * remove all existing option values (directly in database because\
-             * API would force me to do record by record
-             */
-            $delQuery = "DELETE FROM civicrm_option_value WHERE option_group_id = $optionGroupId";
-            CRM_Core_DAO::executeQuery($delQuery);
-
-            /*
-             * retrieve all active projects and add option values
-             */
-            $noneParams = array(
-                'option_group_id'   =>  $optionGroupId,
-                'value'             =>  0,
-                'label'             =>  '- none',
-                'is_active'         =>  1,
-                'is_reserved'       =>  1
-            );
-            civicrm_api3('OptionValue', 'Create', $noneParams);
-            $pumActiveProjects = CRM_Threepeas_PumProject::getAllActiveProjects();
-            foreach ($pumActiveProjects as $projectId => $activeProject) {
-                    $createParams = array(
-                        'option_group_id'   =>  $optionGroupId,
-                        'value'             =>  $projectId,
-                        'label'             =>  $activeProject['title'],
-                        'is_active'         =>  1,
-                        'is_reserved'       =>  1
-                    );
-                    civicrm_api3('OptionValue', 'Create', $createParams);
-            }
-        }
-        return _threepeas_civix_civicrm_enable();
-    } else {
-      CRM_Core_Error::fatal("Could not enable extension, the required extension org.civicoop.general.api.country is not active in this environment!");
+    if ($optionGroupId) {
+      /*
+       * remove all existing option values (directly in database because\
+       * API would force me to do record by record
+       */
+      $delQuery = "DELETE FROM civicrm_option_value WHERE option_group_id = $optionGroupId";
+      CRM_Core_DAO::executeQuery($delQuery);
+      /*
+       * retrieve all active projects and add option values
+       */
+      $noneParams = array(
+        'option_group_id'   =>  $optionGroupId,
+        'value'             =>  0,
+        'label'             =>  '- none',
+        'is_active'         =>  1,
+        'is_reserved'       =>  1
+      );
+      civicrm_api3('OptionValue', 'Create', $noneParams);
+      $pumActiveProjects = CRM_Threepeas_PumProject::getAllActiveProjects();
+      foreach ($pumActiveProjects as $projectId => $activeProject) {
+        $createParams = array(
+          'option_group_id'   =>  $optionGroupId,
+          'value'             =>  $projectId,
+          'label'             =>  $activeProject['title'],
+          'is_active'         =>  1,
+          'is_reserved'       =>  1
+        );
+        civicrm_api3('OptionValue', 'Create', $createParams);
+      }
     }
+    return _threepeas_civix_civicrm_enable();
+  } else {
+    CRM_Core_Error::fatal("Could not enable extension, the required extension org.civicoop.general.api.country is not active in this environment!");
+  }
 }
 /**
  * Implementation of hook_civicrm_disable
@@ -150,61 +149,61 @@ function threepeas_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_managed
  */
 function threepeas_civicrm_managed(&$entities) {
-    /*
-     * create specific groups for PUM
-     */
-    $entities[] = array(
-        'module'    => 'nl.pum.threepeas',
-        'name'      => 'Programme Managers',
-        'entity'    => 'Group',
-        'params'    => array(
-            'version'       => 3,
-            'name'          => 'Programme Managers',
-            'title'         => 'Programme Managers',
-            'description'   => 'Group for Possible Programme Managers',
-            'is_active'     =>  1,
-            'is_reserved'   =>  1,
-            'group_type'    =>  array(2 => 1))
-    );
-    $entities[] = array(
-        'module'    => 'nl.pum.threepeas',
-        'name'      => 'Sector Coordinators',
-        'entity'    => 'Group',
-        'params'    => array(
-            'version'       => 3,
-            'name'          => 'Sector Coordinators',
-            'title'         => 'Sector Coordinators',
-            'description'   => 'Group for Possible Sector Coordinators',
-            'is_active'     =>  1,
-            'is_reserved'   =>  1,
-            'group_type'    =>  array(2 => 1))
-    );
-    $entities[] = array(
-        'module'    => 'nl.pum.threepeas',
-        'name'      => 'Country Coordinators',
-        'entity'    => 'Group',
-        'params'    => array(
-            'version'       => 3,
-            'name'          => 'Country Coordinators',
-            'title'         => 'Country Coordinators',
-            'description'   => 'Group for Possible Country Coordinators',
-            'is_active'     =>  1,
-            'is_reserved'   =>  1,
-            'group_type'    =>  array(2 => 1))
-    );
-    $entities[] = array(
-        'module'    => 'nl.pum.threepeas',
-        'name'      => 'Project Officers',
-        'entity'    => 'Group',
-        'params'    => array(
-            'version'       => 3,
-            'name'          => 'Project Officers',
-            'title'         => 'Project Officers',
-            'description'   => 'Group for Possible Project Officers',
-            'is_active'     =>  1,
-            'is_reserved'   =>  1,
-            'group_type'    =>  array(2 => 1))
-    );
+  /*
+   * create specific groups for PUM
+   */
+  $entities[] = array(
+    'module'    => 'nl.pum.threepeas',
+    'name'      => 'Programme Managers',
+    'entity'    => 'Group',
+    'params'    => array(
+      'version'       => 3,
+      'name'          => 'Programme Managers',
+      'title'         => 'Programme Managers',
+      'description'   => 'Group for Possible Programme Managers',
+      'is_active'     =>  1,
+      'is_reserved'   =>  1,
+      'group_type'    =>  array(2 => 1))
+  );
+  $entities[] = array(
+    'module'    => 'nl.pum.threepeas',
+    'name'      => 'Sector Coordinators',
+    'entity'    => 'Group',
+    'params'    => array(
+      'version'       => 3,
+      'name'          => 'Sector Coordinators',
+      'title'         => 'Sector Coordinators',
+      'description'   => 'Group for Possible Sector Coordinators',
+      'is_active'     =>  1,
+      'is_reserved'   =>  1,
+      'group_type'    =>  array(2 => 1))
+  );
+  $entities[] = array(
+    'module'    => 'nl.pum.threepeas',
+    'name'      => 'Country Coordinators',
+    'entity'    => 'Group',
+    'params'    => array(
+      'version'       => 3,
+      'name'          => 'Country Coordinators',
+      'title'         => 'Country Coordinators',
+      'description'   => 'Group for Possible Country Coordinators',
+      'is_active'     =>  1,
+      'is_reserved'   =>  1,
+      'group_type'    =>  array(2 => 1))
+  );
+  $entities[] = array(
+    'module'    => 'nl.pum.threepeas',
+    'name'      => 'Project Officers',
+    'entity'    => 'Group',
+    'params'    => array(
+      'version'       => 3,
+      'name'          => 'Project Officers',
+      'title'         => 'Project Officers',
+      'description'   => 'Group for Possible Project Officers',
+      'is_active'     =>  1,
+      'is_reserved'   =>  1,
+      'group_type'    =>  array(2 => 1))
+  );
   return _threepeas_civix_civicrm_managed($entities);
 }
 
@@ -238,126 +237,98 @@ function threepeas_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  * @param array $params
  */
 function threepeas_civicrm_navigationMenu( &$params ) {
-    $maxKey = ( max( array_keys($params) ) );
-    $params[$maxKey+1] = array (
-        'attributes' => array (
-            'label'      => 'Programmes, Projects and Products',
-            'name'       => 'Programmes, Projects and Products',
-            'url'        => null,
-            'permission' => null,
-            'operator'   => null,
-            'separator'  => null,
-            'parentID'   => null,
-            'navID'      => $maxKey+1,
-            'active'     => 1
+  $maxKey = ( max( array_keys($params) ) );
+  $params[$maxKey+1] = array (
+    'attributes' => array (
+      'label'      => 'Programmes, Projects and Products',
+      'name'       => 'Programmes, Projects and Products',
+      'url'        => null,
+      'permission' => null,
+      'operator'   => null,
+      'separator'  => null,
+      'parentID'   => null,
+      'navID'      => $maxKey+1,
+      'active'     => 1
     ),
-        'child' =>  array (
-            '1' => array (
-                'attributes' => array (
-                    'label'      => 'List Programmes',
-                    'name'       => 'List Programmes',
-                    'url'        => 'civicrm/programmelist',
-                    'operator'   => null,
-                    'separator'  => 0,
-                    'parentID'   => $maxKey+1,
-                    'navID'      => 1,
-                    'active'     => 1
-                ),
-                'child' => null
-            ), 
-            '2' => array (
-                'attributes' => array (
-                    'label'      => 'Add Programme',
-                    'name'       => 'Add Programme',
-                    'url'        => CRM_Utils_System::url('civicrm/pumprogramme', 'action=add', true),
-                    'operator'   => null,
-                    'separator'  => 0,
-                    'parentID'   => $maxKey+1,
-                    'navID'      => 2,
-                    'active'     => 1
-                ),
-                'child' => null
+    'child' =>  array (
+      '1' => array (
+        'attributes' => array (
+            'label'      => 'List Programmes',
+            'name'       => 'List Programmes',
+            'url'        => 'civicrm/programmelist',
+            'operator'   => null,
+            'separator'  => 0,
+            'parentID'   => $maxKey+1,
+            'navID'      => 1,
+            'active'     => 1
             ),
-            '3' => array (
-                'attributes' => array (
-                    'label'      => 'List Projects',
-                    'name'       => 'List Projects',
-                    'url'        => 'civicrm/projectlist',
-                    'operator'   => null,
-                    'separator'  => 0,
-                    'parentID'   => $maxKey+1,
-                    'navID'      => 3,
-                    'active'     => 1
-                ),
-                'child' => null
-            ), 
-            '4' => array (
-                'attributes' => array (
-                    'label'      => 'Add Project',
-                    'name'       => 'Add Project',
-                    'url'        => CRM_Utils_System::url('civicrm/pumproject', 'action=add', true),
-                    'operator'   => null,
-                    'separator'  => 0,
-                    'parentID'   => $maxKey+1,
-                    'navID'      => 4,
-                    'active'     => 1
-                ),
-                'child' => null
-            ),
-            '5' => array (
-                'attributes' => array (
-                    'label'      => 'List Products',
-                    'name'       => 'List Products',
-                    'url'        => CRM_Utils_System::url('civicrm/case/search', 'reset=1', true),
-                    'operator'   => null,
-                    'separator'  => 0,
-                    'parentID'   => $maxKey+1,
-                    'navID'      => 5,
-                    'active'     => 1
-                ),
-                'child' => null
-            ), 
-            '6' => array (
-                'attributes' => array (
-                    'label'      => 'Add Product',
-                    'name'       => 'Programmes Report',
-                    'url'        => CRM_Utils_System::url('civicrm/case/add', 'reset=1&action=add&atype=13&context=standalone'),
-                    'operator'   => null,
-                    'separator'  => 0,
-                    'parentID'   => $maxKey+1,
-                    'navID'      => 7,
-                    'active'     => 1
-                ),
-                'child' => null                
-            ),
-            '7' => array (
-                'attributes' => array (
-                    'label'      => 'Programmes Report',
-                    'name'       => 'Programmes Report',
-                    'url'        => '#',
-                    'operator'   => null,
-                    'separator'  => 0,
-                    'parentID'   => $maxKey+1,
-                    'navID'      => 7,
-                    'active'     => 1
-                ),
-                'child' => null
-            ), 
-            '7' => array (
-                'attributes' => array (
-                    'label'      => 'Projects Report',
-                    'name'       => 'Projects Report',
-                    'url'        => '#',
-                    'operator'   => null,
-                    'separator'  => 1,
-                    'parentID'   => $maxKey+1,
-                    'navID'      => 7,
-                    'active'     => 1
-                ),
-                'child' => null
-            ) 
-        ), 
-    );
+        'child' => null
+      ), 
+      '2' => array (
+        'attributes' => array (
+          'label'      => 'Add Programme',
+          'name'       => 'Add Programme',
+          'url'        => CRM_Utils_System::url('civicrm/pumprogramme', 'action=add', true),
+          'operator'   => null,
+          'separator'  => 0,
+          'parentID'   => $maxKey+1,
+          'navID'      => 2,
+          'active'     => 1
+        ),
+        'child' => null
+      ),
+      '3' => array (
+        'attributes' => array (
+          'label'      => 'List Projects',
+          'name'       => 'List Projects',
+          'url'        => 'civicrm/projectlist',
+          'operator'   => null,
+          'separator'  => 0,
+          'parentID'   => $maxKey+1,
+          'navID'      => 3,
+          'active'     => 1
+        ),
+        'child' => null
+      ), 
+      '4' => array (
+        'attributes' => array (
+          'label'      => 'Add Project',
+          'name'       => 'Add Project',
+          'url'        => CRM_Utils_System::url('civicrm/pumproject', 'action=add', true),
+          'operator'   => null,
+          'separator'  => 0,
+          'parentID'   => $maxKey+1,
+          'navID'      => 4,
+          'active'     => 1
+        ),
+        'child' => null
+      ),
+      '5' => array (
+        'attributes' => array (
+          'label'      => 'List Products',
+          'name'       => 'List Products',
+          'url'        => CRM_Utils_System::url('civicrm/case/search', 'reset=1', true),
+          'operator'   => null,
+          'separator'  => 0,
+          'parentID'   => $maxKey+1,
+          'navID'      => 5,
+          'active'     => 1
+        ),
+        'child' => null
+      ), 
+      '6' => array (
+        'attributes' => array (
+          'label'      => 'Add Product',
+          'name'       => 'Programmes Report',
+          'url'        => CRM_Utils_System::url('civicrm/case/add', 'reset=1&action=add&atype=13&context=standalone'),
+          'operator'   => null,
+          'separator'  => 0,
+          'parentID'   => $maxKey+1,
+          'navID'      => 7,
+          'active'     => 1
+        ),
+        'child' => null                
+      )));
 }
 /**
  * Implementation of hook civicrm_tabs to add a tab for Projects for 
@@ -367,31 +338,31 @@ function threepeas_civicrm_navigationMenu( &$params ) {
  * @date 26 Mar 2014
  */
 function threepeas_civicrm_tabs(&$tabs, $contactID) {
-     /*
-      * first check if contact_subtype is customer
-      */
-     $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $contactID));
-     $customerType = FALSE;
-     if (!empty($contact['contact_sub_type'])) {
-        foreach ($contact['contact_sub_type'] as $contactSubType) {
-               if ($contactSubType == "Customer") {
-                   $customerType = TRUE;
-               }
-        }
-        foreach ($tabs as $tab) {
-           if ($tab['title'] == ts("Cases")) {
-               $projectWeight = $tab['weight']++;
-           }
-        }
-        $projectCount = CRM_Threepeas_PumProject::countCustomerProjects($contactID);
-        $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactID);
-        if ($customerType) {
-               $tabs[] = array( 
-                  'id'    => 'customerProjects',
-                  'url'       => $projectUrl,
-                  'title'     => 'Projects',
-                  'weight'    => $projectWeight,
-                  'count'     => $projectCount);
-        }
+  /*
+   * first check if contact_subtype is customer
+   */
+  $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $contactID));
+  $customerType = FALSE;
+  if (!empty($contact['contact_sub_type'])) {
+    foreach ($contact['contact_sub_type'] as $contactSubType) {
+      if ($contactSubType == "Customer") {
+        $customerType = TRUE;
+      }
     }
+    foreach ($tabs as $tab) {
+      if ($tab['title'] == ts("Cases")) {
+        $projectWeight = $tab['weight']++;
+      }
+    }
+    if ($customerType == TRUE) {
+      $projectCount = CRM_Threepeas_PumProject::countCustomerProjects($contactID);
+      $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactID);
+      $tabs[] = array( 
+        'id'    => 'customerProjects',
+        'url'       => $projectUrl,
+        'title'     => 'Projects',
+        'weight'    => $projectWeight,
+        'count'     => $projectCount);
+    }
+  }
 }
