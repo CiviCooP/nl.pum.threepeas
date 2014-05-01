@@ -22,7 +22,7 @@ function _civicrm_api3_pum_project_get_spec(&$spec) {
  * @throws API_Exception
  */
 function civicrm_api3_pum_project_get($params) {
-    $returnValues = CRM_Threepeas_PumProject::get($params);
+    $returnValues = CRM_Threepeas_BAO_PumProject::getValues($params);
 
     return civicrm_api3_create_success($returnValues, $params, 'NewEntity', 'NewAction');
 }

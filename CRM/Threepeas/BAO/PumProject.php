@@ -86,4 +86,53 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     $pumProject->delete();
     return TRUE;
   }
+  /**
+   * Function to check if there is already a project with the incoming title
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 30 Apr 2014
+   * @param string $projectTitle
+   * @return boolean
+   * @access public
+   * @static
+   */
+  public static function checkTitleExists($projectTitle) {
+    $projects = self::getValues(array('title' => $projectTitle));
+    if (empty($projects)) {
+      return FALSE;
+    } else {
+      return TRUE;
+    }
+  }
+  /**
+   * Function to check if project can be deleted
+   *
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 30 Apr 2014
+   * @param int $projectId
+   * @return boolean $canBeDeleted
+   * @access public
+   * @static
+   */
+  public static function checkCanBeDeleted($projectId) {
+    if (empty($projectId)) {
+      return TRUE;
+    }
+    $canBeDeleted = TRUE;
+    /*
+     * can not delete if any cases for project
+     */
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    if (!is_null($threepeasConfig->caseCustomTable) && !is_null($threepeasConfig->caseProjectColumn)) {
+      $countQuery = 'SELECT COUNT(*) AS countCases FROM '.$threepeasConfig->caseCustomTable. ' WHERE '
+        .$threepeasConfig->caseProjectColumn.' = '.$projectId;
+      $dao = CRM_Core_DAO::executeQuery($countQuery);
+      if ($dao->fetch()) {
+        if ($dao->countCases > 0) {
+          $canBeDeleted = FALSE;
+        } 
+      }
+    }
+    return $canBeDeleted;
+  }
 }

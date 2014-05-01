@@ -18,7 +18,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
         
         if ($entity == "programme") {
             $programmeId = CRM_Utils_Request::retrieve('pid', 'Positive', $this);
-            $programme = CRM_Threepeas_PumProgramme::getProgrammeById($programmeId);
+            $programme = CRM_Threepeas_BAO_PumProgramme::getValues(array('id' => $programmeId));
             
             $this->assign('programmeId', $programmeId);
             
@@ -50,7 +50,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
             $projectId = CRM_Utils_Request::retrieve('pid', 'Positive', $this);
             $project = CRM_Threepeas_PumProject::getProjectById($projectId);
             
-            $programmeTitle = CRM_Threepeas_PumProgramme::getProgrammeTitleWithId($project['programme_id']);
+            $programmeTitle = CRM_Threepeas_BAO_PumProgramme::getProgrammeTitleWithId($project['programme_id']);
             if (!empty($programmeTitle)) {
                 $pageTitle = $project['title']." (part of programme ".$programmeTitle.")";
             } else {

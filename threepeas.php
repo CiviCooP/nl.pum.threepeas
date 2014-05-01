@@ -1,5 +1,4 @@
 <?php
-
 require_once 'threepeas.civix.php';
 
 /**
@@ -44,30 +43,18 @@ function threepeas_civicrm_uninstall() {
  * Implementation of hook_civicrm_enable
  * - populate option values table for PUM projects with PUM projects if 
  *   they do not exist yet
+ * - check if extension org.civicoop.general.api.country is active
+ * - define constant PUMPROJ_CUSTOM_ID
  *
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @date 18 Feb 2014
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
 function threepeas_civicrm_enable() {
-  /*
-   * check if extension org.civicoop.general.api.country is active
-   * Required for countries in budget division
-   */
-  $countryApiInstalled = FALSE;
-  try {
-    $extensions = civicrm_api3('Extension', 'Get', array());
-    foreach ($extensions['values'] as $extension) {
-      if ($extension['key'] == "org.civicoop.general.api.country") {
-        if ($extension['status'] == "installed") {
-          $countryApiInstalled = TRUE;
-        }
-      }
-    }        
-  } catch (CiviCRM_API3_Exception $e) {
-    $countryApiInstalled = FALSE;
-  }
-  if ($countryApiInstalled == TRUE) {
+  $extensionParams = array('full_name' => 'org.civicoop.general.api.country');
+  $extensionDefaults = array();
+  $countryApiExtension = CRM_Core_BAO_Extension::retrieve($extensionParams, $extensionDefaults);
+  if (!empty($countryApiExtension) && $countryApiExtension->is_active == 1) {
     require_once 'CRM/Threepeas/PumProject.php';
     /*
      * retrieve option group for pum_project
@@ -266,8 +253,8 @@ function threepeas_civicrm_navigationMenu( &$params ) {
       ), 
       '2' => array (
         'attributes' => array (
-          'label'      => 'Add Programme',
-          'name'       => 'Add Programme',
+          'label'      => 'New Programme',
+          'name'       => 'New Programme',
           'url'        => CRM_Utils_System::url('civicrm/pumprogramme', 'action=add', true),
           'operator'   => null,
           'separator'  => 0,
@@ -292,9 +279,9 @@ function threepeas_civicrm_navigationMenu( &$params ) {
       ), 
       '4' => array (
         'attributes' => array (
-          'label'      => 'Add Project',
-          'name'       => 'Add Project',
-          'url'        => CRM_Utils_System::url('civicrm/pumproject', 'action=add', true),
+          'label'      => 'List Products',
+          'name'       => 'List Products',
+          'url'        => CRM_Utils_System::url('civicrm/case/search', 'reset=1', true),
           'operator'   => null,
           'separator'  => 0,
           'parentID'   => $maxKey+1,
@@ -302,21 +289,8 @@ function threepeas_civicrm_navigationMenu( &$params ) {
           'active'     => 1
         ),
         'child' => null
-      ),
-      '5' => array (
-        'attributes' => array (
-          'label'      => 'List Products',
-          'name'       => 'List Products',
-          'url'        => CRM_Utils_System::url('civicrm/case/search', 'reset=1', true),
-          'operator'   => null,
-          'separator'  => 0,
-          'parentID'   => $maxKey+1,
-          'navID'      => 5,
-          'active'     => 1
-        ),
-        'child' => null
       ), 
-      '6' => array (
+      '5' => array (
         'attributes' => array (
           'label'      => 'Add Product',
           'name'       => 'Programmes Report',
@@ -324,7 +298,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
           'operator'   => null,
           'separator'  => 0,
           'parentID'   => $maxKey+1,
-          'navID'      => 7,
+          'navID'      => 5,
           'active'     => 1
         ),
         'child' => null                
@@ -365,4 +339,66 @@ function threepeas_civicrm_tabs(&$tabs, $contactID) {
         'count'     => $projectCount);
     }
   }
+}
+/**
+ * Implementation of hook_civicrm_custom
+ * - automatically create project in table civicrm_project when custom group
+ *   Projectinformation gets new record. Created based on webform Projectrequest
+ * 
+ * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+ * @date 23 Apr 2014
+ * @param string $op
+ * @param int $groupID
+ * @param int $entityID
+ * @param array $params
+ */
+function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
+  /*
+   * if groupID = PUM project custom group and option is create, create
+   * pum project
+   */
+  $threepeasConfig = CRM_Threepeas_Config::singleton();
+  if ($groupID == $threepeasConfig->projectCustomGroupId && $op == 'create') {
+    $pumProject = _threepeas_set_project($params);
+    /*
+     * retrieve case for subject and client
+     */ 
+    $apiCase = civicrm_api3('Case', 'Getsingle', array('case_id' => $entityID));
+    $pumProject['title'] = $apiCase['subject'];
+    $pumProject['customer_id'] = $apiCase['client_id'][1];
+    CRM_Threepeas_BAO_PumProject::add($pumProject);
+  }
+}
+/**
+ * Function to set basic data for pum project
+ * 
+ * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+ * @date 23 Apr 2014
+ * @param array $params
+ * @return array $result
+ */
+function _threepeas_set_project($params) {
+  $result = array();
+  $usedCustomFields = array('reason', 'activities', 'expected_results');
+  $$threepeasConfig = CRM_Threepeas_Config::singleton();
+  $customFields = civicrm_api3('CustomField', 'Get', array('custom_group_id' => $threepeasConfig->projectCustomGroupId));
+  foreach ($customFields['values'] as $customFieldId => $customField) {
+    if (in_array($customField['name'], $usedCustomFields)) {
+      foreach ($params as $param) {
+        if ($param['custom_field_id'] == $customFieldId) {
+          switch($customField['name']) {
+            case "activities":
+              $result['work_description'] = trim($param['value']);
+              break;
+            case "expected_results":
+              $result['expected_results'] = trim($param['value']);
+              break;
+            case "reason":
+              $result['reason'] = trim($param['value']);
+          }
+        }
+      }
+    }
+  }
+  return $result;
 }

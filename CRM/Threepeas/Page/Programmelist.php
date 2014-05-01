@@ -14,7 +14,7 @@ require_once 'CRM/Core/Page.php';
 class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
     function run() {
         CRM_Utils_System::setTitle(ts('List of Programmes'));
-        $programmes = CRM_Threepeas_PumProgramme::getAllProgrammes();
+        $programmes = CRM_Threepeas_BAO_PumProgramme::getValues(array());
         $displayProgrammes = array();
         
         foreach ($programmes as $programme) {
@@ -25,12 +25,12 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
                 $displayProgramme['budget'] = CRM_Utils_Money::format($programme['budget']);
             }
             if (isset($programme['start_date'])) {
-                $displayProgramme['start_date'] = date("d-m-Y", strtotime($programme['start_date']));
+                $displayProgramme['start_date'] = $programme['start_date'];
             } else {
                 $displayProgramme['start_date'] = NULL;
             }
             if (isset($programme['end_date'])) {
-                $displayProgramme['end_date'] = date("d-m-Y", strtotime($programme['end_date']));
+                $displayProgramme['end_date'] = $programme['end_date'];
             } else {
                 $displayProgramme['end_date'] = NULL;
             }
@@ -39,10 +39,10 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
             } else {
                 $displayProgramme['is_active'] = ts("No");
             }
-            if (isset($programme['contact_id_manager']) && !empty($programme['contact_id_manager'])) {
-                $displayProgramme['contact_id_manager'] = $programme['contact_id_manager'];
+            if (isset($programme['manager_id']) && !empty($programme['manager_id'])) {
+                $displayProgramme['manager_id'] = $programme['manager_id'];
                 $contactParams = array(
-                    'id'     =>  $programme['contact_id_manager'],
+                    'id'     =>  $programme['manager_id'],
                     'return' =>  'display_name'
                 );
                 $displayProgramme['manager_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
@@ -53,11 +53,11 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
              */
             $editUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=update&pid={$programme['id']}");
             $viewUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=view&pid={$programme['id']}");
-            $delUrl = CRM_Utils_System::url('civicrm/actionprocess', "pumAction=detele&pumEntity=programme&programmeId={$programme['id']}");
+            $delUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=delete&pid={$programme['id']}");
             $drillUrl = CRM_Utils_System::url('civicrm/pumdrill', 'pumEntity=programme&pid='.$programme['id']);
-            $disableUrl = CRM_Utils_System::url('civicrm/actionprocess', "&pumAction=disable&pumEntity=programme&programmeId={$programme['id']}");
-            $enableUrl = CRM_Utils_System::url('civicrm/actionprocess', "&pumAction=enable&pumEntity=programme&programmeId={$programme['id']}");
-            $divideUrl = CRM_Utils_System::url('civicrm/pumprogrammedivision', "pid={$programme['id']}");
+            $disableUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=disable&pid={$programme['id']}");
+            $enableUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=enable&pid={$programme['id']}");
+            $divideUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=update&pid={$programme['id']}");
             $pageActions = array();
             $pageActions[] = '<a class="action-item" title="View programme details" href="'.$viewUrl.'">View</a>';
             $pageActions[] = '<a class="action-item" title="Edit programme" href="'.$editUrl.'">Edit</a>';
@@ -68,7 +68,7 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
             } else {
                 $pageActions[] = '<a class="action-item" title="Enable programme" href="'.$enableUrl.'">Enable</a>';                
             }
-            if (CRM_Threepeas_PumProgramme::checkProgrammeDeleteable($programme['id'])) {
+            if (CRM_Threepeas_BAO_PumProgramme::checkCanBeDeleted($programme['id'])){
                 $pageActions[] = '<a class="action-item" title="Delete programme" href="'.$delUrl.'">Delete</a>';
             }
             $displayProgramme['actions'] = $pageActions;

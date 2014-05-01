@@ -44,6 +44,7 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
   }
   /**
    * Upgrade 1002 - add country_id to project table
+   *              - rename contact_id_manager to manager_id in programme table
    * this is NOT the core civicrm country_id but the id of a contact of the 
    * sub_type country
    * 
@@ -51,10 +52,13 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
    * @date 16 Apr 2014
    */
   public function upgrade_1002() {
-    $this->ctx->log->info('Applying update 1002 (add country)id to civicrm_project table)');
+    $this->ctx->log->info('Applying update 1002 (add country)id to civicrm_project table and renaming manager_id in civicrm_programme table)');
     if (CRM_Core_DAO::checkTableExists('civicrm_project')) {
       if (!CRM_Core_DAO::checkFieldExists('civicrm_project', 'country_id')) {
         CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_project ADD COLUMN country_id INT(11) DEFAULT NULL');
+      }
+      if (CRM_Core_DAO::checkFieldExists('civicrm_programme' , 'contact_id_manager')) {
+        CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_programme CHANGE contact_id_manager manager_id INT(11)');
       }
     }  
   }

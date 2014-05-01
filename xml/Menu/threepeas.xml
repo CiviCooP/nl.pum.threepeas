@@ -14,25 +14,13 @@
   </item>
   <item>
     <path>civicrm/pumprogramme</path>
-    <page_callback>CRM_Threepeas_Page_Pumprogramme</page_callback>
+    <page_callback>CRM_Threepeas_Form_PumProgramme</page_callback>
     <title>Pumprogramme</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
-    <path>civicrm/actionprocess</path>
-    <page_callback>CRM_Threepeas_Page_Actionprocess</page_callback>
-    <title>Actionprocess</title>
-    <access_arguments>access CiviCRM</access_arguments>
-  </item>
-  <item>
-    <path>civicrm/pumprogrammedivision</path>
-    <page_callback>CRM_Threepeas_Page_Pumprogrammedivision</page_callback>
-    <title>Pumprogrammedivision</title>
-    <access_arguments>access CiviCRM</access_arguments>
-  </item>
-  <item>
     <path>civicrm/pumproject</path>
-    <page_callback>CRM_Threepeas_Page_Pumproject</page_callback>
+    <page_callback>CRM_Threepeas_Form_PumProject</page_callback>
     <title>Pumproject</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>

@@ -26,7 +26,7 @@ function _civicrm_api3_pum_project_getsingle_spec(&$spec) {
  */
 function civicrm_api3_pum_project_getsingle($params) {
   if (array_key_exists('project_id', $params) && !empty($params['project_id'])) {
-    $returnValues = CRM_Threepeas_PumProject::getProjectById($params['project_id']);
+    $returnValues = CRM_Threepeas_BAO_PumProject::getValues(array('id' => $params['project_id']));
     return civicrm_api3_create_success($returnValues, $params, 'PumProject', 'Getsingle');
   } else {
     throw new API_Exception('Expected 1 records but found '.$recordCount);
