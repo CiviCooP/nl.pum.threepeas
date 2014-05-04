@@ -81,11 +81,11 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
       }
 
       if (isset($project['start_date']) && !empty($project['start_date'])) {
-        $displayProject['start_date'] = date("d-m-Y", strtotime($project['start_date']));
+        $displayProject['start_date'] = $project['start_date'];
       }
 
         if (isset($project['end_date']) && !empty($project['end_date'])) {
-          $displayProject['end_date'] = date("d-m-Y", strtotime($project['end_date']));
+          $displayProject['end_date'] = $project['end_date'];
         }
 
       if (!isset($project['is_active'])) {

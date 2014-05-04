@@ -258,6 +258,9 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    */
   function saveProject($values) {
     $saveProject = $values;
+    if ($this->_action == CRM_Core_Action::UPDATE) {
+      $saveProject['id'] = $this->_id;
+    }
     $saveProject['start_date'] = CRM_Utils_Date::processDate($values['start_date']);
     $saveProject['end_date'] = CRM_Utils_Date::processDate($values['end_date']);
     $saveProject['is_active'] = 1;
@@ -271,6 +274,9 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * Function to correct defaults for View action
    */
   function correctViewDefaults($defaults) {
+    if (isset($defaults['programme_id']) && !empty($defaults['programme_id'])) {
+      $defaults['programme_id'] = CRM_Utils_Array::value($defaults['programme_id'], $this->_programmes);
+    }
     if (isset($defaults['customer_id']) && !empty($defaults['customer_id'])) {
       $defaults['customer_id'] = CRM_Utils_Array::value($defaults['customer_id'], $this->_projectCustomers);
     } else {
@@ -319,21 +325,46 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * Function to add validation rules
    */
   function addRules() {
-   if ($this->_action == CRM_Core_Action::ADD) {
+    if ($this->_action == CRM_Core_Action::ADD) {
+      $this->addFormRule(array('CRM_Threepeas_Form_PumProject', 'validateCountry'));
       $this->addFormRule(array('CRM_Threepeas_Form_PumProject', 'validateTitle'));
-   }
-    //$this->addFormRule(array('CRM_Threepeas_Form_PumProject', 'validateCountry'));
-    //$this->addFormRule(array('CRM_Threepeas_Form_PumProject', 'validateDates'));
+    }
+    $this->addFormRule(array('CRM_Threepeas_Form_PumProject', 'validateDates'));
   }
   /**
    * Function to validate title
    */
   static function validateTitle($fields) {
-    if (CRM_Threepeas_BAO_PumProject::checkTitleExists) {
+    if (CRM_Threepeas_BAO_PumProject::checkTitleExists($fields['title']) == TRUE) {
       $errors['title'] = ts('You already have a project with title '.$fields['title']);
       return $errors;
     } else {
       return TRUE;
     }
+  }
+  /**
+   * Function to validate country
+   */
+  static function validateCountry($fields) {
+    if (empty($fields['country_id']) || $fields['country_id'] == 0) {
+      $errors['country_id'] = ts('You have to select a country for the project');
+      return $errors;
+    } else {
+      return TRUE;
+    }
+  }
+  /**
+   * Function to validate start and end date
+   */
+  static function validateDates($fields) {
+    if (!empty($fields['end_date'])) {
+      $compEndDate = date('Ymd', strtotime($fields['end_date']));
+      $compStartDate = date('Ymd', strtotime($fields['start_date']));
+      if ($compEndDate <= $compStartDate) {
+          $errors['end_date'] = ts('End date has to be later than start date');
+          return $errors;
+      }
+    }
+    return TRUE;
   }
 }
