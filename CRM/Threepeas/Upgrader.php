@@ -60,6 +60,7 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
       if (CRM_Core_DAO::checkFieldExists('civicrm_programme' , 'contact_id_manager')) {
         CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_programme CHANGE contact_id_manager manager_id INT(11)');
       }
-    }  
+    }
+    return TRUE;
   }
 }
