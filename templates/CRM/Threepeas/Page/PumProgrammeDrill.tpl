@@ -15,9 +15,8 @@
           <th class="sorting-disabled" rowspan="1" colspan="1">Project Start Date</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Project End Date</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Project Enabled</th>
-          <th class="sorting-disabled" rowspan="1" colspan="1">Activity Subject</th>
-          <th class="sorting-disabled" rowspan="1" colspan="1">Activity Type</th>
-          <th class="sorting-disabled" rowspan="1" colspan="1">Activity Status</th>
+          <th class="sorting-disabled" rowspan="1" colspan="1">Case</th>
+          <th class="sorting-disabled" rowspan="1" colspan="1">Case Status</th>
         </tr>
       </thead>
       <tbody>
@@ -32,7 +31,6 @@
             <td>{$row.project_start_date|crmDate}</td>
             <td>{$row.project_end_date|crmDate}</td>
             <td>{$row.project_active}</td>
-            <td>{$row.case_subject}</td>
             <td>{$row.case_type}</td>
             <td>{$row.case_status}</td>
           </tr>

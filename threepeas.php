@@ -83,7 +83,7 @@ function threepeas_civicrm_enable() {
         'is_reserved'       =>  1
       );
       civicrm_api3('OptionValue', 'Create', $noneParams);
-      $pumActiveProjects = CRM_Threepeas_PumProject::getAllActiveProjects();
+      $pumActiveProjects = CRM_Threepeas_BAO_PumProject::getValues(array('is_active' => 1));
       foreach ($pumActiveProjects as $projectId => $activeProject) {
         $createParams = array(
           'option_group_id'   =>  $optionGroupId,
@@ -342,7 +342,7 @@ function threepeas_civicrm_tabs(&$tabs, $contactID) {
       }
     }
     if ($customerType == TRUE) {
-      $projectCount = CRM_Threepeas_PumProject::countCustomerProjects($contactID);
+      $projectCount = CRM_Threepeas_BAO_PumProject::countCustomerProjects($contactID);
       $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactID);
       $tabs[] = array( 
         'id'    => 'customerProjects',

@@ -135,4 +135,87 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     }
     return $canBeDeleted;
   }
+  /**
+   * Function to count projects for a customer
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 7 May 2014
+   * @param int $customerId
+   * @return int $countProjects
+   * @access public
+   * @static
+   */
+  public static function countCustomerProject($customerId) {
+    $countProjects = 0;
+    if (!empty($customerId) && is_numeric($customerId)) {
+      $countQry = "SELECT COUNT(*) AS countProjects FROM civicrm_project WHERE customer_id = %1";
+      $countParams = array(1 => array($customerId, 'Integer'));
+      $dao = CRM_Core_DAO::executeQuery($countQry, $countParams);
+      if ($dao->fetch()) {
+        $countProjects = $dao->countProjects;
+      }
+    }
+    return $countProjects;
+  }
+  /**
+   * Function to retrieve all cases for a project
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 7 May 2014
+   * @param int $projectId
+   * @return array $result
+   * @access public
+   * @static
+   */
+  public static function getCasesByProjectId($projectId) {
+    $result = array();
+    if (empty($projectId) || !is_numeric($projectId)) {
+      return $result;
+    }
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    /*
+     * select all entity_ids (case_ids) with $projectId
+     */
+    $caseQuery = 'SELECT entity_id FROM '.$threepeasConfig->caseCustomTable.
+      ' WHERE '.$threepeasConfig->caseProjectColumn.' = %1';
+    $caseParams = array(1=>array($projectId, 'Integer'));
+    $caseDao = CRM_Core_DAO::executeQuery($caseQuery, $caseParams);
+    while ($caseDao->fetch()) {
+      $result[$caseDao->entity_id] = self::getCaseResultLine($caseDao->entity_id);
+    }
+    return $result;
+  }
+  /**
+   * Function to get a case line for a case id
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 7 May 2014
+   * @param int $caseId
+   * @return array $resultLine
+   * @access private
+   * @static
+   */
+  private static function getCaseResultLine($caseId) {
+    $resultLine = array();
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    $case = civicrm_api3('Case', 'Getsingle', array('id' => $caseId, 'is_deleted' => 0));
+    foreach ($case['client_id'] as $caseClient) {
+      $caseClientId = $caseClient;
+    }
+    $resultLine['case_id'] = $case['id'];
+    $resultLine['subject'] = $case['subject'];
+    $resultLine['start_date'] = $case['start_date'];
+    $resultLine['end_date'] = $case['end_date'];
+    $resultLine['client_id'] = $caseClientId;
+    $resultLine['expert_id'] = CRM_Case_BAO_Case::getCaseRoles($caseClientId, $caseId, $threepeasConfig->expertRelationshipTypeId);
+    $optionParams['option_group_id'] = $threepeasConfig->caseTypeOptionGroupId;
+    $optionParams['value'] = $case['case_type_id'];
+    $optionParams['return'] = 'id';
+    $resultLine['case_type'] = civicrm_api3('OptionValue', 'Getvalue', $optionParams);
+    $optionParams['option_group_id'] = $threepeasConfig->caseStatusOptionGroupId;
+    $optionParams['value'] = $case['status_id'];
+    $resultLine['case_status'] = civicrm_api3('OptionValue', 'Getvalue', $optionParams);
+    return $resultLine;
+  }
+  
 }

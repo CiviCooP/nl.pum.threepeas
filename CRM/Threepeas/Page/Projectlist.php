@@ -116,7 +116,7 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
       } else {
         $pageActions[] = '<a class="action-item" title="Enable project" href="'.$enableUrl.'">Enable</a>';                
       }
-      if (CRM_Threepeas_PumProject::checkProjectDeleteable($project['id'])) {
+      if (CRM_Threepeas_BAO_PumProject::checkCanBeDeleted($project['id'])) {
         $pageActions[] = '<a class="action-item" title="Delete project" href="'.$delUrl.'">Delete</a>';
       }
       $displayProject['actions'] = $pageActions;

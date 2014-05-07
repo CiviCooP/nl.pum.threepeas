@@ -35,21 +35,36 @@ class CRM_Threepeas_Config {
    */
   public $projectCustomGroupId = NULL;
   /*
-   * custom group table for cases with field for project
+   * custom group table and id for cases with field for project
    */
   public $caseCustomTable = NULL;
+  public $caseCustomGroupId = NULL;
   public $caseProjectColumn = NULL;
+  /*
+   * case type and status option group id
+   */
+  public $caseTypeOptionGroupId = NULL;
+  public $caseStatusOptionGroupId = NULL;
+  /*
+   * PUM expert at relationship type id
+   */
+  public $expertRelationshipTypeId = NULL;
   /**
    * Constructor function
    */
   function __construct() {
-    $this->customerContactType = 'Customer';
+    $this->setCustomerContactType('Customer');
     $this->setGroupId('Programme Managers');
     $this->setGroupId('Sector Coordinators');
     $this->setGroupId('Country Coordinators');
     $this->setGroupId('Project Officers');
     $this->setCustomGroupId('Projectinformation');
     $this->setCaseCustomData();
+    $this->setCaseOptionGroupId();
+    $this->expertRelationshipTypeId = $this->setRelationshipTypeId('PUM-expert at');
+  }
+  private function setCustomerContactType($customerContactType) {
+    $this->customerContactType = $customerContactType;
   }
   /**
    * Function to return singleton object
@@ -125,6 +140,7 @@ class CRM_Threepeas_Config {
         $this->caseCustomTable = $customDataSet['table_name'];
       }
       if (isset($customDataSet['id'])) {
+        $this->caseCustomGroupId = $customDataSet['id'];
         $projectColumnParams = array('custom_group_id' => $customDataSet['id'], 'name' => 'Project', 'return' => 'column_name');
         try {
           $this->caseProjectColumn = civicrm_api3('CustomField', 'Getvalue', $projectColumnParams);
@@ -136,5 +152,37 @@ class CRM_Threepeas_Config {
       $this->caseCustomTable = NULL;
       $this->caseProjectColumn = NULL;
     }
+  }
+  private function setCaseOptionGroupId() {
+    try {
+      $this->caseTypeOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue', 
+        array('name' => 'case_type', 'return' => 'id'));
+    } catch (CiviCRM_API3_Exception $ex) {
+      $this->caseTypeOptionGroupId = 0;
+    }
+    try {
+      $this->caseStatusOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue', 
+        array('name' => 'case_status', 'return' => 'id'));
+    } catch (CiviCRM_API3_Exception $ex) {
+      $this->caseStatusOptionGroupId = 0;
+    }
+  }
+  /**
+   * Function to get a realtionship type ID with the CiviCRM API and store it in property
+   * 
+   * @param string $title name of the group of whic the id is to be set
+   * @access private
+   */
+  private function setRelationshipTypeId($name) {
+    if (!empty($name)) {
+      $relationshipTypeParams = array('name_a_b' => $name, 'return' => 'id');
+      try {
+        $relationshipTypeId = civicrm_api3('RelationshipType', 'Getvalue', $relationshipTypeParams);
+      } catch (CiviCRM_API3_Exception $ex) {
+        throw new Exception(ts('Could not find a relationshipType with name_a_b '
+          .$name.', error from API Group Getvalue : '.$ex->getMessage()));
+      }
+    }
+    return $relationshipTypeId;
   }
 }
