@@ -416,3 +416,74 @@ function _threepeas_set_project($params) {
   }
   return $result;
 }
+/**
+ * Implementation of hook civicrm_buildForm
+ * 
+ * add project to CRM_Case_Form_Case and CRM_Case_Form_CaseView
+ * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+ * @date 19 May 2014
+ */
+function threepeas_civicrm_buildForm($formName, &$form) {
+  if ($formName == 'CRM_Case_Form_Case') {
+    
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    $projectList = array();
+    $projectOptions = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $threepeasConfig->projectOptionGroupId));
+    foreach ($projectOptions['values'] as $option) {
+      $projectList[$option['value']] = $option['label'];
+    }
+    $form->addElement('select', 'project_id', ts('Parent Project'), $projectList);
+    /*
+     * if option = create, check if there is a project id in the entryURL and if so
+     * default to that value
+     */
+    $action = $form->getvar('_action');
+    if ($action === CRM_Core_Action::ADD) {
+      $projectId = CRM_Utils_Request::retrieve('pid', 'String');
+      if ($projectId) {
+        $defaults['project_id'] = $projectId;
+        $form->setDefaults($defaults);
+        $form->freeze('project_id');
+      }
+    }
+  }
+  if ($formName == 'CRM_Case_Form_CaseView') {
+    /*
+     * retrieve and show project title
+     */
+    $caseId = $form->getVar('_caseID');
+    $caseProjects = CRM_Threepeas_BAO_PumCaseProject::getValues(array('case_id' => $caseId));
+    foreach ($caseProjects as $caseProject) {
+      $projectId = $caseProject['project_id'];
+    }
+    if (isset($projectId) && !empty($projectId)) {
+      $projects = CRM_Threepeas_BAO_PumProject::getValues(array('id' => $projectId));
+      $form->assign('project_title', $projects[$projectId]['title']);
+    }
+  }
+}
+/**
+ * Implementation of hook civicrm_postProcess
+ * 
+ * add data to civicrm_case_project
+ */
+function threepeas_civicrm_postProcess($formName, &$form) {
+  if ($formName == 'CRM_Case_Form_Case') {
+    $action = $form->getVar('_action');
+    if ($action === CRM_Core_Action::ADD) {
+      $values = $form->exportValues();
+      if (isset($values['project_id']) && !empty($values['project_id'])) {
+        /* 
+         * retrieve latest case_id
+         */
+        $daoCase = CRM_Core_DAO::executeQuery('SELECT MAX(id) as maxId FROM civicrm_case');
+        if ($daoCase->fetch()) {
+          $params = array(
+            'case_id' => $daoCase->maxId,
+            'project_id' => $values['project_id']);
+          CRM_Threepeas_BAO_PumCaseProject::add($params);
+        }
+      }
+    }
+  }
+}

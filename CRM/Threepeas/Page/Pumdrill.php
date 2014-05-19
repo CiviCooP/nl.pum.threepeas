@@ -36,13 +36,13 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
       $productLabel = array(
         'type'       => ts("Main Activity"),
         'objective'  => ts("Objective"),
-        'client'     => ts("Client"),
+        'client'     => ts("Client/Country"),
         'start_date' => ts("Start date"),
         'end_date'   => ts("End date"),
         'status'     => ts("Status")
       );
       $this->assign('productLabel', $productLabel);
-      $drillRows = $this->_buildProjectRows($projectId);
+      $drillRows = $this->_buildProjectRows($projectId, $project[$projectId]['customer_id']);
       $this->assign('drillData', $drillRows);
       $doneUrl = CRM_Utils_System::url('civicrm/projectlist');
       $this->assign('doneUrl', $doneUrl);
@@ -157,11 +157,16 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 19 Mar 2014
    * @param int $projectId
+   * @param int $customerId
    * @return array $drillRows
    * @access private
    */
-  private function _buildProjectRows($projectId) {
+  private function _buildProjectRows($projectId, $customerId) {
     $threepeasConfig = CRM_Threepeas_Config::singleton();
+    if (!empty($customerId)) {
+      $caseUrl = CRM_Utils_System::url('civicrm/case/add', 'reset=1&action=add&cid='.$customerId.'&context=case&pid='.$projectId, true);
+      $this->assign('caseUrl', $caseUrl);
+    } 
     $drillRows = array();
     if (empty($projectId) || !is_numeric($projectId)) {
       return $drillRows;

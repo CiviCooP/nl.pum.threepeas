@@ -4,6 +4,11 @@
     <span class="crm-button">
       <input id="done-drill" class="form-button" type="button" value="Done" name="done" onclick="window.location='{$doneUrl}'">
     </span>
+    {if $caseUrl}
+      <span class="crm-button">
+        <input id="add-case" class="form-button" type="button" value="Create case" name="add-case" onclick="window.location='{$caseUrl}'">
+      </span>
+    {/if}
   </div>            
   <div id="project-drill-wrapper" class="dataTables_wrapper">
     <table id="project-drill-table" class="display">
@@ -16,6 +21,7 @@
           <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.start_date}</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.end_date}</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.status}</th>
+          <th class="sorting-disabled" rowspan="1" colspan="1"></th>
         </tr>
       </thead>
       <tbody>
@@ -32,12 +38,14 @@
             <td>{$row.start_date}</td>
             <td>{$row.end_date}</td>
             <td>{$row.status}</td>
+            <td>
+              <span>
+                {foreach from=$row.actions item=actionLink}
+                  {$actionLink}
+                {/foreach}
+              </span>
+            </td>
           </tr>
-          {if $rowClass eq "odd-row"}
-            {assign var="rowClass" value="even-row"}
-          {else}
-            {assign var="rowClass" value="odd-row"}                        
-          {/if}
         {/foreach}
       </tbody>
     </table>    
@@ -46,5 +54,10 @@
     <span class="crm-button">
       <input id="done-drill" class="form-button" type="button" value="Done" name="done" onclick="window.location='{$doneUrl}'">
     </span>
+    {if $caseUrl}
+      <span class="crm-button">
+        <input id="add-case" class="form-button" type="button" value="Create case" name="add-case" onclick="window.location='{$caseUrl}'">
+      </span>
+    {/if}
   </div>            
 </div>

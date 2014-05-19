@@ -27,6 +27,10 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
     if (!CRM_Core_DAO::checkTableExists('civicrm_project')) {
       $this->executeSqlFile('sql/createProject.sql');
     }
+
+    if (!CRM_Core_DAO::checkTableExists('civicrm_case_project')) {
+      $this->executeSqlFile('sql/createCaseProject.sql');
+    }
   }
   /**
    * Upgrade 1001 - add customer_id to project table
@@ -60,6 +64,16 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
       if (CRM_Core_DAO::checkFieldExists('civicrm_programme' , 'contact_id_manager')) {
         CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_programme CHANGE contact_id_manager manager_id INT(11)');
       }
+    }
+    return TRUE;
+  }
+  /**
+   * Upgrade 1003 - add table civicrm_case_project
+   */
+  public function upgrade_1003() {
+    $this->ctx->log->info('Applying update 1003 (create civicrm_case_project table');
+    if (!CRM_Core_DAO::checkTableExists('civicrm_case_project')) {
+      $this->executeSqlFile('sql/createCaseProject.sql');
     }
     return TRUE;
   }
