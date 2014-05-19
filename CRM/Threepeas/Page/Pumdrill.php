@@ -30,19 +30,16 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
         
       $projectId = CRM_Utils_Request::retrieve('pid', 'Positive', $this);
       $project = CRM_Threepeas_BAO_PumProject::getValues(array('id'=> $projectId));
-            
-      $programmeTitle = CRM_Threepeas_BAO_PumProgramme::getProgrammeTitleWithId($project['programme_id']);
-      $pageTitle = "Programme ".$programmeTitle;
+      $pageTitle = "Project ".$project[$projectId]['title'];
       $this->assign('pageTitle', $pageTitle);
             
       $productLabel = array(
-        'subject'           => ts("Main Activity"),
-        'type'              => ts("Type"),
-        'status'            => ts("Status"),
-        'client'            => ts("Client"),
-        'activity'          => ts("Subactvity"),
-        'activity_type'     => ts("Subactivity type"),
-        'activity_status'   => ts("Subactivity status")
+        'type'       => ts("Main Activity"),
+        'objective'  => ts("Objective"),
+        'client'     => ts("Client"),
+        'start_date' => ts("Start date"),
+        'end_date'   => ts("End date"),
+        'status'     => ts("Status")
       );
       $this->assign('productLabel', $productLabel);
       $drillRows = $this->_buildProjectRows($projectId);
@@ -164,37 +161,38 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
    * @access private
    */
   private function _buildProjectRows($projectId) {
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
     $drillRows = array();
     if (empty($projectId) || !is_numeric($projectId)) {
       return $drillRows;
     }
-    $products = CRM_Threepeas_BAO_PumProject::getCasesByProjectId($projectId);
-    foreach ($products as $product) {
-        $row = array();
-        $row['case_id'] = $product['case_id'];
-        $clientParams = array(
-          'contact_id'    =>  $product['client_id'],
-          'return'        =>  'display_name'
-        );
-        try {
-          $clientName = civicrm_api3('Contact', 'Getvalue', $clientParams);
-        } catch (CiviCRM_API3_Exception $e) {
-          $clientName = "";
-        }
-        $row['client'] = $clientName;
-        $row['client_id'] = $product['client_id'];
-        $caseUrlParams = "reset=1&action=view&id=".$product['case_id']."&cid=".$product['client_id'];
-        $caseUrl = CRM_Utils_System::url('civicrm/contact/view/case', $caseUrlParams);
-        $caseHtml = '<a href="'.$caseUrl.'">'.$product['subject'].'</a>';
-        $row['subject'] = $caseHtml;
-
-        $row['type'] = $product['case_type'];
-        $row['status'] = $product['case_status'];
-
-        $drillRows[] = $row;
-
+    $projectCases = CRM_Threepeas_BAO_PumProject::getCasesByProjectId($projectId);
+    foreach ($projectCases as $caseId => $case) {
+      $row = array();
+      $row['case_id'] = $caseId;
+      $clientParams = array(
+        'contact_id'    =>  $case['client_id'],
+        'return'        =>  'display_name'
+      );
+      try {
+        $clientName = civicrm_api3('Contact', 'Getvalue', $clientParams);
+      } catch (CiviCRM_API3_Exception $e) {
+        $clientName = "";
       }
-
+      $row['client'] = $clientName;
+      $row['client_id'] = $case['client_id'];
+      
+      $caseUrlParams = "reset=1&action=view&id=".$caseId."&cid=".$case['client_id'];
+      $caseUrl = CRM_Utils_System::url('civicrm/contact/view/case', $caseUrlParams);
+      $caseType = CRM_Utils_Array::value($case['case_type'], $threepeasConfig->caseTypes);
+      $caseHtml = '<a href="'.$caseUrl.'">'.$caseType.'</a>';
+      
+      $row['type'] = $caseHtml;
+      $row['start_date'] = $case['start_date'];
+      $row['end_date'] = $case['end_date'];
+      $row['status'] = CRM_Utils_Array::value($case['case_status'], $threepeasConfig->caseStatus);
+      $drillRows[] = $row;
+    }
     return $drillRows;
   }
 }

@@ -84,6 +84,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     }
     $pumProject = new CRM_Threepeas_BAO_PumProject();
     $pumProject->id = $pumProjectId;
+    self::deleteProjectOptionValue($pumProjectId);
     $pumProject->delete();
     return TRUE;
   }
@@ -244,6 +245,26 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
         );
         civicrm_api3('OptionValue', 'Create', $createParams);
       }
+    }
+  }  
+  /**
+   * Function to delete a created project to the Option Group for projects
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 19 May 2014
+   * @param int $projectId
+   * @access private
+   * @static
+   */
+  private static function deleteProjectOptionValue($projectId) {
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    if (!empty($projectId)) {
+      $params = array(
+        'option_group_id' => $threepeasConfig->projectOptionGroupId, 
+        'value' => $projectId, 
+        'return' => 'id');
+      $optionValueId = civicrm_api3('OptionValue', 'Getvalue', $params);
+      civicrm_api3('OptionValue', 'Delete', array('id' => $optionValueId));
     }
   }  
 }

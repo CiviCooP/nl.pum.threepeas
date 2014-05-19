@@ -9,13 +9,13 @@
     <table id="project-drill-table" class="display">
       <thead>
         <tr>
-          <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.subject}</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.type}</th>
-          <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.status}</th>
+          <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.objective}</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.client}</th>
-          <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.activity}</th>
-          <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.activity_type}</th>
-          <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.activity_status}</th>
+          <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.expert}</th>
+          <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.start_date}</th>
+          <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.end_date}</th>
+          <th class="sorting-disabled" rowspan="1" colspan="1">{$productLabel.status}</th>
         </tr>
       </thead>
       <tbody>
@@ -25,13 +25,13 @@
             <td hidden="1">{$row.case_id}</td>
             <td hidden="1">{$row.activity_id}</td>
             <td hidden="1">{$row.client_id}</td>
-            <td>{$row.subject}</td>
             <td>{$row.type}</td>
-            <td>{$row.status}</td>
+            <td>{$row.objective}</td>
             <td>{$row.client}</td>
-            <td>{$row.activity}</td>
-            <td>{$row.activity_type}</td>
-            <td>{$row.activity_status}</td>
+            <td>{$row.expert}</td>
+            <td>{$row.start_date}</td>
+            <td>{$row.end_date}</td>
+            <td>{$row.status}</td>
           </tr>
           {if $rowClass eq "odd-row"}
             {assign var="rowClass" value="even-row"}
