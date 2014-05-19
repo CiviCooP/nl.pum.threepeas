@@ -19,26 +19,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
     if ($entity == "programme") {
       $programmeId = CRM_Utils_Request::retrieve('pid', 'Positive', $this);
       $programme = CRM_Threepeas_BAO_PumProgramme::getValues(array('id' => $programmeId));
-            
-      $this->assign('programmeId', $programmeId);
-            
-      $programmeTitleLabel = '<label for="Title">'.ts('Title').'</label>';
-      $this->assign('programmeTitleLabel', $programmeTitleLabel);
-      $this->assign('programmeTitle', $programme['title']);
-            
-      $contactParams = array(
-        'id'    =>  $programme['contact_id_manager'],
-        'return'=>  'display_name'
-      );
-      try {
-        $programmeManagerName = civicrm_api3('Contact', 'Getvalue', $contactParams);
-      } catch (CiviCRM_API3_Exception $e) {
-        $programmeManagerName = "";
-      }
-      $programmeManagerLabel = '<label for="Programme Manager">'.ts('Programme Manager').'</label>';
-      $this->assign('programmeManagerLabel', $programmeManagerLabel);            
-      $this->assign('programmeManager', $programmeManagerName);
-      $pageTitle = "Programme ".$programme['title'];
+      $pageTitle = "Programme ".$programme[$programmeId]['title'];
       $this->assign('pageTitle', $pageTitle);
       $drillRows = $this->_buildProgrammeRows($programmeId);
       $this->assign("drillData", $drillRows);
@@ -51,11 +32,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
       $project = CRM_Threepeas_BAO_PumProject::getValues(array('id'=> $projectId));
             
       $programmeTitle = CRM_Threepeas_BAO_PumProgramme::getProgrammeTitleWithId($project['programme_id']);
-      if (!empty($programmeTitle)) {
-        $pageTitle = $project['title']." (part of programme ".$programmeTitle.")";
-      } else {
-        $pageTitle = $project['title'];
-      }
+      $pageTitle = "Programme ".$programmeTitle;
       $this->assign('pageTitle', $pageTitle);
             
       $productLabel = array(
@@ -87,6 +64,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
    * @access private
    */
   private function _buildProgrammeRows($programmeId) {
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
     $rows = array();
     if (empty($programmeId) || !is_numeric($programmeId)) {
       return $rows;
@@ -162,12 +140,13 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
             }
             $firstRow = FALSE;
           }
+          $caseType = CRM_Utils_Array::value($case['case_type'], $threepeasConfig->caseTypes);
           $caseUrlParams = "reset=1&action=view&id=".$case['case_id']."&cid=".$case['client_id'];
           $caseUrl = CRM_Utils_System::url('civicrm/contact/view/case', $caseUrlParams);
-          $caseHtml = '<a href="'.$caseUrl.'">'.$case['subject'].'</a>';
-
-          $row['case_type'] = $case['case_type'];
+          $caseHtml = '<a href="'.$caseUrl.'">'.$caseType.'</a>';
+          $row['case_type'] = $caseHtml;
           $row['case_id'] = $case['case_id'];
+          $row['case_status'] = CRM_Utils_Array::value($case['case_status'], $threepeasConfig->caseStatus);
           $rows[] = $row;
         }
         $rows[] = array();
@@ -191,13 +170,6 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
     }
     $products = CRM_Threepeas_BAO_PumProject::getCasesByProjectId($projectId);
     foreach ($products as $product) {
-      try {
-        $caseDetails = civicrm_api3('Case', 'Getsingle', array('case_id' => $product['case_id']));
-        $subActivities = $caseDetails['activities'];
-      } catch (CiviCRM_API3_Exception $e) {
-        $subActivities = array();
-      }
-      if (empty($subActivities)) {
         $row = array();
         $row['case_id'] = $product['case_id'];
         $clientParams = array(
@@ -221,101 +193,8 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
 
         $drillRows[] = $row;
 
-      } else {
-        $firstRow = TRUE;
-        foreach ($subActivities as $subActivity) {
-          $row = array();
-          if ($firstRow) {
-            $row['case_id'] = $product['case_id'];
-            $clientParams = array(
-              'contact_id'    =>  $product['client_id'],
-              'return'        =>  'display_name'
-            );
-            try {
-              $clientName = civicrm_api3('Contact', 'Getvalue', $clientParams);
-            } catch (CiviCRM_API3_Exception $e) {
-              $clientName = "";
-            }
-            $row['client'] = $clientName;
-            $row['client_id'] = $product['client_id'];
-            $caseUrlParams = "reset=1&action=view&id=".$product['case_id']."&cid=".$product['client_id'];
-            $caseUrl = CRM_Utils_System::url('civicrm/contact/view/case', $caseUrlParams);
-            $caseHtml = '<a href="'.$caseUrl.'">'.$product['subject'].'</a>';
-            $row['subject'] = $caseHtml;
-
-            $row['type'] = $product['case_type'];
-            $row['status'] = $product['case_status'];
-
-            $firstRow = FALSE;
-          }
-          $subActUrlParams = "reset=1&action=update&id=".$subActivity."&caseid=".$product['case_id']."&cid=".$product['client_id'];
-          $subActUrl = CRM_Utils_System::url('civicrm/case/activity', $subActUrlParams);
-          $actParams = array(
-            'id'                    =>  $subActivity,
-            'is_current_revision'   =>  1
-          );
-          try {
-            $activityDetails = civicrm_api3('Activity', 'Getsingle', $actParams);
-          } catch (CiviCRM_API3_Exception $e) {
-            throw new Exception("Could not find an activity with id $subActivity, error from API Activity Getsingle : ".$e->getMessage());
-          }                    
-          if (isset($activityDetails['subject'])) {
-            $subActHtml = '<a href="'.$subActUrl.'">'.$activityDetails['subject'].'</a>';
-            $row['activity'] = $subActHtml;
-          } 
-
-          $actTypeGroupParams = array(
-            'name'      => 'activity_type',
-            'return'    => 'id'
-          );
-          try {
-            $actTypeGroupId = civicrm_api3('OptionGroup', 'Getvalue', $actTypeGroupParams);
-            $actTypeParams = array(
-              'option_group_id'   =>  $actTypeGroupId,
-              'value'             =>  $activityDetails['activity_type_id'],
-              'return'            =>  'label'
-            );
-            try {
-              $actTypeLabel = civicrm_api3('OptionValue', 'Getvalue', $actTypeParams);
-            } catch (CiviCRM_API3_Exception $e) {
-              throw new Exception("Could not find an option label for 
-                value {$activityDetails['activity_type_id']} in 
-                option group $optionGroupId");
-            }
-          } catch (CiviCRM_API3_Exception $e) {
-            throw new Exception("Could not find an option group with name activity_type");
-          }
-          $row['activity_type'] = $actTypeLabel;
-
-          $actStatusGroupParams = array(
-            'name'      => 'activity_status',
-            'return'    => 'id'
-          );
-          try {
-            $actStatusGroupId = civicrm_api3('OptionGroup', 'Getvalue', $actStatusGroupParams);
-            $actStatusParams = array(
-              'option_group_id'   =>  $actStatusGroupId,
-              'value'             =>  $activityDetails['status_id'],
-              'return'            =>  'label'
-            );
-            try {
-              $actStatusLabel = civicrm_api3('OptionValue', 'Getvalue', $actStatusParams);
-            } catch (CiviCRM_API3_Exception $e) {
-              throw new Exception("Could not find an option label for 
-                value {$activityDetails['status_id']} in 
-                option group $optionGroupId");
-            }
-          } catch (CiviCRM_API3_Exception $e) {
-            throw new Exception("Could not find an option group with name activity_status");
-          }
-          $row['activity_status'] = $actStatusLabel;
-          $row['activity_id'] = $subActivity;
-          $drillRows[] = $row;
-        }
-        $drillRows[] = array();
-
       }
-    }
+
     return $drillRows;
   }
 }

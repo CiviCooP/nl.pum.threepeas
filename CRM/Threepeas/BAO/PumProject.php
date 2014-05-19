@@ -63,6 +63,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       }
     }
     $pumProject->save();
+    self::addProjectOptionValue($pumProject->id, $pumProject->title);
     self::storeValues($pumProject, $result);
     return $result;
   }
@@ -145,7 +146,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * @access public
    * @static
    */
-  public static function countCustomerProject($customerId) {
+  public static function countCustomerProjects($customerId) {
     $countProjects = 0;
     if (!empty($customerId) && is_numeric($customerId)) {
       $countQry = "SELECT COUNT(*) AS countProjects FROM civicrm_project WHERE customer_id = %1";
@@ -217,5 +218,32 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     $resultLine['case_status'] = civicrm_api3('OptionValue', 'Getvalue', $optionParams);
     return $resultLine;
   }
-  
+  /**
+   * Function to add a created project to the Option Group for projects
+   * if it does not exist already
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 19 May 2014
+   * @param int $projectId
+   * @param string $projectTitle
+   * @access private
+   * @static
+   */
+  private static function addProjectOptionValue($projectId, $projectTitle) {
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    if (!empty($projectId)) {
+      $params = array('option_group_id' => $threepeasConfig->projectOptionGroupId, 'value' => $projectId);
+      $checkValue = civicrm_api3('OptionValue', 'Getcount', $params);
+      if ($checkValue == 0) {
+        $createParams = array(
+          'option_group_id'   =>  $threepeasConfig->projectOptionGroupId,
+          'value'             =>  $projectId,
+          'label'             =>  $projectTitle,
+          'is_active'         =>  1,
+          'is_reserved'       =>  1
+        );
+        civicrm_api3('OptionValue', 'Create', $createParams);
+      }
+    }
+  }  
 }

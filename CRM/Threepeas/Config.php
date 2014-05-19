@@ -44,7 +44,14 @@ class CRM_Threepeas_Config {
    * case type and status option group id
    */
   public $caseTypeOptionGroupId = NULL;
+  public $caseTypes = array();
   public $caseStatusOptionGroupId = NULL;
+  public $caseStatus = array();
+  
+  /*
+   * project option group id
+   */
+  public $projectOptionGroupId = NULL;
   /*
    * PUM expert at relationship type id
    */
@@ -61,6 +68,9 @@ class CRM_Threepeas_Config {
     $this->setCustomGroupId('Projectinformation');
     $this->setCaseCustomData();
     $this->setCaseOptionGroupId();
+    $this->setProjectOptionGroupId();
+    $this->setCaseStatus();
+    $this->setCaseTypes();
     $this->expertRelationshipTypeId = $this->setRelationshipTypeId('PUM-expert at');
   }
   private function setCustomerContactType($customerContactType) {
@@ -165,6 +175,40 @@ class CRM_Threepeas_Config {
         array('name' => 'case_status', 'return' => 'id'));
     } catch (CiviCRM_API3_Exception $ex) {
       $this->caseStatusOptionGroupId = 0;
+    }
+  }
+  private function setProjectOptionGroupId() {
+    try {
+      $this->projectOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue', 
+        array('name' => 'pum_project', 'return' => 'id'));
+    } catch (CiviCRM_API3_Exception $ex) {
+      $this->projectOptionGroupId = 0;
+    }
+    try {
+      $this->caseStatusOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue', 
+        array('name' => 'case_status', 'return' => 'id'));
+    } catch (CiviCRM_API3_Exception $ex) {
+      $this->caseStatusOptionGroupId = 0;
+    }
+  }
+  private function setCaseTypes() {
+    try {
+      $apiCaseTypes = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $this->caseTypeOptionGroupId));
+      foreach ($apiCaseTypes['values'] as $caseTypeId => $caseType) {
+        $this->caseTypes[$caseTypeId] = $caseType['label'];
+      }
+    } catch (CiviCRM_API3_Exception $ex) {
+      $this->caseTypes = array();
+    }
+  }
+  private function setCaseStatus() {
+    try {
+      $apiCaseStatus = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $this->caseStatusOptionGroupId));
+      foreach ($apiCaseStatus['values'] as $caseStatusId => $caseStatus) {
+        $this->caseStatus[$caseStatusId] = $caseStatus['label'];
+      }
+    } catch (CiviCRM_API3_Exception $ex) {
+      $this->caseStatus = array();
     }
   }
   /**

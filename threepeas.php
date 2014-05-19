@@ -55,12 +55,11 @@ function threepeas_civicrm_enable() {
   $extensionDefaults = array();
   $countryApiExtension = CRM_Core_BAO_Extension::retrieve($extensionParams, $extensionDefaults);
   if (!empty($countryApiExtension) && $countryApiExtension->is_active == 1) {
-    require_once 'CRM/Threepeas/PumProject.php';
     /*
      * retrieve option group for pum_project
      */
     try {
-      $optionGroup = civicrm_api3('OptionGroup', 'Getsingle', array('name' => "pum_project"));
+      $optionGroup = civicrm_api3('OptionGroup', 'Getsingle', array('name' => 'pum_project'));
       $optionGroupId = $optionGroup['id'];
     } catch (CiviCRM_API3_Exception $e) {
       return _threepeas_civix_civicrm_enable();
@@ -83,12 +82,13 @@ function threepeas_civicrm_enable() {
         'is_reserved'       =>  1
       );
       civicrm_api3('OptionValue', 'Create', $noneParams);
-      $pumActiveProjects = CRM_Threepeas_BAO_PumProject::getValues(array('is_active' => 1));
-      foreach ($pumActiveProjects as $projectId => $activeProject) {
+      $query = 'SELECT * FROM civicrm_project WHERE is_active = 1';
+      $dao = CRM_Core_DAO::executeQuery($query);
+      while ($dao->fetch()) {
         $createParams = array(
           'option_group_id'   =>  $optionGroupId,
-          'value'             =>  $projectId,
-          'label'             =>  $activeProject['title'],
+          'value'             =>  $dao->id,
+          'label'             =>  $dao->title,
           'is_active'         =>  1,
           'is_reserved'       =>  1
         );
@@ -379,6 +379,7 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
     $apiCase = civicrm_api3('Case', 'Getsingle', array('case_id' => $entityID));
     $pumProject['title'] = $apiCase['subject'];
     $pumProject['customer_id'] = $apiCase['client_id'][1];
+    $pumProject['is_active'] = 1;
     CRM_Threepeas_BAO_PumProject::add($pumProject);
   }
 }
