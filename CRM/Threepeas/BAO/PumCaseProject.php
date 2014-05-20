@@ -87,6 +87,13 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
     $pumCaseProject->delete();
     return TRUE;
   }
+  /**
+   * Function to delete PumCaseProject by ProjectID
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 20 May 2014
+   * @param type $projectId
+   */
   public static function deleteByProjectId($projectId) {
     if (!empty($projectId)) {
       $pumCaseProject = new CRM_Threepeas_BAO_PumCaseProject();
