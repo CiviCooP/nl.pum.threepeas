@@ -84,6 +84,10 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     }
     $pumProject = new CRM_Threepeas_BAO_PumProject();
     $pumProject->id = $pumProjectId;
+    /*
+     * delete records from case_project with project_id
+     */
+    CRM_Threepeas_BAO_PumCaseProject::deleteByProjectId($pumProjectId);
     self::deleteProjectOptionValue($pumProjectId);
     $pumProject->delete();
     return TRUE;
@@ -266,5 +270,5 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       $optionValueId = civicrm_api3('OptionValue', 'Getvalue', $params);
       civicrm_api3('OptionValue', 'Delete', array('id' => $optionValueId));
     }
-  }  
+  }
 }

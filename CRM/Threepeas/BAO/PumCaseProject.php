@@ -87,4 +87,14 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
     $pumCaseProject->delete();
     return TRUE;
   }
+  public static function deleteByProjectId($projectId) {
+    if (!empty($projectId)) {
+      $pumCaseProject = new CRM_Threepeas_BAO_PumCaseProject();
+      $pumCaseProject->project_id = $projectId;
+      $pumCaseProject->find();
+      while ($pumCaseProject->fetch()) {
+        self::deleteById($pumCaseProject->id);
+      }
+    }
+  }
 }
