@@ -105,7 +105,7 @@ class CRM_Threepeas_BAO_PumProgramme extends CRM_Threepeas_DAO_PumProgramme {
      */
     $pumProgrammeDivision = new CRM_Threepeas_BAO_PumProgrammeDivision();
     $pumProgrammeDivision->programme_id = $pumProgrammeId;
-    if ($pumProgrammeDivision->count > 0) {
+    if ($pumProgrammeDivision->count() > 0) {
       return FALSE;
     }
     unset($pumProgrammeDivision);
@@ -114,7 +114,7 @@ class CRM_Threepeas_BAO_PumProgramme extends CRM_Threepeas_DAO_PumProgramme {
      */
     $pumProject = new CRM_Threepeas_BAO_PumProject();
     $pumProject->programme_id = $pumProgrammeId;
-    if ($pumProject->count > 0) {
+    if ($pumProject->count() > 0) {
       return FALSE;
     }
     return TRUE;
