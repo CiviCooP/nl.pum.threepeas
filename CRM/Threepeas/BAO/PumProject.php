@@ -217,7 +217,11 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     $optionParams['option_group_id'] = $threepeasConfig->caseTypeOptionGroupId;
     $optionParams['value'] = $case['case_type_id'];
     $optionParams['return'] = 'id';
-    $resultLine['case_type'] = civicrm_api3('OptionValue', 'Getvalue', $optionParams);
+    try {
+      $resultLine['case_type'] = civicrm_api3('OptionValue', 'Getvalue', $optionParams);
+    } catch (CiviCRM_API3_Exception $e) {
+      $resultLine['case_type'] = 'onbekend';
+    }
     $optionParams['option_group_id'] = $threepeasConfig->caseStatusOptionGroupId;
     $optionParams['value'] = $case['status_id'];
     $resultLine['case_status'] = civicrm_api3('OptionValue', 'Getvalue', $optionParams);
