@@ -244,9 +244,12 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * function to get the list of countries
    */
   function setProjectCountryList() {
-    $countries = civicrm_api3('Country', 'Get', array('options' => array('limit' => 9999)));
+    $params = array(
+      'contact_sub_type' => 'Country',
+      'options' => array('limit' => 99999));
+    $countries = civicrm_api3('Contact', 'Get', $params);
     foreach ($countries['values'] as $countryId => $country) {
-      $this->_projectCountries[$countryId] = $country['name'];
+      $this->_projectCountries[$countryId] = $country['display_name'];
     }
     $this->_projectCountries[0] = '- select -';
     asort($this->_projectCountries);

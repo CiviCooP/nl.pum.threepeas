@@ -58,43 +58,7 @@ function threepeas_civicrm_enable() {
     /*
      * retrieve option group for pum_project
      */
-    try {
-      $optionGroup = civicrm_api3('OptionGroup', 'Getsingle', array('name' => 'pum_project'));
-      $optionGroupId = $optionGroup['id'];
-    } catch (CiviCRM_API3_Exception $e) {
-      return _threepeas_civix_civicrm_enable();
-    }
-    if ($optionGroupId) {
-      /*
-       * remove all existing option values (directly in database because\
-       * API would force me to do record by record
-       */
-      $delQuery = "DELETE FROM civicrm_option_value WHERE option_group_id = $optionGroupId";
-      CRM_Core_DAO::executeQuery($delQuery);
-      /*
-       * retrieve all active projects and add option values
-       */
-      $noneParams = array(
-        'option_group_id'   =>  $optionGroupId,
-        'value'             =>  0,
-        'label'             =>  '- none',
-        'is_active'         =>  1,
-        'is_reserved'       =>  1
-      );
-      civicrm_api3('OptionValue', 'Create', $noneParams);
-      $query = 'SELECT * FROM civicrm_project WHERE is_active = 1';
-      $dao = CRM_Core_DAO::executeQuery($query);
-      while ($dao->fetch()) {
-        $createParams = array(
-          'option_group_id'   =>  $optionGroupId,
-          'value'             =>  $dao->id,
-          'label'             =>  $dao->title,
-          'is_active'         =>  1,
-          'is_reserved'       =>  1
-        );
-        civicrm_api3('OptionValue', 'Create', $createParams);
-      }
-    }
+    _threepeas_generate_project_list();
     return _threepeas_civix_civicrm_enable();
   } else {
     CRM_Core_Error::fatal("Could not enable extension, the required extension org.civicoop.general.api.country is not active in this environment!");
@@ -394,7 +358,7 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
 function _threepeas_set_project($params) {
   $result = array();
   $usedCustomFields = array('reason', 'activities', 'expected_results');
-  $$threepeasConfig = CRM_Threepeas_Config::singleton();
+  $threepeasConfig = CRM_Threepeas_Config::singleton();
   $customFields = civicrm_api3('CustomField', 'Get', array('custom_group_id' => $threepeasConfig->projectCustomGroupId));
   foreach ($customFields['values'] as $customFieldId => $customField) {
     if (in_array($customField['name'], $usedCustomFields)) {
@@ -428,9 +392,9 @@ function threepeas_civicrm_buildForm($formName, &$form) {
     
     $threepeasConfig = CRM_Threepeas_Config::singleton();
     $projectList = array();
-    $projectOptions = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $threepeasConfig->projectOptionGroupId));
-    foreach ($projectOptions['values'] as $option) {
-      $projectList[$option['value']] = $option['label'];
+    $projects = CRM_Threepeas_BAO_PumProject::getValues(array('is_active' => 1));
+    foreach ($projects as $projectId => $project) {
+      $projectList[$projectId] = $project['title'];
     }
     $form->addElement('select', 'project_id', ts('Parent Project'), $projectList);
     /*
@@ -486,4 +450,55 @@ function threepeas_civicrm_postProcess($formName, &$form) {
       }
     }
   }
+}
+/**
+ * Function to retrieve project option values
+ * 
+ * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+ * @date 21 May 2014
+ *
+ */
+function _threepeas_generate_project_list() {
+  $optionGroupId = _threepeas_create_option_group('pum_project');
+  $delQuery = "DELETE FROM civicrm_option_value WHERE option_group_id = ".$optionGroupId;
+  CRM_Core_DAO::executeQuery($delQuery);
+  $params['option_group_id'] = $optionGroupId;
+  $params['is_active'] = 1;
+  $params['is_reserved'] = 1;
+  $params['value'] = 0;
+  $params['label'] = '- none';
+  civicrm_api3('OptionValue', 'Create', $params);
+  $query = 'SELECT * FROM civicrm_project WHERE is_active = 1';
+  $dao = CRM_Core_DAO::executeQuery($query);
+  while ($dao->fetch()) {
+    $params['value'] = $dao->id;
+    $params['label'] = $dao->title;
+    civicrm_api3('OptionValue', 'Create', $params);
+  }
+}
+/**
+ * Function to create option group if not exist
+ * 
+ * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+ * @date 21 May 2014
+ * @param string $name
+ * @return int $optionGroupId
+ */
+function _threepeas_create_option_group($name) {
+ $countGroup = civicrm_api3('OptionGroup', 'Getcount', array('name' => $name));
+ switch ($countGroup) {
+   case 0:
+     $params = array('name' => $name, 'title' => 'active projects', 'is_active' => 1, 'is_reserved' => 1);
+     $optionGroup = civicrm_api3('OptionGroup', 'Create', $params);
+     $optionGroupId = $optionGroup['id'];
+     break;
+   case 1:
+     $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => $name, 'return' => id));
+     break;
+   default:
+     throw new Exception('Could not create option group pum_project, there are already '
+       .$countGroup.' with that name. Correct and try again.');
+     break;
+ }
+ return $optionGroupId;
 }

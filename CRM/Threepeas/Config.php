@@ -30,16 +30,10 @@ class CRM_Threepeas_Config {
    * group id for Country Coordinator
    */
   public $countryCoordinatorsGroupId = NULL;
-  /*
+  /* 
    * custom group id for Project Information (used in case Projectintake)
    */
-  public $projectCustomGroupId = NULL;
-  /*
-   * custom group table and id for cases with field for project
-   */
-  public $caseCustomTable = NULL;
-  public $caseCustomGroupId = NULL;
-  public $caseProjectColumn = NULL;
+  public $projectCustomGroupId = NULL;  /*
   /*
    * case type and status option group id
    */
@@ -47,7 +41,6 @@ class CRM_Threepeas_Config {
   public $caseTypes = array();
   public $caseStatusOptionGroupId = NULL;
   public $caseStatus = array();
-  
   /*
    * project option group id
    */
@@ -65,8 +58,7 @@ class CRM_Threepeas_Config {
     $this->setGroupId('Sector Coordinators');
     $this->setGroupId('Country Coordinators');
     $this->setGroupId('Project Officers');
-    $this->setCustomGroupId('Projectinformation');
-    $this->setCaseCustomData();
+    $this->setCustomGroupId('Projectinformation');    
     $this->setCaseOptionGroupId();
     $this->setProjectOptionGroupId();
     $this->setCaseStatus();
@@ -124,13 +116,13 @@ class CRM_Threepeas_Config {
     $property .= 'GroupId';
     return $property;
   }
-  /**
-   * Functio to set the custom group id
-   * 
-   * @param type $name
-   * @return type
-   * @throws CiviCRM_API3_Exception
-   */
+/**
+* Functio to set the custom group id
+*
+* @param type $name
+* @return type
+* @throws CiviCRM_API3_Exception
+*/
   private function setCustomGroupId($name) {
     if (!empty($name)) {
       $customGroupParams = array('name' => $name, 'return' => 'id');
@@ -142,26 +134,6 @@ class CRM_Threepeas_Config {
       }
     }
     return;
-  }
-  private function setCaseCustomData() {
-    try {
-      $customDataSet = civicrm_api3('CustomGroup', 'Getsingle', array('name' => 'caseProject'));
-      if (isset($customDataSet['table_name'])) {
-        $this->caseCustomTable = $customDataSet['table_name'];
-      }
-      if (isset($customDataSet['id'])) {
-        $this->caseCustomGroupId = $customDataSet['id'];
-        $projectColumnParams = array('custom_group_id' => $customDataSet['id'], 'name' => 'Project', 'return' => 'column_name');
-        try {
-          $this->caseProjectColumn = civicrm_api3('CustomField', 'Getvalue', $projectColumnParams);
-        } catch(CiviCRM_API3_Exception $ex) {
-          $this->caseProjectColumn = NULL;
-        }
-      }
-    } catch(CiviCRM_API3_Exception $ex) {
-      $this->caseCustomTable = NULL;
-      $this->caseProjectColumn = NULL;
-    }
   }
   private function setCaseOptionGroupId() {
     try {

@@ -42,7 +42,11 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
         'status'     => ts("Status")
       );
       $this->assign('productLabel', $productLabel);
-      $drillRows = $this->_buildProjectRows($projectId, $project[$projectId]['customer_id']);
+      if (!isset($project[$projectId]['customer_id']) && isset($project[$projectId]['country_id'])) {
+        $drillRows = $this->_buildProjectRows($projectId, $project[$projectId]['country_id']);
+      } else {
+        $drillRows = $this->_buildProjectRows($projectId, $project[$projectId]['customer_id']);
+      }
       $this->assign('drillData', $drillRows);
       $doneUrl = CRM_Utils_System::url('civicrm/projectlist');
       $this->assign('doneUrl', $doneUrl);

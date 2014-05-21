@@ -128,16 +128,9 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     /*
      * can not delete if any cases for project
      */
-    $threepeasConfig = CRM_Threepeas_Config::singleton();
-    if (!is_null($threepeasConfig->caseCustomTable) && !is_null($threepeasConfig->caseProjectColumn)) {
-      $countQuery = 'SELECT COUNT(*) AS countCases FROM '.$threepeasConfig->caseCustomTable. ' WHERE '
-        .$threepeasConfig->caseProjectColumn.' = '.$projectId;
-      $dao = CRM_Core_DAO::executeQuery($countQuery);
-      if ($dao->fetch()) {
-        if ($dao->countCases > 0) {
-          $canBeDeleted = FALSE;
-        } 
-      }
+    $projectCases = CRM_Threepeas_BAO_PumCaseProject::getValues(array('project_id' => $projectId));
+    if (!empty($projectCases)) {
+      $canBeDeleted = FALSE;
     }
     return $canBeDeleted;
   }
@@ -178,16 +171,12 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     if (empty($projectId) || !is_numeric($projectId)) {
       return $result;
     }
-    $threepeasConfig = CRM_Threepeas_Config::singleton();
     /*
      * select all entity_ids (case_ids) with $projectId
      */
-    $caseQuery = 'SELECT entity_id FROM '.$threepeasConfig->caseCustomTable.
-      ' WHERE '.$threepeasConfig->caseProjectColumn.' = %1';
-    $caseParams = array(1=>array($projectId, 'Integer'));
-    $caseDao = CRM_Core_DAO::executeQuery($caseQuery, $caseParams);
-    while ($caseDao->fetch()) {
-      $result[$caseDao->entity_id] = self::getCaseResultLine($caseDao->entity_id);
+    $projectCases = CRM_Threepeas_BAO_PumCaseProject::getValues(array('project_id' => $projectId));
+    foreach ($projectCases as $projectCase) {
+      $result[$projectCase['case_id']] = self::getCaseResultLine($projectCase['case_id']);
     }
     return $result;
   }
