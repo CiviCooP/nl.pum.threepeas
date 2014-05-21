@@ -111,7 +111,7 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
       $pageActions[] = '<a class="action-item" title="View project details" href="'.$viewUrl.'">View</a>';
       $pageActions[] = '<a class="action-item" title="Edit project" href="'.$editUrl.'">Edit</a>';
       $pageActions[] = '<a class="action-item" title="Drill down project" href="'.$drillUrl.'">Drill Down</a>';
-      if ($project['is_active'] == 1) {
+      if (isset($project['is_active']) && $project['is_active'] == 1) {
         $pageActions[] = '<a class="action-item" title="Disable project" href="'.$disableUrl.'">Disable</a>';
       } else {
         $pageActions[] = '<a class="action-item" title="Enable project" href="'.$enableUrl.'">Enable</a>';                
