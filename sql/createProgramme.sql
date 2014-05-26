@@ -11,6 +11,6 @@ CREATE TABLE `civicrm_programme` (
   `is_active` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `MANAGER` (`contact_id_manager`)
+  KEY `MANAGER` (`manager_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 
