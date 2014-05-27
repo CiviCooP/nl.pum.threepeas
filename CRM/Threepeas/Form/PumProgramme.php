@@ -259,7 +259,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     /*
      * programmeManagers
      */
-    $programmeManagers = civicrm_api3('Contact', 'Get', array('group' => $threepeasConfig->programmeManagerGroupId));
+    $programmeManagers = civicrm_api3('Contact', 'Get', array('group' => $threepeasConfig->programmeManagersGroupId));
     foreach ($programmeManagers['values'] as $managerId => $programmeManager) {
       $this->_programmeManagers[$managerId] = $programmeManager['sort_name'];
     }
@@ -360,7 +360,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
    * Function to set validation rules
    */
   function addRules() {
-    $ruleParams = array('programme_id' => $this->_id, 'action' => $this->_action);
+    $ruleParams = array('action' => $this->_action);
     $this->addFormRule(array('CRM_Threepeas_Form_PumProgramme', 'formRule'), $ruleParams);
   }
   /**
