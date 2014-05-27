@@ -5,4 +5,4 @@ The latter one are implemented as civi case.
 
 ## Hooks
 
-See for documentation of hooks in this extension (doc/hooks.md)[doc/hooks.md]
+See for documentation of hooks in this extension [doc/hooks.md](doc/hooks.md)
