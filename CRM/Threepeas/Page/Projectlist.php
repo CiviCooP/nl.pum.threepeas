@@ -127,4 +127,17 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     $this->assign('addUrl', $addUrl);
     parent::run();
   }
+  
+  /**
+   * Returns an array with extra links (filled from a hook)
+   * 
+   * @param array $project
+   * @return array with links e.g. array('<a class="action-item" title="my item" href="link.php">link</a>')
+   * 
+   */
+  protected function getExtraLinks($project) {
+    $hooks = CRM_Utils_Hook::singleton();
+    $return = $hooks->invoke(1, $project, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'civicrm_threepeas_projectlinks');
+    return $return;
+  }
 }
