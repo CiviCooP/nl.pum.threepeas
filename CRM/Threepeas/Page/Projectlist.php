@@ -141,6 +141,9 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
   protected function getProjectActions($project) {
     $hooks = CRM_Utils_Hook::singleton();
     $return = $hooks->invoke(1, $project, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'civicrm_threepeas_projectactions');
-    return $return;
+    if (is_array($return)) {
+      return $return;
+    }
+    return array();
   }
 }
