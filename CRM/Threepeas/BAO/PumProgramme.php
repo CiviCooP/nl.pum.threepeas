@@ -81,9 +81,14 @@ class CRM_Threepeas_BAO_PumProgramme extends CRM_Threepeas_DAO_PumProgramme {
     if (empty($pumProgrammeId)) {
       throw new Exception('pumProgrammeId can not be empty when attempting to delete one');
     }
+    
+    CRM_Utils_Hook::pre('delete', 'PumProgramme', $pumProgrammeId, CRM_Core_DAO::$_nullArray);
+    
     $pumProgramme = new CRM_Threepeas_BAO_PumProgramme();
     $pumProgramme->id = $pumProgrammeId;
     $pumProgramme->delete();
+    
+    CRM_Utils_Hook::post('delete', 'PumProgramme', $pumProgramme->id, $pumProgramme);
     return TRUE;
   }
   /**
