@@ -10,7 +10,7 @@ function hook_civicrm_threepeas_projectactions($project);
 
 **Parameters**
 
-* ~~$project~~ array containing the info of the project
+* `$project` array containing the info of the project
 
 **Return value**
 
