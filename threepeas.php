@@ -341,8 +341,12 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
      * retrieve case for subject and client
      */ 
     $apiCase = civicrm_api3('Case', 'Getsingle', array('case_id' => $entityID));
-    $pumProject['title'] = $apiCase['subject'];
-    $pumProject['customer_id'] = $apiCase['client_id'][1];
+    if (isset($apiCase['subject'])) {
+      $pumProject['title'] = $apiCase['subject'];
+    }
+    if (isset($apiCase['client_id'][1])) {
+      $pumProject['customer_id'] = $apiCase['client_id'][1];
+    }
     $pumProject['is_active'] = 1;
     CRM_Threepeas_BAO_PumProject::add($pumProject);
   }
@@ -389,41 +393,10 @@ function _threepeas_set_project($params) {
  */
 function threepeas_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Case_Form_Case') {
-    
-    $threepeasConfig = CRM_Threepeas_Config::singleton();
-    $projectList = array();
-    $projects = CRM_Threepeas_BAO_PumProject::getValues(array('is_active' => 1));
-    foreach ($projects as $projectId => $project) {
-      $projectList[$projectId] = $project['title'];
-    }
-    $form->addElement('select', 'project_id', ts('Parent Project'), $projectList);
-    /*
-     * if option = create, check if there is a project id in the entryURL and if so
-     * default to that value
-     */
-    $action = $form->getvar('_action');
-    if ($action === CRM_Core_Action::ADD) {
-      $projectId = CRM_Utils_Request::retrieve('pid', 'String');
-      if ($projectId) {
-        $defaults['project_id'] = $projectId;
-        $form->setDefaults($defaults);
-        $form->freeze('project_id');
-      }
-    }
+    _threepeas_add_project_case($form);
   }
   if ($formName == 'CRM_Case_Form_CaseView') {
-    /*
-     * retrieve and show project title
-     */
-    $caseId = $form->getVar('_caseID');
-    $caseProjects = CRM_Threepeas_BAO_PumCaseProject::getValues(array('case_id' => $caseId));
-    foreach ($caseProjects as $caseProject) {
-      $projectId = $caseProject['project_id'];
-    }
-    if (isset($projectId) && !empty($projectId)) {
-      $projects = CRM_Threepeas_BAO_PumProject::getValues(array('id' => $projectId));
-      $form->assign('project_title', $projects[$projectId]['title']);
-    }
+    _threepeas_add_project_caseview($form);
   }
 }
 /**
@@ -502,3 +475,46 @@ function _threepeas_create_option_group($name) {
  }
  return $optionGroupId;
 }
+/**
+ * 
+ */
+function _threepeas_add_project_case(&$form) {  
+  $projectList = array();
+  $projects = CRM_Threepeas_BAO_PumProject::getValues(array('is_active' => 1));
+  foreach ($projects as $projectId => $project) {
+    $projectList[$projectId] = $project['title'];
+  }
+  $projectList[0] = '- select -';
+  asort($projectList);
+  $form->addElement('select', 'project_id', ts('Parent Project'), $projectList);
+  /*
+   * if option = create, check if there is a project id in the entryURL and if so
+   * default to that value
+   */
+  $action = $form->getvar('_action');
+  if ($action === CRM_Core_Action::ADD) {
+    $projectId = CRM_Utils_Request::retrieve('pid', 'String');
+    if ($projectId) {
+      $defaults['project_id'] = $projectId;
+      $form->setDefaults($defaults);
+      $form->freeze('project_id');
+    }
+  }
+}
+function _threepeas_add_project_caseview(&$form) {
+  /*
+   * retrieve and show project title
+   */
+  $caseId = $form->getVar('_caseID');
+  $caseProjects = CRM_Threepeas_BAO_PumCaseProject::getValues(array('case_id' => $caseId));
+  foreach ($caseProjects as $caseProject) {
+    $projectId = $caseProject['project_id'];
+  }
+  if (isset($projectId) && !empty($projectId)) {
+    $projects = CRM_Threepeas_BAO_PumProject::getValues(array('id' => $projectId));
+    if (isset($projects[$projectId]['title'])) {
+      $form->assign('project_title', $projects[$projectId]['title']);
+    }
+  }
+}
+
