@@ -33,7 +33,9 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     foreach ($projects as $project) {
       $displayProject = array();
       $displayProject['id'] = $project['id'];
-      $displayProject['title'] = $project['title'];
+      if (isset($project['title'])) {
+        $displayProject['title'] = $project['title'];
+      }
 
       if (isset($project['programme_id']) && !empty($project['programme_id'])) {
         $displayProject['programme_id'] = $project['programme_id'];
