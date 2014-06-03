@@ -2,11 +2,13 @@
   <div id="help">
     The existing Projects are listed below. You can add, edit, drill down or delete them from this screen. 
   </div>
-  <div class="action-link">
-    <a class="button new-option" href="{$addUrl}">
-      <span><div class="icon add-icon"></div>New Country Project</span>
-    </a>
-  </div>
+  {if $addUrl ne ''}
+    <div class="action-link">
+      <a class="button new-option" href="{$addUrl}">
+        <span><div class="icon add-icon"></div>New Country Project</span>
+      </a>
+    </div>
+  {/if}
   <div id="project_wrapper" class="dataTables_wrapper">
     <table id="project-table" class="display">
       <thead>
@@ -63,9 +65,11 @@
       </tbody>
     </table>    
   </div>
-  <div class="action-link">
-    <a class="button new-option" href="{$addUrl}">
-      <span><div class="icon add-icon"></div>New Country Project</span>
-    </a>
-  </div>
+  {if $addUrl ne ''}
+    <div class="action-link">
+      <a class="button new-option" href="{$addUrl}">
+        <span><div class="icon add-icon"></div>New Country Project</span>
+      </a>
+    </div>
+  {/if}
 </div>

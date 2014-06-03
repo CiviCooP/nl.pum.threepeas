@@ -14,13 +14,16 @@ require_once 'CRM/Core/Page.php';
 class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
   function run() {
     CRM_Utils_System::setTitle(ts('List of Projects'));
-        
-    if (isset($_REQUEST['cid'])) {
-      $customerId = $_REQUEST['cid'];
+    
+    $snippet = CRM_Utils_Request::retrieve('snippet', 'Positive');
+    if ($snippet != 1) {
+      $addUrl = CRM_Utils_System::url('civicrm/pumproject', 'action=add', true);
     } else {
-      $customerId = 0;
+      $addUrl = '';
     }
-    unset($_REQUEST);
+    $this->assign('addUrl', $addUrl);
+    
+    $customerId = CRM_Utils_Request::retrieve('cid', 'Positive');
     if (!empty($customerId)) {
       $projects = CRM_Threepeas_BAO_PumProject::getValues(array('customer_id' => $customerId));
     } else { 
@@ -126,8 +129,6 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
       $displayProjects[] = $displayProject;
     }
     $this->assign('pumProjects', $displayProjects);
-    $addUrl = CRM_Utils_System::url('civicrm/pumproject', 'action=add', true);
-    $this->assign('addUrl', $addUrl);
     parent::run();
   }
   
