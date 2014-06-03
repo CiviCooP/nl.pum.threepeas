@@ -336,19 +336,26 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
    */
   $threepeasConfig = CRM_Threepeas_Config::singleton();
   if ($groupID == $threepeasConfig->projectCustomGroupId && $op == 'create') {
-    $pumProject = _threepeas_set_project($params);
     /*
-     * retrieve case for subject and client
-     */ 
-    $apiCase = civicrm_api3('Case', 'Getsingle', array('case_id' => $entityID));
-    if (isset($apiCase['subject'])) {
-      $pumProject['title'] = $apiCase['subject'];
+     * only add project if case projectintake is NOT created from CiviCRM UI
+     */
+    if (isset($GLOBALS['pum_project_ignore']) && $GLOBALS['pum_project_ignore'] == 1) {
+      $GLOBALS['pum_project_ignore'] = 0;
+    } else {
+      $pumProject = _threepeas_set_project($params);
+      /*
+       * retrieve case for subject and client
+       */ 
+      $apiCase = civicrm_api3('Case', 'Getsingle', array('case_id' => $entityID));
+      if (isset($apiCase['subject'])) {
+        $pumProject['title'] = $apiCase['subject'];
+      }
+      if (isset($apiCase['client_id'][1])) {
+        $pumProject['customer_id'] = $apiCase['client_id'][1];
+      }
+      $pumProject['is_active'] = 1;
+      CRM_Threepeas_BAO_PumProject::add($pumProject);
     }
-    if (isset($apiCase['client_id'][1])) {
-      $pumProject['customer_id'] = $apiCase['client_id'][1];
-    }
-    $pumProject['is_active'] = 1;
-    CRM_Threepeas_BAO_PumProject::add($pumProject);
   }
 }
 /**
@@ -500,6 +507,10 @@ function _threepeas_add_project_case(&$form) {
       $form->freeze('project_id');
     }
   }
+  /*
+   * set global var to ensure no new project is added for projectintake
+   */
+  $GLOBALS['pum_project_ignore'] = 1;
 }
 function _threepeas_add_project_caseview(&$form) {
   /*
