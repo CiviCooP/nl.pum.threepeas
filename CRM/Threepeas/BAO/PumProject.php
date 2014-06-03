@@ -179,7 +179,10 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     /*
      * select all entity_ids (case_ids) with $projectId
      */
-    $projectCases = CRM_Threepeas_BAO_PumCaseProject::getValues(array('project_id' => $projectId));
+    $projectCasesParams = array(
+      'is_active' => 1,
+      'project_id' => $projectId);
+    $projectCases = CRM_Threepeas_BAO_PumCaseProject::getValues($projectCasesParams);
     foreach ($projectCases as $projectCase) {
       $result[$projectCase['case_id']] = self::getCaseResultLine($projectCase['case_id']);
     }

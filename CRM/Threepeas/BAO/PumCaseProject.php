@@ -66,41 +66,37 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
     self::storeValues($pumCaseProject, $result);
     return $result;
   }
-
   /**
-   * Function to delete PumCaseProject
-   * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 19 May 2014
-   * @param int $pumCaseProjectId 
-   * @return boolean
-   * @access public
-   * @static
-   */
-  public static function deleteById($pumCaseProjectId) {
-    if (empty($pumCaseProjectId)) {
-      throw new Exception('pumCaseProjectId can not be empty when attempting to delete one');
-    }
-    $pumCaseProject = new CRM_Threepeas_BAO_PumCaseProject();
-    $pumCaseProject->id = $pumCaseProjectId;
-    self::deleteProjectOptionValue($pumCaseProjectId);
-    $pumCaseProject->delete();
-    return TRUE;
-  }
-  /**
-   * Function to delete PumCaseProject by ProjectID
+   * Function to disable PumCaseProject by ProjectID
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 20 May 2014
    * @param type $projectId
    */
-  public static function deleteByProjectId($projectId) {
+  public static function disableByProjectId($projectId) {
     if (!empty($projectId)) {
       $pumCaseProject = new CRM_Threepeas_BAO_PumCaseProject();
       $pumCaseProject->project_id = $projectId;
       $pumCaseProject->find();
       while ($pumCaseProject->fetch()) {
-        self::deleteById($pumCaseProject->id);
+        self::add(array('id' => $pumCaseProject->id, 'is_active' => 0));
+      }
+    }
+  }
+  /**
+   * Function to disable PumCaseProject by CaseID
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 3 Jun 2014
+   * @param type $caseId
+   */
+  public static function disableByCaseId($caseId) {
+    if (!empty($caseId)) {
+      $pumCaseProject = new CRM_Threepeas_BAO_PumCaseProject();
+      $pumCaseProject->case_id = $caseId;
+      $pumCaseProject->find();
+      while ($pumCaseProject->fetch()) {
+        self::add(array('id' => $pumCaseProject->id, 'is_active' => 0));
       }
     }
   }

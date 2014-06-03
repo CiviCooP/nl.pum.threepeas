@@ -400,34 +400,57 @@ function _threepeas_set_project($params) {
  */
 function threepeas_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Case_Form_Case') {
-    _threepeas_add_project_case($form);
+    _threepeas_add_project_element_case($form);
   }
   if ($formName == 'CRM_Case_Form_CaseView') {
-    _threepeas_add_project_caseview($form);
+    _threepeas_add_project_element_caseview($form);
   }
 }
 /**
  * Implementation of hook civicrm_postProcess
- * 
- * add data to civicrm_case_project
  */
 function threepeas_civicrm_postProcess($formName, &$form) {
   if ($formName == 'CRM_Case_Form_Case') {
     $action = $form->getVar('_action');
-    if ($action === CRM_Core_Action::ADD) {
-      $values = $form->exportValues();
-      if (isset($values['project_id']) && !empty($values['project_id'])) {
-        /* 
-         * retrieve latest case_id
-         */
-        $daoCase = CRM_Core_DAO::executeQuery('SELECT MAX(id) as maxId FROM civicrm_case');
-        if ($daoCase->fetch()) {
-          $params = array(
-            'case_id' => $daoCase->maxId,
-            'project_id' => $values['project_id']);
-          CRM_Threepeas_BAO_PumCaseProject::add($params);
-        }
-      }
+    switch ($action) {
+      case CRM_Core_Action::ADD:
+        $values = $form->exportValues();
+        _threepeas_add_case_project($values);
+        break;
+      case CRM_Core_Action::DELETE:
+        $caseId = $form->getVar('_caseId');
+        _threepeas_disable_case_project($caseId);
+        break;
+    }
+  }
+}
+/**
+ * Function to disable CaseProject
+ * 
+ * @param int $caseId
+ */
+function _threepeas_disable_case_project($caseId) {
+  if (!empty($caseId)) {
+    CRM_Threepeas_BAO_PumCaseProject::disableByCaseId($caseId);
+  }
+}
+/**
+ * Function to add CaseProject
+ * 
+ * @param array $values
+ */
+function _threepeas_add_case_project($values) {
+  if (isset($values['project_id']) && !empty($values['project_id'])) {
+    /*
+     * retrieve latest case_id
+     */
+    $daoCase = CRM_Core_DAO::executeQuery('SELECT MAX(id) as maxId FROM civicrm_case');
+    if ($daoCase->fetch()) {
+      $params = array(
+        'is_active' => 1,
+        'case_id' => $daoCase->maxId,
+        'project_id' => $values['project_id']);
+      CRM_Threepeas_BAO_PumCaseProject::add($params);
     }
   }
 }
@@ -485,7 +508,7 @@ function _threepeas_create_option_group($name) {
 /**
  * 
  */
-function _threepeas_add_project_case(&$form) {  
+function _threepeas_add_project_element_case(&$form) {  
   $projectList = array();
   $projects = CRM_Threepeas_BAO_PumProject::getValues(array('is_active' => 1));
   foreach ($projects as $projectId => $project) {
@@ -512,7 +535,7 @@ function _threepeas_add_project_case(&$form) {
    */
   $GLOBALS['pum_project_ignore'] = 1;
 }
-function _threepeas_add_project_caseview(&$form) {
+function _threepeas_add_project_element_caseview(&$form) {
   /*
    * retrieve and show project title
    */

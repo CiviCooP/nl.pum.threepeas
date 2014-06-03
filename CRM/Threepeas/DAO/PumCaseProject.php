@@ -49,6 +49,11 @@ class CRM_Threepeas_DAO_PumCaseProject extends CRM_Core_DAO {
           'name' => 'case_id',
           'type' => CRM_Utils_Type::T_INT
         ),
+        'is_active' => array(
+          'name' => 'is_active',
+          'type' => CRM_Utils_Type::T_BOOLEAN,
+          'default' => '1',          
+        )
       );
     }
     return self::$_fields;
@@ -64,9 +69,10 @@ class CRM_Threepeas_DAO_PumCaseProject extends CRM_Core_DAO {
   {
     if (!(self::$_fieldKeys)) {
       self::$_fieldKeys = array(
-        'id'                    =>  'id',
-        'project_id'            =>  'project_id',
-        'case_id'          =>  'case_id'
+        'id'          =>  'id',
+        'project_id'  =>  'project_id',
+        'case_id'     =>  'case_id',
+        'is_active'   =>  'is_active'
       );
     }
     return self::$_fieldKeys;
