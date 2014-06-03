@@ -82,6 +82,9 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     if (empty($pumProjectId)) {
       throw new Exception('pumProjectId can not be empty when attempting to delete one');
     }
+    
+    CRM_Utils_Hook::pre('delete', 'PumProject', $pumProjectId, CRM_Core_DAO::$_nullArray);
+    
     $pumProject = new CRM_Threepeas_BAO_PumProject();
     $pumProject->id = $pumProjectId;
     /*
@@ -90,6 +93,8 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     CRM_Threepeas_BAO_PumCaseProject::deleteByProjectId($pumProjectId);
     self::deleteProjectOptionValue($pumProjectId);
     $pumProject->delete();
+    
+    CRM_Utils_Hook::post('delete', 'PumProject', $pumProject->id, $pumProject);
     return TRUE;
   }
   /**

@@ -111,6 +111,9 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
       $pageActions[] = '<a class="action-item" title="View project details" href="'.$viewUrl.'">View</a>';
       $pageActions[] = '<a class="action-item" title="Edit project" href="'.$editUrl.'">Edit</a>';
       $pageActions[] = '<a class="action-item" title="Drill down project" href="'.$drillUrl.'">Drill Down</a>';
+      //load extra actions from hooks
+      $pageActions = array_merge($pageActions, $this->getProjectActions($project));
+      
       if (isset($project['is_active']) && $project['is_active'] == 1) {
         $pageActions[] = '<a class="action-item" title="Disable project" href="'.$disableUrl.'">Disable</a>';
       } else {
@@ -126,5 +129,21 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     $addUrl = CRM_Utils_System::url('civicrm/pumproject', 'action=add', true);
     $this->assign('addUrl', $addUrl);
     parent::run();
+  }
+  
+  /**
+   * Returns an array with extra links (filled from a hook)
+   * 
+   * @param array $project
+   * @return array with links e.g. array('<a class="action-item" title="my item" href="link.php">link</a>')
+   * 
+   */
+  protected function getProjectActions($project) {
+    $hooks = CRM_Utils_Hook::singleton();
+    $return = $hooks->invoke(1, $project, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'civicrm_threepeas_projectactions');
+    if (is_array($return)) {
+      return $return;
+    }
+    return array();
   }
 }
