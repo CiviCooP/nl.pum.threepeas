@@ -90,7 +90,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     /*
      * delete records from case_project with project_id
      */
-    CRM_Threepeas_BAO_PumCaseProject::deleteByProjectId($pumProjectId);
+    CRM_Threepeas_BAO_PumCaseProject::disableByProjectId($pumProjectId);
     self::deleteProjectOptionValue($pumProjectId);
     $pumProject->delete();
     
