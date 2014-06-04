@@ -37,6 +37,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
         'type'       => ts("Main Activity"),
         'objective'  => ts("Objective"),
         'client'     => ts("Client/Country"),
+        'expert'     => ts("Expert"),
         'start_date' => ts("Start date"),
         'end_date'   => ts("End date"),
         'status'     => ts("Status")
@@ -191,6 +192,18 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
       $row['client'] = $clientName;
       $row['client_id'] = $case['client_id'];
       
+      $expertParams = array(
+        'contact_id'    =>  $case['expert_id'],
+        'return'        =>  'display_name'
+      );
+      try {
+        $expertName = civicrm_api3('Contact', 'Getvalue', $expertParams);
+      } catch (CiviCRM_API3_Exception $e) {
+        $expertName = "";
+      }
+      $row['expert'] = $expertName;
+      $row['expert_id'] = $case['expert_id'];
+
       $caseUrlParams = "reset=1&action=view&id=".$caseId."&cid=".$case['client_id'];
       $caseUrl = CRM_Utils_System::url('civicrm/contact/view/case', $caseUrlParams);
       $caseType = CRM_Utils_Array::value($case['case_type'], $threepeasConfig->caseTypes);

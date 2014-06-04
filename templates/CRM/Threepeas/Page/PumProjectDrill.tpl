@@ -31,6 +31,7 @@
             <td hidden="1">{$row.case_id}</td>
             <td hidden="1">{$row.activity_id}</td>
             <td hidden="1">{$row.client_id}</td>
+            <td hidden="1">{$row.expert_id}</td>
             <td>{$row.type}</td>
             <td>{$row.objective}</td>
             <td>{$row.client}</td>

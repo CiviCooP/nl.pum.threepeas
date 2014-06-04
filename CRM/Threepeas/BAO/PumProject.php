@@ -210,7 +210,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     $resultLine['start_date'] = $case['start_date'];
     $resultLine['end_date'] = $case['end_date'];
     $resultLine['client_id'] = $caseClientId;
-    $resultLine['expert_id'] = CRM_Case_BAO_Case::getCaseRoles($caseClientId, $caseId, $threepeasConfig->expertRelationshipTypeId);
+    $resultLine['expert_id'] = self::getCaseRoleContactId($caseId, $threepeasConfig->expertRelationshipTypeId);
     $optionParams['option_group_id'] = $threepeasConfig->caseTypeOptionGroupId;
     $optionParams['value'] = $case['case_type_id'];
     $optionParams['return'] = 'id';
@@ -223,6 +223,23 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     $optionParams['value'] = $case['status_id'];
     $resultLine['case_status'] = civicrm_api3('OptionValue', 'Getvalue', $optionParams);
     return $resultLine;
+  }
+  /**
+   * Function to retrieve the Expert for a case
+   */
+  private static function getCaseRoleContactId($caseId, $relationshipTypeId) {
+    $roleContactId = 0;
+    if (empty($caseId) || empty($relationshipTypeId)) {
+      return $roleContactId;
+    }
+    $query = 'SELECT contact_id_b FROM civicrm_relationship WHERE case_id = %1 '
+      .'AND relationship_type_id = %2';
+    $params = array(1 => array($caseId, 'Integer'), 2 => array($relationshipTypeId, 'Integer'));
+    $dao = CRM_Core_DAO::executeQuery($query, $params);
+    if ($dao->fetch()) {
+      $roleContactId = $dao->contact_id_b;
+    }
+    return $roleContactId;
   }
   /**
    * Function to add a created project to the Option Group for projects

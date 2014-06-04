@@ -63,7 +63,7 @@ class CRM_Threepeas_Config {
     $this->setProjectOptionGroupId();
     $this->setCaseStatus();
     $this->setCaseTypes();
-    $this->expertRelationshipTypeId = $this->setRelationshipTypeId('PUM-expert at');
+    $this->expertRelationshipTypeId = $this->setRelationshipTypeId('Expert');
   }
   private function setCustomerContactType($customerContactType) {
     $this->customerContactType = $customerContactType;
