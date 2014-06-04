@@ -508,9 +508,15 @@ function _threepeas_create_option_group($name) {
 /**
  * 
  */
-function _threepeas_add_project_element_case(&$form) {  
+function _threepeas_add_project_element_case(&$form) {
+  $projectParams = array();
+  $projectParams['is_active'] = 1;
+  $currentlyViewedContactId = $form->getVar('_currentlyViewedContactId');
+  if (!empty($currentlyViewedContactId)) {
+    $projectParams['customer_id'] = $currentlyViewedContactId;
+  }
   $projectList = array();
-  $projects = CRM_Threepeas_BAO_PumProject::getValues(array('is_active' => 1));
+  $projects = CRM_Threepeas_BAO_PumProject::getValues($projectParams);
   foreach ($projects as $projectId => $project) {
     $projectList[$projectId] = $project['title'];
   }
