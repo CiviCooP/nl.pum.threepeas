@@ -63,7 +63,9 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       }
     }
     $pumProject->save();
-    self::addProjectOptionValue($pumProject->id, $pumProject->title);
+    if (isset($pumProject->title) && !empty($pumProject->title)) {
+      self::addProjectOptionValue($pumProject->id, $pumProject->title);
+    }
     self::storeValues($pumProject, $result);
     return $result;
   }

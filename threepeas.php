@@ -347,18 +347,29 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
        * retrieve case for subject and client
        */ 
       $apiCase = civicrm_api3('Case', 'Getsingle', array('case_id' => $entityID));
-      if (isset($apiCase['subject'])) {
-        $pumProject['title'] = $apiCase['subject'];
-      }
       if (isset($apiCase['client_id'][1])) {
         $pumProject['customer_id'] = $apiCase['client_id'][1];
       }
       $pumProject['is_active'] = 1;
       $createdProject = CRM_Threepeas_BAO_PumProject::add($pumProject);
+      _threepeas_generate_project_title($createdProject['id'], $createdProject['customer_id']);
       $pumCaseProject = array('case_id' => $entityID, 'project_id' => $createdProject['id']);
       CRM_Threepeas_BAO_PumCaseProject::add($pumCaseProject);
     }
   }
+}
+/**
+ * Function to generate the project title (Issue 90)
+ */
+function _threepeas_generate_project_title($projectId, $customerId) {
+  try {
+    $customerName = civicrm_api3('Contact', 'Getvalue', array('id' => $customerId, 'return' => 'display_name'));
+  } catch (CiviCRM_API3_Exception $ex) {
+    $customerName = '';
+  }
+  $projectTitle = 'Project '.$customerName.'-'.$projectId;
+  $params = array('id' => $projectId, 'title' => $projectTitle);
+  CRM_Threepeas_BAO_PumProject::add($params);
 }
 /**
  * Function to set basic data for pum project
