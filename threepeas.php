@@ -334,7 +334,15 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
    * if groupID = PUM project custom group and option is create, create
    * pum project
    */
+  CRM_Core_Error::debug('Test Erik Hommel, globals', $GLOBALS);
+  CRM_Core_Error::debug('op', $op);
+  CRM_Core_Error::debug('groupID', $groupID);
+  CRM_Core_Error::debug('entityID', $entityID);
+  CRM_Core_Error::debug('params', $params);
+  
   $threepeasConfig = CRM_Threepeas_Config::singleton();
+  CRM_Core_Error::debug('config projectcustomgroupid', $threepeasConfig->projectCustomGroupId);
+  
   if ($groupID == $threepeasConfig->projectCustomGroupId && $op == 'create') {
     /*
      * only add project if case projectintake is NOT created from CiviCRM UI
@@ -343,6 +351,7 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
       $GLOBALS['pum_project_ignore'] = 0;
     } else {
       $pumProject = _threepeas_set_project($params);
+      CRM_Core_Error::debug('pumProject', $pumProject);
       /*
        * retrieve case for subject and client
        */ 
@@ -352,11 +361,14 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
       }
       $pumProject['is_active'] = 1;
       $createdProject = CRM_Threepeas_BAO_PumProject::add($pumProject);
+      CRM_Core_Error::debug('created', $createdProject);
       _threepeas_generate_project_title($createdProject['id'], $createdProject['customer_id']);
       $pumCaseProject = array('case_id' => $entityID, 'project_id' => $createdProject['id']);
       CRM_Threepeas_BAO_PumCaseProject::add($pumCaseProject);
     }
+    
   }
+  exit();
 }
 /**
  * Function to generate the project title (Issue 90)
@@ -380,6 +392,7 @@ function _threepeas_generate_project_title($projectId, $customerId) {
  * @return array $result
  */
 function _threepeas_set_project($params) {
+  CRM_Core_Error::debug('params in set_proejct', $params);
   $result = array();
   $usedCustomFields = array('reason', 'activities', 'expected_results');
   $threepeasConfig = CRM_Threepeas_Config::singleton();
