@@ -359,7 +359,6 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
     }
     
   }
-  exit();
 }
 /**
  * Function to generate the project title (Issue 90)
