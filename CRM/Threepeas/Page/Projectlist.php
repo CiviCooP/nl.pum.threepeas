@@ -50,12 +50,10 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
         );
         $displayProject['customer_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
         $displayProject['showCustomer'] = 1;
-      } else {
-        if (isset($project['country_id']) && !empty($project['country)id'])) {
-          $displayProject['country_id'] = $project['country_id'];
-          $displayProject['country_name'] = civicrm_api3('Country', 'Getvalue', array('id' => $project['country_id'], 'return' => 'name'));
-          $displayProject['showCustomer'] = 0;
-        }
+      } elseif (isset($project['country_id']) && !empty($project['country)id'])) {
+        $displayProject['country_id'] = $project['country_id'];
+        $displayProject['country_name'] = civicrm_api3('Country', 'Getvalue', array('id' => $project['country_id'], 'return' => 'name'));
+        $displayProject['showCustomer'] = 0;
       }
             
       if (isset($project['sector_coordinator_id']) && !empty($project['sector_coordinator_id'])) {
