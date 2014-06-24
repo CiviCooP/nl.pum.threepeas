@@ -22,12 +22,19 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
       $addUrl = '';
     }
     $this->assign('addUrl', $addUrl);
-    
+    $type = CRM_Utils_Request::retrieve('type', 'String');
     $customerId = CRM_Utils_Request::retrieve('cid', 'Positive');
-    if (!empty($customerId)) {
-      $projects = CRM_Threepeas_BAO_PumProject::getValues(array('customer_id' => $customerId));
-    } else { 
-      $projects = CRM_Threepeas_BAO_PumProject::getValues(array());
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    switch ($type) {
+      case $threepeasConfig->countryContactType:
+        $projects = CRM_Threepeas_BAO_PumProject::getValues(array('country_id' => $customerId));
+        break;
+      case $threepeasConfig->customerContactType:
+        $projects = CRM_Threepeas_BAO_PumProject::getValues(array('customer_id' => $customerId));
+        break;
+      default:
+        $projects = CRM_Threepeas_BAO_PumProject::getValues(array());
+        break;
     }
     $displayProjects = array();
     foreach ($projects as $project) {
@@ -50,10 +57,16 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
         );
         $displayProject['customer_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
         $displayProject['showCustomer'] = 1;
-      } elseif (isset($project['country_id']) && !empty($project['country)id'])) {
-        $displayProject['country_id'] = $project['country_id'];
-        $displayProject['country_name'] = civicrm_api3('Country', 'Getvalue', array('id' => $project['country_id'], 'return' => 'name'));
-        $displayProject['showCustomer'] = 0;
+      } else {
+        if (isset($project['country_id']) && !empty($project['country_id'])) {
+          $displayProject['country_id'] = $project['country_id'];
+          $contactParams = array(
+            'id'    =>  $project['country_id'],
+            'return'=>  'display_name'
+          );
+          $displayProject['country_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
+          $displayProject['showCustomer'] = 0;
+        }
       }
             
       if (isset($project['sector_coordinator_id']) && !empty($project['sector_coordinator_id'])) {

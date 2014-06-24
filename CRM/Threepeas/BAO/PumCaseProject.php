@@ -84,6 +84,40 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
     }
   }
   /**
+   * Function to delete PumCaseProject by ProjectID
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 20 May 2014
+   * @param type $projectId
+   */
+  public static function deleteByProjectId($projectId) {
+    if (!empty($projectId)) {
+      $pumCaseProject = new CRM_Threepeas_BAO_PumCaseProject();
+      $pumCaseProject->project_id = $projectId;
+      $pumCaseProject->find();
+      while ($pumCaseProject->fetch()) {
+        $pumCaseProject->delete;
+      }
+    }
+  }
+  /**
+   * Function to enable PumCaseProject by ProjectID
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 23 June 2014
+   * @param type $projectId
+   */
+  public static function enableByProjectId($projectId) {
+    if (!empty($projectId)) {
+      $pumCaseProject = new CRM_Threepeas_BAO_PumCaseProject();
+      $pumCaseProject->project_id = $projectId;
+      $pumCaseProject->find();
+      while ($pumCaseProject->fetch()) {
+        self::add(array('id' => $pumCaseProject->id, 'is_active' => 1));
+      }
+    }
+  }
+  /**
    * Function to disable PumCaseProject by CaseID
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>

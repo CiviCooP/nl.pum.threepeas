@@ -11,9 +11,10 @@ class CRM_Threepeas_Config {
    */
   static private $_singleton = NULL;
   /*
-   * contact sub_type id for Customer
+   * contact sub_type id for Customer and Country
    */
   public $customerContactType = NULL;
+  public $countryContactType = NULL;
   /*
    * group id for Programme Manager
    */
@@ -54,6 +55,7 @@ class CRM_Threepeas_Config {
    */
   function __construct() {
     $this->setCustomerContactType('Customer');
+    $this->setCountryContactType('Country');
     $this->setGroupId('Programme Managers');
     $this->setGroupId('Sector Coordinators');
     $this->setGroupId('Country Coordinators');
@@ -67,6 +69,9 @@ class CRM_Threepeas_Config {
   }
   private function setCustomerContactType($customerContactType) {
     $this->customerContactType = $customerContactType;
+  }
+  private function setCountryContactType($countryContactType) {
+    $this->countryContactType = $countryContactType;
   }
   /**
    * Function to return singleton object
