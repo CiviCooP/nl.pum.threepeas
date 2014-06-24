@@ -92,7 +92,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     /*
      * delete records from case_project with project_id
      */
-    CRM_Threepeas_BAO_PumCaseProject::disableByProjectId($pumProjectId);
+    CRM_Threepeas_BAO_PumCaseProject::deleteByProjectId($pumProjectId);
     self::deleteProjectOptionValue($pumProjectId);
     $pumProject->delete();
     
@@ -151,10 +151,16 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * @access public
    * @static
    */
-  public static function countCustomerProjects($customerId) {
+  public static function countCustomerProjects($customerId, $type) {
     $countProjects = 0;
     if (!empty($customerId) && is_numeric($customerId)) {
-      $countQry = "SELECT COUNT(*) AS countProjects FROM civicrm_project WHERE customer_id = %1";
+      $threepeasConfig = CRM_Threepeas_Config::singleton();
+      if ($type == $threepeasConfig->customerContactType) {
+        $countQry = "SELECT COUNT(*) AS countProjects FROM civicrm_project WHERE customer_id = %1";
+      }
+      if ($type == $threepeasConfig->countryContactType) {
+        $countQry = "SELECT COUNT(*) AS countProjects FROM civicrm_project WHERE country_id = %1";        
+      }
       $countParams = array(1 => array($customerId, 'Integer'));
       $dao = CRM_Core_DAO::executeQuery($countQry, $countParams);
       if ($dao->fetch()) {
@@ -289,6 +295,33 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
         'return' => 'id');
       $optionValueId = civicrm_api3('OptionValue', 'Getvalue', $params);
       civicrm_api3('OptionValue', 'Delete', array('id' => $optionValueId));
+    }
+  }
+  /**
+   * Function to delete all projects and case projects for contact (customer/country)
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 23 Jun 2014
+   * @param int $contactId
+   * @param string $type
+   * @access public
+   * @static
+   */
+  public static function deleteByContactId($contactId, $type) {
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    if (!empty($contactId)) {
+      $pumProject = new CRM_Threepeas_BAO_PumProject();
+      switch ($type) {
+        case $threepeasConfig->customerContactType:
+          $pumProject->customer_id = $contactId;
+          break;
+        case $threepeasConfig->countryContactType:
+          $pumProject->country_id = $contactId;
+      }
+      $pumProject->find();
+      while ($pumProject->fetch()) {
+        self::deleteById($pumProject->id);
+      }
     }
   }
 }

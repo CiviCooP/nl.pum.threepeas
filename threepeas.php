@@ -296,18 +296,18 @@ function threepeas_civicrm_tabs(&$tabs, $contactID) {
   $customerType = FALSE;
   if (!empty($contact['contact_sub_type'])) {
     foreach ($contact['contact_sub_type'] as $contactSubType) {
-      if ($contactSubType == "Customer") {
-        $customerType = TRUE;
-      }
+      $customerType = $contactSubType;
     }
     foreach ($tabs as $tab) {
       if ($tab['title'] == ts("Cases")) {
         $projectWeight = $tab['weight']++;
       }
     }
-    if ($customerType == TRUE) {
-      $projectCount = CRM_Threepeas_BAO_PumProject::countCustomerProjects($contactID);
-      $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactID);
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+  if ($customerType == $threepeasConfig->countryContactType 
+    || $customerType == $threepeasConfig->customerContactType) {
+      $projectCount = CRM_Threepeas_BAO_PumProject::countCustomerProjects($contactID, $customerType);
+      $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactID.'&type='.$customerType);
       $tabs[] = array( 
         'id'    => 'customerProjects',
         'url'       => $projectUrl,
@@ -521,7 +521,7 @@ function _threepeas_create_option_group($name) {
  return $optionGroupId;
 }
 /**
- * 
+ * Function to add project element to case
  */
 function _threepeas_add_project_element_case(&$form) {
   $projectParams = array();
@@ -556,6 +556,9 @@ function _threepeas_add_project_element_case(&$form) {
    */
   $GLOBALS['pum_project_ignore'] = 1;
 }
+/*
+ * Function to add project element to case view
+ */
 function _threepeas_add_project_element_caseview(&$form) {
   /*
    * retrieve and show project title
@@ -570,6 +573,38 @@ function _threepeas_add_project_element_caseview(&$form) {
     if (isset($projects[$projectId]['title'])) {
       $form->assign('project_title', $projects[$projectId]['title']);
     }
+  }
+}
+/**
+ * Implementation of hook civicrm_pre
+ * Issue 116: disable or delete projects and case/projects when contact is restored
+ */
+function threepeas_civicrm_pre($op, $objectName, $objectId, &$objectRef) {
+  if ($objectName == 'Organization') {
+    if ($op == 'delete') {
+      $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $objectId));
+      _threepeas_delete_project($contact);
+    }
+  }
+}
+/**
+ * Function to delete projects for a contact
+ * 
+ * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+ * @date 24 Jun 2014
+ * @param array $contact
+ */
+function _threepeas_delete_project($contact) {
+  $threepeasConfig = CRM_Threepeas_Config::singleton();
+  $deleteProjects = FALSE;
+  foreach($contact['contact_sub_type'] as $subType) {
+    if ($subType == $threepeasConfig->countryContactType 
+      || $subType == $threepeasConfig->customerContactType) {
+      $deleteProjects = TRUE;
+    }
+  }
+  if ($deleteProjects == TRUE) {
+    CRM_Threepeas_BAO_PumProject::deleteByContactId($contact['id'], $subType);
   }
 }
 
