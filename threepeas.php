@@ -579,6 +579,8 @@ function _threepeas_add_project_element_caseview(&$form) {
  * Implementation of hook civicrm_post
  * Issue 116: delete projects and case/projects when contact is deleted
  *            (core issue CRM-9562 make sure not deleted when trashed
+ *             because trash functionality trigger post hook with trash operation
+ *             AND delete operation
  *            https://issues.civicrm.org/jira/browse/CRM-9562?jql=text%20~%20%22post%20hook%20contact%20trash%22)
  */
 function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
