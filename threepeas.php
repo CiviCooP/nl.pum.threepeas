@@ -576,13 +576,18 @@ function _threepeas_add_project_element_caseview(&$form) {
   }
 }
 /**
- * Implementation of hook civicrm_pre
- * Issue 116: disable or delete projects and case/projects when contact is restored
+ * Implementation of hook civicrm_post
+ * Issue 116: delete projects and case/projects when contact is deleted
+ *            (core issue CRM-9562 make sure not deleted when trashed
+ *            https://issues.civicrm.org/jira/browse/CRM-9562?jql=text%20~%20%22post%20hook%20contact%20trash%22)
  */
-function threepeas_civicrm_pre($op, $objectName, $objectId, &$objectRef) {
+function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($objectName == 'Organization') {
+    if ($op == 'trash') {
+      $GLOBALS['trashedOrganizationId'] = $objectId;
+    }
     if ($op == 'delete') {
-      $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $objectId));
+      $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $objectId, 'is_deleted' => 1));
       _threepeas_delete_project($contact);
     }
   }
@@ -595,16 +600,24 @@ function threepeas_civicrm_pre($op, $objectName, $objectId, &$objectRef) {
  * @param array $contact
  */
 function _threepeas_delete_project($contact) {
-  $threepeasConfig = CRM_Threepeas_Config::singleton();
-  $deleteProjects = FALSE;
-  foreach($contact['contact_sub_type'] as $subType) {
-    if ($subType == $threepeasConfig->countryContactType 
-      || $subType == $threepeasConfig->customerContactType) {
-      $deleteProjects = TRUE;
+  $deleteProjects = TRUE;
+  if (isset($GLOBALS['trashedOrganizationId'])) {
+    if ($contact['contact_id'] == $GLOBALS['trashedOrganizationId']) {
+      $deleteProjects = FALSE;
+      unset($GLOBALS['trashedOrganizationId']);
     }
   }
   if ($deleteProjects == TRUE) {
-    CRM_Threepeas_BAO_PumProject::deleteByContactId($contact['id'], $subType);
+    $deleteProjects = FALSE;
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    foreach($contact['contact_sub_type'] as $subType) {
+      if ($subType == $threepeasConfig->countryContactType 
+        || $subType == $threepeasConfig->customerContactType) {
+        $deleteProjects = TRUE;
+      }
+    }
+    if ($deleteProjects == TRUE) {
+      CRM_Threepeas_BAO_PumProject::deleteByContactId($contact['contact_id'], $subType);
+    }
   }
 }
-
