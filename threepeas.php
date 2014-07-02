@@ -589,8 +589,7 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       $GLOBALS['trashedOrganizationId'] = $objectId;
     }
     if ($op == 'delete') {
-      $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $objectId, 'is_deleted' => 1));
-      _threepeas_delete_project($contact);
+      _threepeas_delete_project($objectId);
     }
   }
 }
@@ -599,27 +598,31 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
  * 
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @date 24 Jun 2014
- * @param array $contact
+ * @param int $contactId
  */
-function _threepeas_delete_project($contact) {
+function _threepeas_delete_project($contactId) {
   $deleteProjects = TRUE;
   if (isset($GLOBALS['trashedOrganizationId'])) {
-    if ($contact['contact_id'] == $GLOBALS['trashedOrganizationId']) {
+    if ($contactId == $GLOBALS['trashedOrganizationId']) {
       $deleteProjects = FALSE;
       unset($GLOBALS['trashedOrganizationId']);
     }
   }
   if ($deleteProjects == TRUE) {
     $deleteProjects = FALSE;
-    $threepeasConfig = CRM_Threepeas_Config::singleton();
-    foreach($contact['contact_sub_type'] as $subType) {
-      if ($subType == $threepeasConfig->countryContactType 
-        || $subType == $threepeasConfig->customerContactType) {
-        $deleteProjects = TRUE;
+    try {
+      $contact = civicrm_api3('Contact', 'Getsingle', array('contact_id' => $contactId));
+      $threepeasConfig = CRM_Threepeas_Config::singleton();
+      foreach($contact['contact_sub_type'] as $subType) {
+        if ($subType == $threepeasConfig->countryContactType 
+          || $subType == $threepeasConfig->customerContactType) {
+          $deleteProjects = TRUE;
+        }
       }
-    }
-    if ($deleteProjects == TRUE) {
-      CRM_Threepeas_BAO_PumProject::deleteByContactId($contact['contact_id'], $subType);
+      if ($deleteProjects == TRUE) {
+        CRM_Threepeas_BAO_PumProject::deleteByContactId($contact['contact_id'], $subType);
+      }
+    } catch (CiviCRM_API3_Exception $ex) {
     }
   }
 }

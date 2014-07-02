@@ -16,6 +16,12 @@ class CRM_Threepeas_Config {
   public $customerContactType = NULL;
   public $countryContactType = NULL;
   /*
+   * custom field for country key and custom table
+   */
+  public $countryCustomFieldId = NULL;
+  public $countryCustomFieldColumn = NULL;
+  public $countryCustomTable = NULL;
+  /*
    * group id for Programme Manager
    */
   public $programmeManagersGroupId = NULL;
@@ -56,6 +62,8 @@ class CRM_Threepeas_Config {
   function __construct() {
     $this->setCustomerContactType('Customer');
     $this->setCountryContactType('Country');
+    $this->setCountryCustomField('civicrm_country_id');
+    $this->setCountryCustomTable('pumCountry');
     $this->setGroupId('Programme Managers');
     $this->setGroupId('Sector Coordinators');
     $this->setGroupId('Country Coordinators');
@@ -72,6 +80,24 @@ class CRM_Threepeas_Config {
   }
   private function setCountryContactType($countryContactType) {
     $this->countryContactType = $countryContactType;
+  }
+  private function setCountryCustomTable($name) {
+    try {
+      $this->countryCustomTable = civicrm_api3('CustomGroup', 'Getvalue', 
+        array('name' => $name, 'return' => 'table_name'));
+    } catch (CiviCRM_API3_Exception $ex) {
+      $this->countryCustomTable = '';
+    }
+  }
+  private function setCountryCustomField($fieldName) {
+    try {
+      $customField = civicrm_api3('CustomField', 'Getsingle', array('name' => $fieldName));
+      $this->countryCustomFieldId = $customField['id'];
+      $this->countryCustomFieldColumn = $customField['column_name'];
+    } catch (CiviCRM_API3_Exception $ex) {
+      $this->countryCustomFieldId = 0;
+      $this->countryCustomFieldColumn = '';
+    }
   }
   /**
    * Function to return singleton object
