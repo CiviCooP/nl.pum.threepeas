@@ -624,5 +624,26 @@ function _threepeas_delete_project($contactId) {
       }
     } catch (CiviCRM_API3_Exception $ex) {
     }
+  }  
+}
+/**
+ * Implementation of hook civicrm_summaryActions
+ * If contact_sub_type = Country, allow actions only if administrator
+ */
+function threepeas_civicrm_summaryActions(&$actions, $contactID){
+  if (!empty($contactID)) {
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    $contactData = civicrm_api3('Contact', 'Getsingle', array('id' => $contactID));
+      if (isset($contactData['contact_sub_type']) && !empty($contactData['contact_sub_type'])) {
+      foreach ($contactData['contact_sub_type'] as $subType) {
+        if ($subType == $threepeasConfig->countryContactType) {
+          foreach ($actions as $key => $value) {
+            if ($key != 'view') {
+              $actions[$key]['permissions'][] = 'administer CiviCRM';
+            }
+          }
+        }
+      }
+    }
   }
 }
