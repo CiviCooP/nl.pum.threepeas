@@ -433,10 +433,6 @@ function threepeas_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Case_Form_CaseView') {
     _threepeasAddProjectElementCaseView($form);
   }
-  if ($formName == 'CRM_Contact_Form_Contact') {
-    CRM_Core_Error::debug('form', $form);
-    exit();
-  }
 }
 /**
  * Implementation of hook civicrm_postProcess
