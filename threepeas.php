@@ -183,8 +183,6 @@ function threepeas_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  * Implementation of hook civicrm_navigationMenu
  * to create a programmes, projects and products menu and menu items
  * 
- * @author Erik Hommel (erik.hommel@civicoop.org http://www.civicoop.org)
- * @date 29 Jan 2013
  * @param array $params
  */
 function threepeas_civicrm_navigationMenu( &$params ) {
@@ -287,46 +285,50 @@ function threepeas_civicrm_navigationMenu( &$params ) {
  * 
  * Remove all tabs save Documentation and Project for contact_sub_type Country
  * 
- * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
- * @date 26 Mar 2014
+ * @param array $tabs
+ * @param int $contactID
  */
 function threepeas_civicrm_tabs(&$tabs, $contactID) {
+  $threepeasConfig = CRM_Threepeas_Config::singleton();
   /*
    * first check if contact_subtype is country
    */
   if (_threepeasContactIsCountry($contactID) == TRUE) {
     foreach ($tabs as $tabKey => $tab) {
+      $projectWeight = $tab['weight']++;
       if ($tab['id'] != 'contact_documents') {
         unset($tabs[$tabKey]);
       }
     }
+    $tabs[] = _threepeasAddProjectTab($contactID, $threepeasConfig->countryContactType, $projectWeight);
     
   } else {
-    $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $contactID));
-    $customerType = FALSE;
-    if (!empty($contact['contact_sub_type'])) {
-      foreach ($contact['contact_sub_type'] as $contactSubType) {
-        $customerType = $contactSubType;
-      }
-      foreach ($tabs as $tab) {
-        if ($tab['title'] == ts("Cases")) {
-          $projectWeight = $tab['weight']++;
-        }
-      }
-      $threepeasConfig = CRM_Threepeas_Config::singleton();
-    if ($customerType == $threepeasConfig->countryContactType 
-      || $customerType == $threepeasConfig->customerContactType) {
-        $projectCount = CRM_Threepeas_BAO_PumProject::countCustomerProjects($contactID, $customerType);
-        $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactID.'&type='.$customerType);
-        $tabs[] = array( 
-          'id'    => 'customerProjects',
-          'url'       => $projectUrl,
-          'title'     => 'Projects',
-          'weight'    => $projectWeight,
-          'count'     => $projectCount);
-      }
+    if (_threepeasContactIsCustomer($contactID) == TRUE) {
+    foreach ($tabs as $tabKey => $tab) {
+      $projectWeight = $tab['weight']++;
+    }
+      $tabs[] = _threepeasAddProjectTab($contactID, $threepeasConfig->customerContactType, $projectWeight);
     }
   }
+}
+/**
+ * Function to add the project tab to the summary page
+ * 
+ * @param int $contactId
+ * @param string $customerType
+ * @param int $projectWeight
+ * @return array $projectTab
+ */
+function _threepeasAddProjectTab($contactId, $customerType, $projectWeight = 0) {
+  $projectCount = CRM_Threepeas_BAO_PumProject::countCustomerProjects($contactId, $customerType);
+  $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactId.'&type='.$customerType);
+  $projectTab = array( 
+    'id'    => 'customerProjects',
+    'url'       => $projectUrl,
+    'title'     => 'Projects',
+    'weight'    => $projectWeight++,
+    'count'     => $projectCount);
+  return $projectTab;
 }
 /**
  * Implementation of hook_civicrm_custom
