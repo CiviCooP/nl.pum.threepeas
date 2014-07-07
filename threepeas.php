@@ -541,33 +541,37 @@ function _threepeasAddProjectElementCase(&$form) {
   $projectParams['is_active'] = 1;
   $currentlyViewedContactId = $form->getVar('_currentlyViewedContactId');
   if (!empty($currentlyViewedContactId)) {
-    $projectParams['customer_id'] = $currentlyViewedContactId;
-  }
-  $projectList = array();
-  $projects = CRM_Threepeas_BAO_PumProject::getValues($projectParams);
-  foreach ($projects as $projectId => $project) {
-    $projectList[$projectId] = $project['title'];
-  }
-  $projectList[0] = '- select -';
-  asort($projectList);
-  $form->addElement('select', 'project_id', ts('Parent Project'), $projectList);
-  /*
-   * if option = create, check if there is a project id in the entryURL and if so
-   * default to that value
-   */
-  $action = $form->getvar('_action');
-  if ($action === CRM_Core_Action::ADD) {
-    $projectId = CRM_Utils_Request::retrieve('pid', 'String');
-    if ($projectId) {
-      $defaults['project_id'] = $projectId;
-      $form->setDefaults($defaults);
-      $form->freeze('project_id');
+    if (_threepeasContactIsCountry($currentlyViewedContactId) == TRUE) {
+      $projectParams['country_id'] = $currentlyViewedContactId;
+    } else {
+      $projectParams['customer_id'] = $currentlyViewedContactId;
     }
+    $projectList = array();
+    $projects = CRM_Threepeas_BAO_PumProject::getValues($projectParams);
+    foreach ($projects as $projectId => $project) {
+      $projectList[$projectId] = $project['title'];
+    }
+    $projectList[0] = '- select -';
+    asort($projectList);
+    $form->addElement('select', 'project_id', ts('Parent Project'), $projectList);
+    /*
+     * if option = create, check if there is a project id in the entryURL and if so
+     * default to that value
+     */
+    $action = $form->getvar('_action');
+    if ($action === CRM_Core_Action::ADD) {
+      $projectId = CRM_Utils_Request::retrieve('pid', 'String');
+      if ($projectId) {
+        $defaults['project_id'] = $projectId;
+        $form->setDefaults($defaults);
+        $form->freeze('project_id');
+      }
+    }
+    /*
+     * set global var to ensure no new project is added for projectintake
+     */
+    $GLOBALS['pum_project_ignore'] = 1;
   }
-  /*
-   * set global var to ensure no new project is added for projectintake
-   */
-  $GLOBALS['pum_project_ignore'] = 1;
 }
 /*
  * Function to add project element to case view
