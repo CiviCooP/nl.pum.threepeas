@@ -58,7 +58,7 @@ function threepeas_civicrm_enable() {
     /*
      * retrieve option group for pum_project
      */
-    _threepeas_generate_project_list();
+    _threepeasGenerateProjectList();
     return _threepeas_civix_civicrm_enable();
   } else {
     CRM_Core_Error::fatal("Could not enable extension, the required extension org.civicoop.general.api.country is not active in this environment!");
@@ -285,35 +285,46 @@ function threepeas_civicrm_navigationMenu( &$params ) {
  * Implementation of hook civicrm_tabs to add a tab for Projects for 
  * contract subtype Customer
  * 
+ * Remove all tabs save Documentation and Project for contact_sub_type Country
+ * 
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @date 26 Mar 2014
  */
 function threepeas_civicrm_tabs(&$tabs, $contactID) {
   /*
-   * first check if contact_subtype is customer
+   * first check if contact_subtype is country
    */
-  $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $contactID));
-  $customerType = FALSE;
-  if (!empty($contact['contact_sub_type'])) {
-    foreach ($contact['contact_sub_type'] as $contactSubType) {
-      $customerType = $contactSubType;
-    }
-    foreach ($tabs as $tab) {
-      if ($tab['title'] == ts("Cases")) {
-        $projectWeight = $tab['weight']++;
+  if (_threepeasContactIsCountry($contactID) == TRUE) {
+    foreach ($tabs as $tabKey => $tab) {
+      if ($tab['id'] != 'contact_documents') {
+        unset($tabs[$tabKey]);
       }
     }
-    $threepeasConfig = CRM_Threepeas_Config::singleton();
-  if ($customerType == $threepeasConfig->countryContactType 
-    || $customerType == $threepeasConfig->customerContactType) {
-      $projectCount = CRM_Threepeas_BAO_PumProject::countCustomerProjects($contactID, $customerType);
-      $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactID.'&type='.$customerType);
-      $tabs[] = array( 
-        'id'    => 'customerProjects',
-        'url'       => $projectUrl,
-        'title'     => 'Projects',
-        'weight'    => $projectWeight,
-        'count'     => $projectCount);
+    
+  } else {
+    $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $contactID));
+    $customerType = FALSE;
+    if (!empty($contact['contact_sub_type'])) {
+      foreach ($contact['contact_sub_type'] as $contactSubType) {
+        $customerType = $contactSubType;
+      }
+      foreach ($tabs as $tab) {
+        if ($tab['title'] == ts("Cases")) {
+          $projectWeight = $tab['weight']++;
+        }
+      }
+      $threepeasConfig = CRM_Threepeas_Config::singleton();
+    if ($customerType == $threepeasConfig->countryContactType 
+      || $customerType == $threepeasConfig->customerContactType) {
+        $projectCount = CRM_Threepeas_BAO_PumProject::countCustomerProjects($contactID, $customerType);
+        $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactID.'&type='.$customerType);
+        $tabs[] = array( 
+          'id'    => 'customerProjects',
+          'url'       => $projectUrl,
+          'title'     => 'Projects',
+          'weight'    => $projectWeight,
+          'count'     => $projectCount);
+      }
     }
   }
 }
@@ -343,7 +354,7 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
     if (isset($GLOBALS['pum_project_ignore']) && $GLOBALS['pum_project_ignore'] == 1) {
       $GLOBALS['pum_project_ignore'] = 0;
     } else {
-      $pumProject = _threepeas_set_project($params);
+      $pumProject = _threepeasSetProject($params);
       /*
        * retrieve case for subject and client
        */ 
@@ -353,7 +364,7 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
       }
       $pumProject['is_active'] = 1;
       $createdProject = CRM_Threepeas_BAO_PumProject::add($pumProject);
-      _threepeas_generate_project_title($createdProject['id'], $createdProject['customer_id']);
+      _threepeasGenerateProjectTitle($createdProject['id'], $createdProject['customer_id']);
       $pumCaseProject = array('case_id' => $entityID, 'project_id' => $createdProject['id']);
       CRM_Threepeas_BAO_PumCaseProject::add($pumCaseProject);
     }
@@ -363,7 +374,7 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
 /**
  * Function to generate the project title (Issue 90)
  */
-function _threepeas_generate_project_title($projectId, $customerId) {
+function _threepeasGenerateProjectTitle($projectId, $customerId) {
   try {
     $customerName = civicrm_api3('Contact', 'Getvalue', array('id' => $customerId, 'return' => 'display_name'));
   } catch (CiviCRM_API3_Exception $ex) {
@@ -381,7 +392,7 @@ function _threepeas_generate_project_title($projectId, $customerId) {
  * @param array $params
  * @return array $result
  */
-function _threepeas_set_project($params) {
+function _threepeasSetProject($params) {
   $result = array();
   $usedCustomFields = array('reason', 'activities', 'expected_results');
   $threepeasConfig = CRM_Threepeas_Config::singleton();
@@ -415,10 +426,14 @@ function _threepeas_set_project($params) {
  */
 function threepeas_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Case_Form_Case') {
-    _threepeas_add_project_element_case($form);
+    _threepeasAddProjectElementCase($form);
   }
   if ($formName == 'CRM_Case_Form_CaseView') {
-    _threepeas_add_project_element_caseview($form);
+    _threepeasAddProjectElementCaseView($form);
+  }
+  if ($formName == 'CRM_Contact_Form_Contact') {
+    CRM_Core_Error::debug('form', $form);
+    exit();
   }
 }
 /**
@@ -430,11 +445,11 @@ function threepeas_civicrm_postProcess($formName, &$form) {
     switch ($action) {
       case CRM_Core_Action::ADD:
         $values = $form->exportValues();
-        _threepeas_add_case_project($values);
+        _threepeasAddCaseProject($values);
         break;
       case CRM_Core_Action::DELETE:
         $caseId = $form->getVar('_caseId');
-        _threepeas_disable_case_project($caseId);
+        _threepeasDisableCaseProject($caseId);
         break;
     }
   }
@@ -444,7 +459,7 @@ function threepeas_civicrm_postProcess($formName, &$form) {
  * 
  * @param int $caseId
  */
-function _threepeas_disable_case_project($caseId) {
+function _threepeasDisableCaseProject($caseId) {
   if (!empty($caseId)) {
     CRM_Threepeas_BAO_PumCaseProject::disableByCaseId($caseId);
   }
@@ -454,7 +469,7 @@ function _threepeas_disable_case_project($caseId) {
  * 
  * @param array $values
  */
-function _threepeas_add_case_project($values) {
+function _threepeasAddCaseProject($values) {
   if (isset($values['project_id']) && !empty($values['project_id'])) {
     /*
      * retrieve latest case_id
@@ -476,8 +491,8 @@ function _threepeas_add_case_project($values) {
  * @date 21 May 2014
  *
  */
-function _threepeas_generate_project_list() {
-  $optionGroupId = _threepeas_create_option_group('pum_project');
+function _threepeasGenerateProjectList() {
+  $optionGroupId = _threepeasCreateOptionGroup('pum_project');
   $delQuery = "DELETE FROM civicrm_option_value WHERE option_group_id = ".$optionGroupId;
   CRM_Core_DAO::executeQuery($delQuery);
   $params['option_group_id'] = $optionGroupId;
@@ -502,7 +517,7 @@ function _threepeas_generate_project_list() {
  * @param string $name
  * @return int $optionGroupId
  */
-function _threepeas_create_option_group($name) {
+function _threepeasCreateOptionGroup($name) {
  $countGroup = civicrm_api3('OptionGroup', 'Getcount', array('name' => $name));
  switch ($countGroup) {
    case 0:
@@ -523,7 +538,7 @@ function _threepeas_create_option_group($name) {
 /**
  * Function to add project element to case
  */
-function _threepeas_add_project_element_case(&$form) {
+function _threepeasAddProjectElementCase(&$form) {
   $projectParams = array();
   $projectParams['is_active'] = 1;
   $currentlyViewedContactId = $form->getVar('_currentlyViewedContactId');
@@ -559,7 +574,7 @@ function _threepeas_add_project_element_case(&$form) {
 /*
  * Function to add project element to case view
  */
-function _threepeas_add_project_element_caseview(&$form) {
+function _threepeasAddProjectElementCaseView(&$form) {
   /*
    * retrieve and show project title
    */
@@ -589,7 +604,7 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       $GLOBALS['trashedOrganizationId'] = $objectId;
     }
     if ($op == 'delete') {
-      _threepeas_delete_project($objectId);
+      _threepeasDeleteProject($objectId);
     }
   }
 }
@@ -600,7 +615,7 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
  * @date 24 Jun 2014
  * @param int $contactId
  */
-function _threepeas_delete_project($contactId) {
+function _threepeasDeleteProject($contactId) {
   $deleteProjects = TRUE;
   if (isset($GLOBALS['trashedOrganizationId'])) {
     if ($contactId == $GLOBALS['trashedOrganizationId']) {
@@ -627,23 +642,36 @@ function _threepeas_delete_project($contactId) {
   }  
 }
 /**
- * Implementation of hook civicrm_summaryActions
- * If contact_sub_type = Country, allow actions only if administrator
+ * Function to check if the contact is a country (sub type specific for PUM)
+ * 
+ * @param int $contactId
+ * @return boolean
  */
-function threepeas_civicrm_summaryActions(&$actions, $contactID){
-  if (!empty($contactID)) {
-    $threepeasConfig = CRM_Threepeas_Config::singleton();
-    $contactData = civicrm_api3('Contact', 'Getsingle', array('id' => $contactID));
-      if (isset($contactData['contact_sub_type']) && !empty($contactData['contact_sub_type'])) {
-      foreach ($contactData['contact_sub_type'] as $subType) {
-        if ($subType == $threepeasConfig->countryContactType) {
-          foreach ($actions as $key => $value) {
-            if ($key != 'view') {
-              $actions[$key]['permissions'][] = 'administer CiviCRM';
-            }
-          }
+function _threepeasContactIsCountry($contactId) {
+  if (empty($contactId)) {
+    return FALSE;
+  }
+  try {
+    $contactData = civicrm_api3('Contact', 'Getsingle', array('contact_id' => $contactId));
+    if (isset($contactData['contact_sub_type']) && !empty($contactData['contact_sub_type'])) {
+      $threepeasConfig = CRM_Threepeas_Config::singleton();
+      foreach ($contactData['contact_sub_type'] as $contactSubType) {
+        if ($contactSubType == $threepeasConfig->countryContactType) {
+          return TRUE;
         }
       }
+    } else {
+      return FALSE;
+    }
+  } catch (CiviCRM_API3_Exception $ex) {
+    return FALSE;
+  }
+}
+function threepeas_civicrm_alterTemplateFile($formName, &$form, $context, &$tplName) {
+  if ($formName === 'CRM_Contact_Page_View_Summary') {
+    $contactId = $form->getVar('_contactId');
+    if (_threepeasContactIsCountry($contactId) == TRUE) {
+      $tplName = 'CRM/Threepeas/Page/CountryView.tpl';
     }
   }
 }
