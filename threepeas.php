@@ -669,6 +669,41 @@ function _threepeasContactIsCountry($contactId) {
     return FALSE;
   }
 }
+/**
+ * Function to check if the contact is a customer (sub type specific for PUM)
+ * 
+ * @param int $contactId
+ * @return boolean
+ */
+function _threepeasContactIsCustomer($contactId) {
+  if (empty($contactId)) {
+    return FALSE;
+  }
+  try {
+    $contactData = civicrm_api3('Contact', 'Getsingle', array('contact_id' => $contactId));
+    if (isset($contactData['contact_sub_type']) && !empty($contactData['contact_sub_type'])) {
+      $threepeasConfig = CRM_Threepeas_Config::singleton();
+      foreach ($contactData['contact_sub_type'] as $contactSubType) {
+        if ($contactSubType == $threepeasConfig->customerContactType) {
+          return TRUE;
+        }
+      }
+    } else {
+      return FALSE;
+    }
+  } catch (CiviCRM_API3_Exception $ex) {
+    return FALSE;
+  }
+}
+/**
+ * Implementation of hook civicrm_alterTemplateFile
+ * Use special template for contact sub type Country
+ * 
+ * @param string $formName
+ * @param object $form
+ * @param string $context
+ * @param string $tplName
+ */
 function threepeas_civicrm_alterTemplateFile($formName, &$form, $context, &$tplName) {
   if ($formName === 'CRM_Contact_Page_View_Summary') {
     $contactId = $form->getVar('_contactId');
