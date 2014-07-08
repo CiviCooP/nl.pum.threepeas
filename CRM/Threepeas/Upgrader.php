@@ -16,21 +16,11 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
    * 
    */
   public function install() {       
-    if (!CRM_Core_DAO::checkTableExists('civicrm_programme')) {
-      $this->executeSqlFile('sql/createProgramme.sql');
-    }
-
-    if (!CRM_Core_DAO::checkTableExists('civicrm_programme_division')) {
-      $this->executeSqlFile('sql/createProgrammeDivision.sql');
-    }
-        
-    if (!CRM_Core_DAO::checkTableExists('civicrm_project')) {
-      $this->executeSqlFile('sql/createProject.sql');
-    }
-
-    if (!CRM_Core_DAO::checkTableExists('civicrm_case_project')) {
-      $this->executeSqlFile('sql/createCaseProject.sql');
-    }
+    $this->executeSqlFile('sql/createProgramme.sql');
+    $this->executeSqlFile('sql/createProgrammeDivision.sql');
+    $this->executeSqlFile('sql/createProject.sql');
+    $this->executeSqlFile('sql/createCaseProject.sql');
+    $this->executeSqlFile('sql/createSponsorLink.sql');
   }
   /**
    * Upgrade 1001 - add customer_id to project table
@@ -81,12 +71,20 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
    * Upgrade 1004 - add fields is_active to civicrm_case_project
    */
   public function upgrade_1004() {
-    $this->ctx->log->info('Applying update 1003 (create civicrm_case_project table');
+    $this->ctx->log->info('Applying update 1004 (create civicrm_case_project table');
     if (CRM_Core_DAO::checkTableExists('civicrm_case_project')) {
       if (!CRM_Core_DAO::checkFieldExists('civicrm_case_project', 'is_active')) {
         CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_case_project ADD COLUMN is_active TINYINT(4)');
       }
     }
+    return TRUE;
+  }
+  /**
+   * Upgrade 2000 - add sponsor link table
+   */
+  public function upgrade_2000() {
+    $this->ctx->log->info('Applying update 2000 (create civicrm_sponsor_link table');
+    $this->executeSqlFile('sql/createSponsorLink.sql');
     return TRUE;
   }
 }

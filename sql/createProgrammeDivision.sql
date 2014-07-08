@@ -1,4 +1,4 @@
-CREATE TABLE `civicrm_programme_division` (
+CREATE TABLE IF NOT EXISTS `civicrm_programme_division` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `programme_id` int(11) DEFAULT NULL,
   `country_id` int(11) DEFAULT NULL,
@@ -11,5 +11,3 @@ CREATE TABLE `civicrm_programme_division` (
   KEY `programme_idx` (`programme_id`),
   CONSTRAINT `fk_programme` FOREIGN KEY (`programme_id`) REFERENCES `civicrm_programme` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
-
-

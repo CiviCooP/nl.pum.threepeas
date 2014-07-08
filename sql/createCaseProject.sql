@@ -1,4 +1,4 @@
-CREATE TABLE `civicrm_case_project` (
+CREATE TABLE IF NOT EXISTS `civicrm_case_project` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project_id` int(11),
   `case_id` int(11),
@@ -8,5 +8,3 @@ CREATE TABLE `civicrm_case_project` (
   KEY `PROJECT_id` (`project_id`),
   KEY `CASE_id` (`case_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
-
-

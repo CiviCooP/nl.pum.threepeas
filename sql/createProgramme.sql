@@ -1,4 +1,4 @@
-CREATE TABLE `civicrm_programme` (
+CREATE TABLE IF NOT EXISTS `civicrm_programme` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(80) DEFAULT NULL,
   `description` text,
@@ -13,4 +13,3 @@ CREATE TABLE `civicrm_programme` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `MANAGER` (`manager_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
-
