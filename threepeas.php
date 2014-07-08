@@ -296,7 +296,7 @@ function threepeas_civicrm_tabs(&$tabs, $contactID) {
   if (_threepeasContactIsCountry($contactID) == TRUE) {
     foreach ($tabs as $tabKey => $tab) {
       $projectWeight = $tab['weight']++;
-      if ($tab['id'] != 'contact_documents') {
+      if ($tab['id'] != 'contact_documents' && $tab['id'] != 'rel' && $tab['id'] != 'case') {
         unset($tabs[$tabKey]);
       }
     }
