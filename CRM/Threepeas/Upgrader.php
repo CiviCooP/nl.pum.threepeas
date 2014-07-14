@@ -20,7 +20,7 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
     $this->executeSqlFile('sql/createProgrammeDivision.sql');
     $this->executeSqlFile('sql/createProject.sql');
     $this->executeSqlFile('sql/createCaseProject.sql');
-    $this->executeSqlFile('sql/createSponsorLink.sql');
+    $this->executeSqlFile('sql/createDonorLink.sql');
   }
   /**
    * Upgrade 1001 - add customer_id to project table
@@ -83,8 +83,8 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
    * Upgrade 2000 - add sponsor link table
    */
   public function upgrade_2000() {
-    $this->ctx->log->info('Applying update 2000 (create civicrm_sponsor_link table');
-    $this->executeSqlFile('sql/createSponsorLink.sql');
+    $this->ctx->log->info('Applying update 2000 (create civicrm_donor_link table');
+    $this->executeSqlFile('sql/createDonorLink.sql');
     return TRUE;
   }
 }

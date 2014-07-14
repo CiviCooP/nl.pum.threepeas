@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `civicrm_sponsor_link` (
+CREATE TABLE IF NOT EXISTS `civicrm_donor_link` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `donation_entity` varchar(75) DEFAULT NULL,
   `donation_entity_id` int(11) DEFAULT NULL,
