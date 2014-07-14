@@ -433,6 +433,9 @@ function threepeas_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Case_Form_CaseView') {
     _threepeasAddProjectElementCaseView($form);
   }
+  if ($formName == 'CRM_Contribute_Form_Contribution') {
+    _threepeasAddDonorLink($form);
+  }
 }
 /**
  * Implementation of hook civicrm_postProcess
@@ -532,6 +535,12 @@ function _threepeasCreateOptionGroup($name) {
      break;
  }
  return $optionGroupId;
+}
+/**
+ * Function to add donation application to form
+ */
+function _threepeasAddDonorLink(&$form) {
+  CRM_Core_Region::instance('page-body')->add(array('template' => 'CRM/Threepeas/Page/ContributionDonorLink.tpl'));
 }
 /**
  * Function to add project element to case
