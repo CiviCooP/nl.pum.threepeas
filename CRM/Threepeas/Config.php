@@ -11,6 +11,10 @@ class CRM_Threepeas_Config {
    */
   static private $_singleton = NULL;
   /*
+   * properties for sponsor link
+   */
+  public $defaultContributionId = NULL;
+  /*
    * contact sub_type id for Customer and Country
    */
   public $customerContactType = NULL;
@@ -60,6 +64,7 @@ class CRM_Threepeas_Config {
    * Constructor function
    */
   function __construct() {
+    $this->setDefaultContributionId(4);
     $this->setCustomerContactType('Customer');
     $this->setCountryContactType('Country');
     $this->setCountryCustomField('civicrm_country_id');
@@ -74,6 +79,9 @@ class CRM_Threepeas_Config {
     $this->setCaseStatus();
     $this->setCaseTypes();
     $this->expertRelationshipTypeId = $this->setRelationshipTypeId('Expert');
+  }
+  private function setDefaultContributionId($contributionId) {
+    $this->defaultContributionId = $contributionId;
   }
   private function setCustomerContactType($customerContactType) {
     $this->customerContactType = $customerContactType;
