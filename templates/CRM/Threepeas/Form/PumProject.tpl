@@ -162,6 +162,7 @@
           <div class="clear"></div>
         </div>
       {/if}
+      {include file="CRM/Threepeas/Page/ThreepeasDonorLink.tpl"}
     </tbody>
   </table>
   {* FOOTER *}

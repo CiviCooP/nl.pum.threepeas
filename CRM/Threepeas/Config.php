@@ -60,6 +60,12 @@ class CRM_Threepeas_Config {
    * PUM expert at relationship type id
    */
   public $expertRelationshipTypeId = NULL;
+  /*
+   * properties to hold active programme, project and case list
+   */
+  public $activeProgrammeList = array();
+  public $activeProjectList = array();
+  public $activeCaseList = array();
   /**
    * Constructor function
    */
@@ -79,6 +85,9 @@ class CRM_Threepeas_Config {
     $this->setCaseStatus();
     $this->setCaseTypes();
     $this->expertRelationshipTypeId = $this->setRelationshipTypeId('Expert');
+    $this->setActiveProjectList();
+    $this->setActiveProgrammeList();
+    $this->setActiveCaseList();
   }
   private function setDefaultContributionId($contributionId) {
     $this->defaultContributionId = $contributionId;
@@ -239,5 +248,41 @@ class CRM_Threepeas_Config {
       }
     }
     return $relationshipTypeId;
+  }
+  /**
+   * Function to get all active programmes
+   */
+  private function setActiveProgrammeList() {
+    $programmes = CRM_Threepeas_BAO_PumProgramme::getValues(array('is_active' => 1));
+    foreach ($programmes as $programme) {
+      $this->activeProgrammeList[$programme['id']] = $programme['title'];
+    }
+    $this->activeProgrammeList[0] = '- select -';
+    asort($this->activeProgrammeList);
+  }
+  /**
+   * Function to get all active projects
+   */
+  private function setActiveProjectList() {
+    $projects = CRM_Threepeas_BAO_PumProject::getValues(array('is_active' => 1));
+    foreach ($projects as $project) {
+      $this->activeProjectList[$project['id']] = $project['title'];
+    }
+    $this->activeProjectList[0] = '- select -';
+    asort($this->activeProjectList);
+  }
+  /**
+   * Function to get all active cases
+   */
+  private function setActiveCaseList() {
+    $query = 'SELECT a.id, a.subject, b.label FROM civicrm_case a '
+      . 'LEFT JOIN civicrm_option_value b ON a.case_type_id = b.value AND option_group_id = '
+      .$this->caseTypeOptionGroupId.' WHERE is_deleted = 0';
+    $dao = CRM_Core_DAO::executeQuery($query);
+    while ($dao->fetch()) {
+      $this->activeCaseList[$dao->id] = $dao->subject.' ('.$dao->label.')';
+    }
+    $this->activeCaseList[0] = '- select -';
+    asort($this->activeCaseList);
   }
 }

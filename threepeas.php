@@ -525,13 +525,15 @@ function _threepeasCreateOptionGroup($name) {
      $params = array('name' => $name, 'title' => 'active projects', 'is_active' => 1, 'is_reserved' => 1);
      $optionGroup = civicrm_api3('OptionGroup', 'Create', $params);
      $optionGroupId = $optionGroup['id'];
+     $showError = FALSE;
      break;
    case 1:
      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => $name, 'return' => id));
+     $showError = FALSE;
      break;
    default:
      throw new Exception('Could not create option group pum_project, there are already '
-       .$countGroup.' with that name. Correct and try again.');
+       .$countGroup.' option groups with that name. Correct and try again.');
      break;
  }
  return $optionGroupId;
@@ -540,6 +542,18 @@ function _threepeasCreateOptionGroup($name) {
  * Function to add donation application to form
  */
 function _threepeasAddDonorLink(&$form) {
+  $threepeasConfig = CRM_Threepeas_Config::singleton();
+  $form->addElement('text', 'programmeCount', ts('Current Linked Programmes'));
+  $form->addElement('select', 'programmeSelect', ts('Link to Programme :'), $threepeasConfig->activeProgrammeList);
+  $form->addElement('text', 'projectCount', ts('Current Linked Projects'));
+  $form->addElement('select', 'projectSelect', ts('Link to Project :'), $threepeasConfig->activeProjectList);
+  $form->addElement('text', 'caseCount', ts('Current Linked Main Act.'));
+  $form->addElement('select', 'caseSelect', ts('Link to Main Activity :'), $threepeasConfig->activeCaseList);
+  $defaults = array('programmeCount' => 0, 'projectCount' => 15, 'caseCount' => 32);
+  $defaults['programmeSelect'] = 0;
+  $defaults['projectSelect'] = 0;
+  $defaults['caseSelect'] = 0;
+  $form->setDefaults($defaults);
   CRM_Core_Region::instance('page-body')->add(array('template' => 'CRM/Threepeas/Page/ContributionDonorLink.tpl'));
 }
 /**
