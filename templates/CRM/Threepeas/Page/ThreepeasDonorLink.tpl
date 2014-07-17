@@ -9,23 +9,10 @@
       <div id="linked-donations" class="section-shown crm-contribution-additionalinfo-linked-donations-form-block">
         <table class="form-layout-compressed">
           <tbody>
-            {foreach from=$linkedDonations item=linkedDonation}
-              <tr class="crm-contribution-form-block-linked-donations-row">
-                <td hidden="1">{$linkedDonation.entity_id}</td>
-                <td hidden="1">{$linkedDonation.donation_entity_id}</td>
-                <td>{$linkedDonation.donor}</td>
-                <td>{$linkedDonation.amount}</td>
-                <td>{$linkedDonation.status}</td>
-                <td>
-                  {if $action ne "view"}
-                    <span>
-                      <a class="action-item" title="Remove link" href="
-                        {$delDonorLinkUrl}}">Remove Link</a>
-                    </span>
-                  {/if}
-                </td>
-              </tr>
-            {/foreach}
+           <tr class="crm-contribution-form-block-linked-donations">
+              <td class="crm-contribution-form-block-linked-donation-select">{$form.donationSelect.label}</td>
+              <td>{$form.donationSelect.html}</td>  
+           </tr>
           </tbody>
         </table>
       </div>

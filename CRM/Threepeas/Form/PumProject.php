@@ -196,7 +196,14 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->add('checkbox', 'is_active', ts('Enabled'));
     $this->addButtons(array(
       array('type' => 'next', 'name' => ts('Save'), 'isDefault' => true,),
-      array('type' => 'cancel', 'name' => ts('Cancel'))));
+      array('type' => 'cancel', 'name' => ts('Cancel'))));   
+    $select = $this->addElement('select', 'donationSelect', ts('Linked donations'), 
+      array(
+        'PinkRibbon - €500.000 - Completed', 
+        'Postcodeloterij - €1.250.000 - Pending',
+        'DGIS - €5.000.000 - Completed'), 
+      array('size' => 6, 'style' => 'min-width:400px', 'class' => 'crm-select2'));
+    $select->setMultiple(TRUE);
   }
   /**
    * Function to set page title
