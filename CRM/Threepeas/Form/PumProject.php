@@ -304,6 +304,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $saveProject = $values;
     if ($this->_action == CRM_Core_Action::UPDATE) {
       $saveProject['id'] = $this->_id;
+      unset($saveProject['customer_id']);
     }
     $saveProject['start_date'] = CRM_Utils_Date::processDate($values['start_date']);
     $saveProject['end_date'] = CRM_Utils_Date::processDate($values['end_date']);
