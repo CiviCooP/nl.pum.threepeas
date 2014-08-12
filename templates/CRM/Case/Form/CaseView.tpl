@@ -71,6 +71,7 @@
           {foreach from=$caseRoles.client item=client}
             <tr class="crm-case-caseview-display_name">
               <td class="label-left bold" style="padding: 0px; border: none;">{$client.display_name}
+                {* PUM issue 164 add project title for country and customer *}
                 <br /><span class="crm-case-summary-label">{ts}Project{/ts}:</span>&nbsp;{$project_title}</td>
             </tr>
             {if $client.phone}

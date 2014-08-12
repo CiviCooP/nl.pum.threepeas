@@ -324,4 +324,26 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       }
     }
   }
+  /**
+   * Function to return the type of project (Country or Customer)
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 9 Jul 2014
+   * @param int $projectId
+   * @return string $projectType
+   * @access public
+   * @static
+   */
+  public static function getProjectType($projectId) {
+    $projectType = 'Customer';
+    if (!empty($projectId)) {
+      $pumProject = new CRM_Threepeas_BAO_PumProject();
+      $pumProject->id = $projectId;
+      $pumProject->find(TRUE);
+      if (!empty($pumProject->country_id)) {
+        $projectType = 'Country';
+      }      
+    }
+    return $projectType;
+  }
 }
