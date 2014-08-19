@@ -434,6 +434,7 @@ function threepeas_civicrm_buildForm($formName, &$form) {
     _threepeasAddProjectElementCaseView($form);
   }
   if ($formName == 'CRM_Contribute_Form_Contribution') {
+    _threepeasAddContributionProject($form);
     _threepeasAddDonorLink($form);
   }
 }
@@ -528,7 +529,7 @@ function _threepeasCreateOptionGroup($name) {
      $showError = FALSE;
      break;
    case 1:
-     $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => $name, 'return' => id));
+     $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => $name, 'return' => 'id'));
      $showError = FALSE;
      break;
    default:
@@ -555,6 +556,15 @@ function _threepeasAddDonorLink(&$form) {
   $defaults['caseSelect'] = 0;
   $form->setDefaults($defaults);
   CRM_Core_Region::instance('page-body')->add(array('template' => 'CRM/Threepeas/Page/ContributionDonorLink.tpl'));
+}
+/**
+ * Function to add number of projects to contribution form
+ */
+function _threepeasAddContributionProject(&$form) {
+  $form->addElement('text', 'numberProjects', ts('Number of Projects'));
+  $defaults = array('numberProjects' => 0);
+  $form->setDefaults($defaults);
+  CRM_Core_Region::instance('page-body')->add(array('template' => 'CRM/Threepeas/Page/ContributionProjects.tpl'));
 }
 /**
  * Function to add project element to case
