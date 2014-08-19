@@ -460,7 +460,47 @@ function threepeas_civicrm_postProcess($formName, &$form) {
   /*
    * manage data in civicrm_donor_link
    */
-  
+  if ($formName == 'CRM_Contribute_Form_Contribution') {
+    $exportValues = $form->exportValues();
+    $action = $form->getVar('_action');
+    $contactId = $form->getVar('_contactID');
+    if ($action != CRM_Core_Action::ADD) {
+      $contributionId = $form->getVar('_id');
+    } else {
+      $contributionId = 0;
+    }
+    _threepeasProcessDonorLinkData($action, $contactId, $contributionId, $exportValues);
+  }
+}
+/**
+ * Function to process donor link data from form into tables
+ * civicrm_contribution_number_projects and civicrm_donor_link
+ */
+function _threepeasProcessDonorLinkData($action, $contactId, $contributionId, $formValues) {
+  if ($action == CRM_Core_Action::ADD) {
+    $contributionId = _threepeasGetLatestContributionId();
+  }
+  if (isset($formValues['numberProjects'])) {
+    _threepeasCreateContributionNumberProjects($contributionId, $formValues['numberProjects']);
+  }
+}
+/**
+ * Function to update or create record in civicrm_contribution_number_projects
+ */
+function _threepeasCreateContributionNumberProjects($contributionId, $numberProjects) {
+  $params = array('contribution_id' => $contributionId, 'number_projects' => $numberProjects);
+  CRM_Threepeas_BAO_PumContributionProjects::add($params);
+}
+/**
+ * Function to get latest contribution Id
+ */
+function _threepeasGetLatestContributionId() {
+  $contributionId = 0;
+  $daoContribution = CRM_Core_DAO::executeQuery('SELECT MAX(id) AS maxId FROM civicrm_contribution');
+  if ($daoContribution->fetch()) {
+    $contributionId = $daoContribution->maxId;
+  }
+  return $contributionId;
 }
 /**
  * Function to disable CaseProject
