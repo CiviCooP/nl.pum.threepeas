@@ -433,8 +433,7 @@ function threepeas_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Case_Form_CaseView') {
     _threepeasAddProjectElementCaseView($form);
   }
-  if ($formName == 'CRM_Contribute_Form_Contribution') {
-    _threepeasAddContributionProject($form);
+  if ($formName == 'CRM_Contribute_Form_Contribution' || $formName == 'CRM_Contribute_Form_ContributionView') {
     _threepeasAddDonorLink($form);
   }
 }
@@ -442,6 +441,9 @@ function threepeas_civicrm_buildForm($formName, &$form) {
  * Implementation of hook civicrm_postProcess
  */
 function threepeas_civicrm_postProcess($formName, &$form) {
+  /*
+   * manage data in civicrm_case_project
+   */
   if ($formName == 'CRM_Case_Form_Case') {
     $action = $form->getVar('_action');
     switch ($action) {
@@ -455,6 +457,10 @@ function threepeas_civicrm_postProcess($formName, &$form) {
         break;
     }
   }
+  /*
+   * manage data in civicrm_donor_link
+   */
+  
 }
 /**
  * Function to disable CaseProject
@@ -550,21 +556,11 @@ function _threepeasAddDonorLink(&$form) {
   $form->addElement('select', 'projectSelect', ts('Link to Project :'), $threepeasConfig->activeProjectList);
   $form->addElement('text', 'caseCount', ts('Current Linked Main Act.'));
   $form->addElement('select', 'caseSelect', ts('Link to Main Activity :'), $threepeasConfig->activeCaseList);
-  $defaults = array('programmeCount' => 0, 'projectCount' => 15, 'caseCount' => 32);
-  $defaults['programmeSelect'] = 0;
-  $defaults['projectSelect'] = 0;
-  $defaults['caseSelect'] = 0;
+  $form->addElement('text', 'numberProjects', ts('Number of Projects'));
+  $defaults = array('programmeCount' => 0, 'projectCount' => 15, 'caseCount' => 32, 
+    'numberProjects' => 0, 'programmeSelect' => 0, 'projectSelect' => 0, 'caseSelect' => 0);
   $form->setDefaults($defaults);
   CRM_Core_Region::instance('page-body')->add(array('template' => 'CRM/Threepeas/Page/ContributionDonorLink.tpl'));
-}
-/**
- * Function to add number of projects to contribution form
- */
-function _threepeasAddContributionProject(&$form) {
-  $form->addElement('text', 'numberProjects', ts('Number of Projects'));
-  $defaults = array('numberProjects' => 0);
-  $form->setDefaults($defaults);
-  CRM_Core_Region::instance('page-body')->add(array('template' => 'CRM/Threepeas/Page/ContributionProjects.tpl'));
 }
 /**
  * Function to add project element to case
