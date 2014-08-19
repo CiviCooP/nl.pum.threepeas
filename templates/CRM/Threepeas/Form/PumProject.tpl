@@ -97,11 +97,11 @@
           <div class="content">{$form.programme_id.html}</div>
           <div class="clear"></div>
         </div>
-       {* only show customer in update mode if not empty *}
+       {* only show customer in update mode *}
        {if $action eq 2 and !empty($form.customer_id.value)}
           <div class="crm-section">
             <div class="label">{$form.customer_id.label}</div>
-            <div class="content">{$form.customer_id.html}</div>
+            <div class="content">{$form.customer_id.value}</div>
             <div class="clear"></div>
           </div>
         {else}
