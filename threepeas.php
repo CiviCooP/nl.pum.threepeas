@@ -433,11 +433,19 @@ function threepeas_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Case_Form_CaseView') {
     _threepeasAddProjectElementCaseView($form);
   }
-  if ($formName == 'CRM_Contribute_Form_Contribution' || $formName == 'CRM_Contribute_Form_ContributionView') {
+  if ($formName == 'CRM_Contribute_Form_ContributionView') {
     $action = $form->getVar('_action');
     if ($action != CRM_Core_Action::DELETE) {
-      _threepeasAddDonorLink($action, $form);
+      $contributionId = CRM_Utils_Request::retrieve('id', 'Positive');
+      _threepeasAddDonorLinkElements($action, $form, $contributionId);
     }
+  }
+  if ($formName == 'CRM_Contribute_Form_Contribution') {
+    $action = $form->getVar('_action');
+    if ($action != CRM_Core_Action::DELETE) {
+      $contributionId = $form->getVar('_id');
+      _threepeasAddDonorLinkElements($action, $form, $contributionId);
+    }    
   }
 }
 /**
@@ -611,7 +619,7 @@ function _threepeasCreateOptionGroup($name) {
 /**
  * Function to add donation application to form
  */
-function _threepeasAddDonorLink($action, &$form) {
+function _threepeasAddDonorLinkElements($action, &$form, $contributionId) {
   $threepeasConfig = CRM_Threepeas_Config::singleton();
   $form->addElement('text', 'programmeCount', ts('Current Linked Programmes'));
   $form->addElement('select', 'programmeSelect', ts('Link to Programme :'), $threepeasConfig->activeProgrammeList);
@@ -620,7 +628,6 @@ function _threepeasAddDonorLink($action, &$form) {
   $form->addElement('text', 'caseCount', ts('Current Linked Main Act.'));
   $form->addElement('select', 'caseSelect', ts('Link to Main Activity :'), $threepeasConfig->activeCaseList);
   $form->addElement('text', 'numberProjects', ts('Number of Projects'));
-  $contributionId = $form->getVar('_id');
   $defaults = _threepeasDonorLinkDefaults($contributionId, $action);
   if (!empty($defaults)) {
     $form->setDefaults($defaults);

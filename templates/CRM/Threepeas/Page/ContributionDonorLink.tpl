@@ -49,6 +49,9 @@
     </div>
   </div>
 </div>
-<script type="text/javascript">
-  cj('#donor-link-wrapper').insertBefore('#softCredit');
-</script>
+{if $action ne 4}
+  <script type="text/javascript">
+    cj('#donor-link-wrapper').insertBefore('#softCredit');
+  </script>
+{/if}
+  

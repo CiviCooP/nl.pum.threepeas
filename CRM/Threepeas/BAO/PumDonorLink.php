@@ -197,7 +197,6 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
     $pumDonorLink->entity = $donationEntity;
     $pumDonorLink->donation_entity_id = $donationEntityId;
     $pumDonorLink->is_active = 1;
-    $count = $pumDonorLink->count();
     return $pumDonorLink->count();
   }
 }
