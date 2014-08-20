@@ -434,7 +434,10 @@ function threepeas_civicrm_buildForm($formName, &$form) {
     _threepeasAddProjectElementCaseView($form);
   }
   if ($formName == 'CRM_Contribute_Form_Contribution' || $formName == 'CRM_Contribute_Form_ContributionView') {
-    _threepeasAddDonorLink($form);
+    $action = $form->getVar('_action');
+    if ($action != CRM_Core_Action::DELETE) {
+      _threepeasAddDonorLink($form);
+    }
   }
 }
 /**
@@ -463,25 +466,45 @@ function threepeas_civicrm_postProcess($formName, &$form) {
   if ($formName == 'CRM_Contribute_Form_Contribution') {
     $exportValues = $form->exportValues();
     $action = $form->getVar('_action');
-    $contactId = $form->getVar('_contactID');
-    if ($action != CRM_Core_Action::ADD) {
-      $contributionId = $form->getVar('_id');
-    } else {
-      $contributionId = 0;
-    }
-    _threepeasProcessDonorLinkData($action, $contactId, $contributionId, $exportValues);
+    $contributionId = $form->getVar('_id');
+    _threepeasProcessDonorLinkData($action, $contributionId, $exportValues);
   }
 }
 /**
  * Function to process donor link data from form into tables
  * civicrm_contribution_number_projects and civicrm_donor_link
  */
-function _threepeasProcessDonorLinkData($action, $contactId, $contributionId, $formValues) {
+function _threepeasProcessDonorLinkData($action, $contributionId, $formValues) {
   if ($action == CRM_Core_Action::ADD) {
     $contributionId = _threepeasGetLatestContributionId();
   }
   if (isset($formValues['numberProjects'])) {
     _threepeasCreateContributionNumberProjects($contributionId, $formValues['numberProjects']);
+  }
+  if (!empty($formValues['programmeSelect']) || !empty($formValues['projectSelect']) || !empty($formValues['caseSelect'])) {
+    _threepeasCreateDonorLink($contributionId, $formValues);
+  }
+}
+/**
+ * Function to add or update donor link record
+ */
+function _threepeasCreateDonorLink($contributionId, $formValues) {
+  $params = array('donation_entity' => 'Contribution', 'donation_entity_id' => $contributionId, 
+    'is_active' => 1);
+  if (!empty($formValues['programmeSelect'])) {
+    $params['entity'] = 'Programme';
+    $params['entity_id'] = $formValues['programmeSelect'];
+    CRM_Threepeas_BAO_PumDonorLink::add($params);
+  }
+  if (!empty($formValues['projectSelect'])) {
+    $params['entity'] = 'Project';
+    $params['entity_id'] = $formValues['projectSelect'];
+    CRM_Threepeas_BAO_PumDonorLink::add($params);
+  }
+  if (!empty($formValues['caseSelect'])) {
+    $params['entity'] = 'Case';
+    $params['entity_id'] = $formValues['caseSelect'];
+    CRM_Threepeas_BAO_PumDonorLink::add($params);
   }
 }
 /**
@@ -678,6 +701,19 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       _threepeasDeleteProject($objectId);
     }
   }
+  if ($objectName == 'Contribution') {
+    if ($op == 'delete') {
+      _threepeasDeleteContributionEnhancedData($objectId);
+    }
+  }
+}
+/**
+ * Function to delete additional data for contribution
+ * (civicrm_donor_link and civicrm_contribution_number_projects)
+ */
+function _threepeasDeleteContributionEnhancedData($contributionId) {
+  CRM_Threepeas_BAO_PumContributionProjects::deleteById($contributionId);
+  CRM_Threepeas_BAO_PumDonorLink::deleteByDonationEntityId('Contribution', $contributionId);
 }
 /**
  * Function to delete projects for a contact

@@ -80,7 +80,7 @@ class CRM_Threepeas_BAO_PumContributionProjects extends CRM_Threepeas_DAO_PumCon
       $pumContributionProjects->contribution_id = $contributionId;
       $pumContributionProjects->find();
       if ($pumContributionProjects->fetch()) {
-        $pumContributionProjects->delete;
+        $pumContributionProjects->delete();
       }
     }
   }

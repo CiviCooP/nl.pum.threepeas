@@ -119,7 +119,7 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
       $pumDonorLink->donation_entity_id = $donationEntityId;
       $pumDonorLink->find();
       while ($pumDonorLink->fetch()) {
-        $pumDonorLink->delete;
+        $pumDonorLink->delete();
       }
     }
   }
@@ -138,7 +138,7 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
       $pumDonorLink->entity_id = $entityId;
       $pumDonorLink->find();
       while ($pumDonorLink->fetch()) {
-        $pumDonorLink->delete;
+        $pumDonorLink->delete();
       }
     }
   }
