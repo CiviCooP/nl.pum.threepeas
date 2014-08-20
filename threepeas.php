@@ -620,19 +620,78 @@ function _threepeasCreateOptionGroup($name) {
  * Function to add donation application to form
  */
 function _threepeasAddDonorLinkElements($action, &$form, $contributionId) {
-  $threepeasConfig = CRM_Threepeas_Config::singleton();
+  $programmeList = _threepeasGetDonorLinkProgrammeList($contributionId);
+  $projectList = _threepeasGetDonorLinkProjectList($contributionId);
+  $caseList = _threepeasGetDonorLinkCaseList($contributionId);
   $form->addElement('text', 'programmeCount', ts('Current Linked Programmes'));
-  $form->addElement('select', 'programmeSelect', ts('Link to Programme :'), $threepeasConfig->activeProgrammeList);
+  $form->addElement('select', 'programmeSelect', ts('Link to Programme :'), $programmeList);
   $form->addElement('text', 'projectCount', ts('Current Linked Projects'));
-  $form->addElement('select', 'projectSelect', ts('Link to Project :'), $threepeasConfig->activeProjectList);
+  $form->addElement('select', 'projectSelect', ts('Link to Project :'), $projectList);
   $form->addElement('text', 'caseCount', ts('Current Linked Main Act.'));
-  $form->addElement('select', 'caseSelect', ts('Link to Main Activity :'), $threepeasConfig->activeCaseList);
+  $form->addElement('select', 'caseSelect', ts('Link to Main Activity :'), $caseList);
   $form->addElement('text', 'numberProjects', ts('Number of Projects'));
   $defaults = _threepeasDonorLinkDefaults($contributionId, $action);
   if (!empty($defaults)) {
     $form->setDefaults($defaults);
   }
   CRM_Core_Region::instance('page-body')->add(array('template' => 'CRM/Threepeas/Page/ContributionDonorLink.tpl'));
+}
+/**
+ * Function to retrieve programmeList for contribution donor link
+ */
+function _threepeasGetDonorLinkProgrammeList($contributionId) {
+  /*
+   * get all programmes from config
+   */
+  $threepeasConfig = CRM_Threepeas_Config::singleton();
+  $allPrograms = $threepeasConfig->activeProgrammeList;
+  /*
+   * remove entries that are already linked to contribution
+   */
+  $params = array('entity' => 'Programme', 'donation_entity_id' => $contributionId, 'is_active' => 1);
+  $linkedPrograms = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+  foreach ($linkedPrograms as $linkedProgram) {
+    unset($allPrograms[$linkedProgram['entity_id']]);
+  }
+  return $allPrograms;
+}
+/**
+ * Function to retrieve projectlist for contribution donor link
+ */
+function _threepeasGetDonorLinkProjectList($contributionId) {
+  /*
+   * get all projects from config
+   */
+  $threepeasConfig = CRM_Threepeas_Config::singleton();
+  $allProjects = $threepeasConfig->activeProjectList;
+  /*
+   * remove entries that are already linked to contribution
+   */
+  $params = array('entity' => 'Project', 'donation_entity_id' => $contributionId, 'is_active' => 1);
+  $linkedProjects = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+  foreach ($linkedProjects as $linkedProject) {
+    unset($allProjects[$linkedProject['entity_id']]);
+  }
+  return $allProjects;
+}
+/**
+ * Function to retrieve caselist for contribution donor link
+ */
+function _threepeasGetDonorLinkCaseList($contributionId) {
+  /*
+   * get all cases from config
+   */
+  $threepeasConfig = CRM_Threepeas_Config::singleton();
+  $allCases = $threepeasConfig->activeCaseList;
+  /*
+   * remove entries that are already linked to contribution
+   */
+  $params = array('entity' => 'Case', 'donation_entity_id' => $contributionId, 'is_active' => 1);
+  $linkedCases = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+  foreach ($linkedCases as $linkedCase) {
+    unset($allCases[$linkedCase['entity_id']]);
+  }
+  return $allCases;
 }
 /**
  * Function to set defaults for donor link data

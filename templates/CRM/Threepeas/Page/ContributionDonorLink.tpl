@@ -49,7 +49,11 @@
     </div>
   </div>
 </div>
-{if $action ne 4}
+{if $action eq 4}
+  <script type="text/javascript">
+    cj('#donor-link-wrapper').insertAfter('#ContributionView');
+  </script>
+{else}
   <script type="text/javascript">
     cj('#donor-link-wrapper').insertBefore('#softCredit');
   </script>
