@@ -52,8 +52,8 @@ class CRM_Threepeas_BAO_PumContributionProjects extends CRM_Threepeas_DAO_PumCon
    */
   public static function add($params) {
     $result = array();
-    if (empty($params)) {
-      throw new Exception('Params can not be empty when adding or updating Number of Projects for Contribution');
+    if (empty($params) || !isset($params['contribution_id'])) {
+      throw new Exception('Params can not be empty and has to contain contribution_id when adding or updating Number of Projects for Contribution');
     }
     $pumContributionProjects = new CRM_Threepeas_BAO_PumContributionProjects();
     $fields = self::fields();

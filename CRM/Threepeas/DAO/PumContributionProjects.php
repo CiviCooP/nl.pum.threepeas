@@ -36,6 +36,11 @@ class CRM_Threepeas_DAO_PumContributionProjects extends CRM_Core_DAO {
   {
     if (!(self::$_fields)) {
       self::$_fields = array(
+        'id' => array(
+          'name' => 'id',
+          'type' => CRM_Utils_Type::T_INT,
+          'required' => true
+        ) ,
         'contribution_id' => array(
           'name' => 'contribution_id',
           'type' => CRM_Utils_Type::T_INT,
@@ -59,6 +64,7 @@ class CRM_Threepeas_DAO_PumContributionProjects extends CRM_Core_DAO {
   {
     if (!(self::$_fieldKeys)) {
       self::$_fieldKeys = array(
+        'id'              =>  'id',
         'contribution_id' => 'contribution_id', 
         'number_projects' => 'number_projects'
       );

@@ -181,4 +181,21 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
       }
     }
   }
+  /**
+   * Function to return a count of links
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 20 Aug 2014
+   * @params string $donationEntity
+   * @params int $donationEntityId
+   * @return int $count
+   * @access public
+   * @static
+   */
+  static function getContributionCount($donationEntity, $donationEntityId) {
+    $pumDonorLink = new CRM_Threepeas_BAO_PumDonorLink();
+    $pumDonorLink->donation_entity = $donationEntity;
+    $pumDonorLink->donation_entity_id = $donationEntityId;
+    return $pumDonorLink->count();
+  }
 }

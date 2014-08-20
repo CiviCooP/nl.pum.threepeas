@@ -436,7 +436,7 @@ function threepeas_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Contribute_Form_Contribution' || $formName == 'CRM_Contribute_Form_ContributionView') {
     $action = $form->getVar('_action');
     if ($action != CRM_Core_Action::DELETE) {
-      _threepeasAddDonorLink($form);
+      _threepeasAddDonorLink($action, $form);
     }
   }
 }
@@ -611,7 +611,7 @@ function _threepeasCreateOptionGroup($name) {
 /**
  * Function to add donation application to form
  */
-function _threepeasAddDonorLink(&$form) {
+function _threepeasAddDonorLink($action, &$form) {
   $threepeasConfig = CRM_Threepeas_Config::singleton();
   $form->addElement('text', 'programmeCount', ts('Current Linked Programmes'));
   $form->addElement('select', 'programmeSelect', ts('Link to Programme :'), $threepeasConfig->activeProgrammeList);
@@ -620,10 +620,42 @@ function _threepeasAddDonorLink(&$form) {
   $form->addElement('text', 'caseCount', ts('Current Linked Main Act.'));
   $form->addElement('select', 'caseSelect', ts('Link to Main Activity :'), $threepeasConfig->activeCaseList);
   $form->addElement('text', 'numberProjects', ts('Number of Projects'));
-  $defaults = array('programmeCount' => 0, 'projectCount' => 15, 'caseCount' => 32, 
-    'numberProjects' => 0, 'programmeSelect' => 0, 'projectSelect' => 0, 'caseSelect' => 0);
-  $form->setDefaults($defaults);
+  $contributionId = $form->getVar('_id');
+  $defaults = _threepeasDonorLinkDefaults($contributionId, $action);
+  if (!empty($defaults)) {
+    $form->setDefaults($defaults);
+  }
   CRM_Core_Region::instance('page-body')->add(array('template' => 'CRM/Threepeas/Page/ContributionDonorLink.tpl'));
+}
+/**
+ * Function to set defaults for donor link data
+ */
+function _threepeasDonorLinkDefaults($contributionId, $action) {
+  $defaults = array();
+  if ($action == CRM_Core_Action::UPDATE || $action == CRM_Core_Action::VIEW) {
+    $contributionProjects = CRM_Threepeas_BAO_PumContributionProjects::getValues(
+      array('contribution_id' => $contributionId));
+    if (isset($contributionProjects[$contributionId]['number_projects'])) {
+      $defaults['numberProjects'] = $contributionProjects[$contributionId]['number_projects'];
+    }
+    $caseCount = _threepeasGetContributionDonorLink('Case',$contributionId);
+    $defaults['caseCount'] = $caseCount;
+    $projectCount = _threepeasGetContributionDonorLink('Project',$contributionId);
+    $defaults['projectCount'] = $projectCount;
+    $programmeCount = _threepeasGetContributionDonorLink('Programme', $contributionId);
+    $defaults['programmeCount'] = $programmeCount;
+  }
+  return $defaults;
+}
+/**
+ * Function to get donor links for contribution
+ */
+function _threepeasGetContributionDonorLink($donationEntity, $donationEntityId) {
+  if (empty($donationEntity) || empty($donationEntityId)) {
+    return 0;
+  }
+  $count = CRM_Threepeas_BAO_PumDonorLink::getContributionCount($donationEntity, $donationEntityId);
+  return $count;
 }
 /**
  * Function to add project element to case
