@@ -54,15 +54,6 @@
       </div>
     </tbody>
   </table>
-  {* allow add budgetdivision if action is edit *}
-  {if $action eq 2}
-    {include file="CRM/Threepeas/Form/NewProgrammeDivision.tpl"}
-  {/if}
-  {* include condition details if they are there *}
-  {if $action ne 1}
-    {include file="CRM/Threepeas/Page/CurrentProgrammeDivision.tpl"}
-  {/if}
-
   {* FOOTER *}
   <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="bottom"}

@@ -106,15 +106,6 @@ class CRM_Threepeas_BAO_PumProgramme extends CRM_Threepeas_DAO_PumProgramme {
       return TRUE;
     }
     /*
-     * can not delete if any programme divisions for programme
-     */
-    $pumProgrammeDivision = new CRM_Threepeas_BAO_PumProgrammeDivision();
-    $pumProgrammeDivision->programme_id = $pumProgrammeId;
-    if ($pumProgrammeDivision->count() > 0) {
-      return FALSE;
-    }
-    unset($pumProgrammeDivision);
-    /*
      * can not delete if any project for programme
      */
     $pumProject = new CRM_Threepeas_BAO_PumProject();

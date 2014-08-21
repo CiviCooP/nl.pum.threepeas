@@ -17,7 +17,6 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
    */
   public function install() {       
     $this->executeSqlFile('sql/createProgramme.sql');
-    $this->executeSqlFile('sql/createProgrammeDivision.sql');
     $this->executeSqlFile('sql/createProject.sql');
     $this->executeSqlFile('sql/createCaseProject.sql');
     $this->executeSqlFile('sql/createDonorLink.sql');
@@ -88,5 +87,13 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
     $this->executeSqlFile('sql/createDonorLink.sql');
     $this->executeSqlFile('sql/createContributionProject.sql');
     return TRUE;
+  }
+  /**
+   * Upgrade 2001 - remove programme budget division (replaced with donor link)
+   */
+  public function upgrade_2001() {
+    $this->ctx->log->info('Applying update 2001 (drop civicrm_programme_division table');
+    $this->executeSql('DROP TABLE civicrm_programme_division');
+    return TRUE;    
   }
 }
