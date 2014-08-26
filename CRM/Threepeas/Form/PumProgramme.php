@@ -199,6 +199,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $contributionsList = _threepeasGetContributionsList();
     $this->add('select', 'new_link', $label, $contributionsList, false, array('multiple' => 'multiple'));
     $this->assign('ribbonText', 'Add Link to Donation(s)');
+    $this->assign('informText', 'This section allows you to add links to donations.');
     }
   /**
    * Function to set page title

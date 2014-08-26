@@ -2,12 +2,10 @@
 <div id="donor-link-wrapper" class="crm-accordion-wrapper crm-ajax-accordion crm-DonationApplication-accordion">
   <div id="donation-application" class="crm-accordion-header">{$ribbonText}</div>
   <div class="crm-accordion-body" style="display: block">
-    {if $action ne 1}
-      <div class="messages status no-popup">
-        <div class="icon inform-icon"></div>
-        This section displays the linked donations (if there are any). You can add or remove a linked donation.
-      </div>
-    {/if}
+    <div class="messages status no-popup">
+      <div class="icon inform-icon"></div>
+      {$informText}
+    </div>
     <div class="linked-donations">
       <div id="linked-donations" class="section-shown crm-contribution-additionalinfo-linked-donations-form-block">
         <table class="form-layout-compressed">
