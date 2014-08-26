@@ -12,35 +12,33 @@
           {if $action ne 1}
             <thead>
               <tr class="crm-contribution-form-block-linked-donations">
-                  <th>{ts}Contact{/ts}</th>
-                  <th>{ts}Amount{/ts}</th>
-                  <th>{ts}Status{/ts}</th>
-                  <th>{ts}Date{/ts}</th>
-                  <th>{ts}Linked Programmes{/ts}</th>
-                  <th>{ts}Linked Projects{/ts}</th>
-                  <th>{ts}Linked Main Activities{/ts}</th>
-                  <th>&nbsp</th>
+                <th>{ts}Contact{/ts}</th>
+                <th>{ts}Amount{/ts}</th>
+                <th>{ts}Status{/ts}</th>
+                <th>{ts}Date{/ts}</th>
+                <th>&nbsp</th>
+                <th>&nbsp</th>
                 </tr>
-              </thead>
-              <tbody>
-                {foreach from=$linkedDonations item=linkedDonation}
-                  <tr class="crm-contribution-form-block-linked-donations">
-                    <td>{$linkedDonation.contact}</td>
-                    <td>{$linkedDonation.amount}</td>
-                    <td>{$linkedDonation.status}</td>
-                    <td>{$linkedDonation.date}</td>
-                    <td>{$linkedDonation.programmes}</td>
-                    <td>{$linkedDonation.projects}</td>
-                    <td>{$linkedDonation.cases}</td>
-                    <td>{$linkedDonation.remove_link}</td>
-                  </tr>
-                {/foreach}
+            </thead>
+            <tbody>
+              {foreach from=$linkedDonations item=linkedDonation}
+                <tr class="crm-contribution-form-block-linked-donations">
+                  <td>{$linkedDonation.contact}</td>
+                  <td>{$linkedDonation.amount}</td>
+                  <td>{$linkedDonation.status}</td>
+                  <td>{$linkedDonation.date}</td>
+                  <td>{$linkedDonation.view_link}</td>
+                  <td>{$linkedDonation.remove_link}</td>
+                </tr>
+              {/foreach}
             {/if}
-            <tr class="crm-contribution-form-block-new-donation">
-              <td class="label">{$form.new_link.label}</td>
-              <td colspan="7">{$form.new_link.html}</td>
-            </tr> 
-            </tbody>
+            {if $action ne 4}
+              <tr class="crm-contribution-form-block-new-donation">
+                <td class="label">{$form.new_link.label}</td>
+                <td colspan="7">{$form.new_link.html}</td>
+              </tr>
+            {/if}
+          </tbody>
         </table>
       </div>
     </div>
