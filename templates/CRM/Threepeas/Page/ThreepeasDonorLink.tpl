@@ -1,19 +1,48 @@
+<br />
 <div id="donor-link-wrapper" class="crm-accordion-wrapper crm-ajax-accordion crm-DonationApplication-accordion">
-  <div id="donation-application" class="crm-accordion-header">Donation Details</div>
+  <div id="donation-application" class="crm-accordion-header">{$ribbonText}</div>
   <div class="crm-accordion-body" style="display: block">
-    <div class="messages status no-popup">
-      <div class="icon inform-icon"></div>
-      This section displays the linked donations.
-    </div>    
+    {if $action ne 1}
+      <div class="messages status no-popup">
+        <div class="icon inform-icon"></div>
+        This section displays the linked donations (if there are any). You can add or remove a linked donation.
+      </div>
+    {/if}
     <div class="linked-donations">
       <div id="linked-donations" class="section-shown crm-contribution-additionalinfo-linked-donations-form-block">
         <table class="form-layout-compressed">
-          <tbody>
-           <tr class="crm-contribution-form-block-linked-donations">
-              <td class="crm-contribution-form-block-linked-donation-select">{$form.donationSelect.label}</td>
-              <td>{$form.donationSelect.html}</td>  
-           </tr>
-          </tbody>
+          {if $action ne 1}
+            <thead>
+              <tr class="crm-contribution-form-block-linked-donations">
+                  <th>{ts}Contact{/ts}</th>
+                  <th>{ts}Amount{/ts}</th>
+                  <th>{ts}Status{/ts}</th>
+                  <th>{ts}Date{/ts}</th>
+                  <th>{ts}Linked Programmes{/ts}</th>
+                  <th>{ts}Linked Projects{/ts}</th>
+                  <th>{ts}Linked Main Activities{/ts}</th>
+                  <th>&nbsp</th>
+                </tr>
+              </thead>
+              <tbody>
+                {foreach from=$linkedDonations item=linkedDonation}
+                  <tr class="crm-contribution-form-block-linked-donations">
+                    <td>{$linkedDonation.contact}</td>
+                    <td>{$linkedDonation.amount}</td>
+                    <td>{$linkedDonation.status}</td>
+                    <td>{$linkedDonation.date}</td>
+                    <td>{$linkedDonation.programmes}</td>
+                    <td>{$linkedDonation.projects}</td>
+                    <td>{$linkedDonation.cases}</td>
+                    <td>{$linkedDonation.remove_link}</td>
+                  </tr>
+                {/foreach}
+            {/if}
+            <tr class="crm-contribution-form-block-new-donation">
+              <td class="label">{$form.new_link.label}</td>
+              <td colspan="7">{$form.new_link.html}</td>
+            </tr> 
+            </tbody>
         </table>
       </div>
     </div>

@@ -915,3 +915,28 @@ function threepeas_civicrm_alterTemplateFile($formName, &$form, $context, &$tplN
     }
   }
 }
+/**
+ * Function to retrieve active contributions for select list
+ */
+function _threepeasGetContributionsList() {
+  $optionContributions = array();
+  $threepeasConfig = CRM_Threepeas_Config::singleton();
+  $params = array('is_test' => 0, 'options' => array('limit' => 9999));
+  $contributions = civicrm_api3('Contribution', 'Get', $params);
+  /*
+   * add active contributions to option list
+   */
+  foreach ($contributions['values'] as $contribution) {
+    if (isset($threepeasConfig->activeContributionStatus[$contribution['contribution_status_id']])) {
+      $status = $threepeasConfig->activeContributionStatus[$contribution['contribution_status_id']];
+      $optionText = $contribution['display_name'].' - '.CRM_Utils_Money::format($contribution['total_amount'])
+        .' - '.$status;
+      if (!empty($contribution['receipt_date'])) {
+        $optionText .= ' - '.date('d-M-Y', strtotime($contribution['receipt_date']));
+      }
+      $optionContributions[$contribution['contribution_id']] = $optionText;
+    }
+  }
+  asort($optionContributions);
+  return $optionContributions;
+}

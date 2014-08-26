@@ -11,7 +11,7 @@
   <table class="form-layout-compressed">
     <tbody>
       {foreach from=$elementNames item=elementName}
-        {if $elementName ne 'start_date' and $elementName ne 'end_date' and $elementName ne 'is_active'}
+        {if $elementName ne 'start_date' and $elementName ne 'end_date' and $elementName ne 'is_active' and $elementName ne 'new_link'}
         <div class="crm-section">
             <div class="label">{$form.$elementName.label}</div>
             {if $action eq 4}
@@ -54,6 +54,7 @@
       </div>
     </tbody>
   </table>
+  {include file="CRM/Threepeas/Page/ThreepeasDonorLink.tpl"}
   {* FOOTER *}
   <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="bottom"}

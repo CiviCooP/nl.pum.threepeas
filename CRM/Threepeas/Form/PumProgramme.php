@@ -186,7 +186,20 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->addButtons(array(
       array('type' => 'next', 'name' => ts('Save'), 'isDefault' => true,),
       array('type' => 'cancel', 'name' => ts('Cancel'))));
+    $this->setAddDonationLink();
   }
+  /**
+   * Function to set add elements for donation links
+   */
+  function setAddDonationLink() {
+    $label = ts('Select donation(s) to link programme to');
+    /*
+     * retrieve all contributions
+     */
+    $contributionsList = _threepeasGetContributionsList();
+    $this->add('select', 'new_link', $label, $contributionsList, false, array('multiple' => 'multiple'));
+    $this->assign('ribbonText', 'Add Link to Donation(s)');
+    }
   /**
    * Function to set page title
    */
@@ -265,7 +278,34 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
       $saveProgramme['is_active'] = $values['is_active'];
     }
     $result = CRM_Threepeas_BAO_PumProgramme::add($saveProgramme);
-    return $result;
+    /*
+     * save related donor links
+     */
+    $this->saveDonorLink($result['id'], $values);
+    return;
+  }
+  /**
+   * Function to save donor links if required
+   */
+  function saveDonorLink($programmeId, $values) {
+    /*
+     * if update, delete all current donor links for programme
+     */
+    if ($this->_action == CRM_Core_Action::UPDATE) {
+      CRM_Threepeas_BAO_PumDonorLink::deleteByEntityId('Programme', $programmeId);
+    }
+    /*
+     * add new donor links
+     */
+    foreach ($values['new_link'] as $newLink) {
+      $params = array(
+        'donation_entity' => 'Contribution', 
+        'donation_entity_id' => $newLink,
+        'entity' => 'Programme',
+        'entity_id' => $programmeId,
+        'is_active' => 1);
+      CRM_Threepeas_BAO_PumDonorLink::add($params);
+    }
   }
   /**
    * Function to correct defaults for View action
@@ -332,5 +372,12 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     }
     $params['id'] = $this->_id;
     CRM_Threepeas_BAO_PumProgramme::add($params);
+  }
+  /**
+   * Function to get current donor links
+   */
+  function getCurrentDonorLinks($programmeId) {
+    $params = array('entity' => 'Programme', 'entity_id' => $programmeId, 'is_active' => 1);
+    $currentDonorLinks = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
   }
 }

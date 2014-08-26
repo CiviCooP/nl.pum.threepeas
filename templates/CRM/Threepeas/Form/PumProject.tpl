@@ -162,9 +162,9 @@
           <div class="clear"></div>
         </div>
       {/if}
-      {include file="CRM/Threepeas/Page/ThreepeasDonorLink.tpl"}
     </tbody>
   </table>
+  {include file="CRM/Threepeas/Page/ThreepeasDonorLink.tpl"}
   {* FOOTER *}
   <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="bottom"}
