@@ -54,7 +54,11 @@
       </div>
     </tbody>
   </table>
-  {include file="CRM/Threepeas/Page/ThreepeasDonorLink.tpl"}
+  {if $action eq 4}   
+    {include file="CRM/Threepeas/Page/DonorLinkView.tpl"}
+  {else}
+    {include file="CRM/Threepeas/Page/DonorLinkEdit.tpl"}
+  {/if}
   {* FOOTER *}
   <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="bottom"}

@@ -164,6 +164,29 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->setViewDonationLink();
   }
   /**
+   * Function to set update elements for donation links
+   */
+  function setUpdateDonationLink() {
+    $linkedDonations = array();
+    $params = array('entity' => 'Programme', 'entity_id' => $this->_id, 'is_active' => 1);
+    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($currentContributions as $currentContribution) {
+      $linkedDonations[] = _threepeasCreateDonorLinkViewRow($currentContribution, $this->_action);
+    }
+    $this->assign('linkedDonations', $linkedDonations);
+    $this->assign('ribbonText', 'Linked Donation(s)');
+    $this->assign('informText', 'This section shows the donations the programme is linked to. You can add or remove links to donations.');    
+    $label = ts('Select new donation(s) to link programme to');
+    $contributionsList = _threepeasGetContributionsList();
+    foreach ($linkedDonations as $linkedDonation) {
+      if (isset($contributionsList[$linkedDonation['contribution_id']])) {
+        unset($contributionsList[$linkedDonation['contribution_id']]);
+      }
+    }
+    $this->add('select', 'new_link', $label, $contributionsList, false, array('multiple' => 'multiple'));
+
+  }
+  /**
    * Function to set view elements for donation links
    */
   function setViewDonationLink() {
@@ -174,8 +197,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
       $linkedDonations[] = _threepeasCreateDonorLinkViewRow($currentContribution, $this->_action);
     }
     $this->assign('linkedDonations', $linkedDonations);
-    $this->assign('ribbonText', 'Linked Donation(s)');
-    $this->assign('informText', 'This section shows the donations the programme is linked to.');
+    $this->assign('linkEntity', 'Programme');
   }
   /**
    * Function to build Donation Link Row
@@ -262,6 +284,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->addButtons(array(
       array('type' => 'next', 'name' => ts('Save'), 'isDefault' => true,),
       array('type' => 'cancel', 'name' => ts('Cancel'))));
+    $this->setUpdateDonationLink();
   }
   /**
    * Function to get the option values of the select lists
