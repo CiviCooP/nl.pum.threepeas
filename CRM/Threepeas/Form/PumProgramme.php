@@ -167,6 +167,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
    * Function to set view elements for donation links
    */
   function setViewDonationLink() {
+    $linkedDonations = array();
     $params = array('entity' => 'Programme', 'entity_id' => $this->_id, 'is_active' => 1);
     $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
     foreach ($currentContributions as $currentContribution) {

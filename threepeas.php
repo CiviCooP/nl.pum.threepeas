@@ -949,7 +949,8 @@ function _threepeasCreateDonorLinkViewRow($donorLink, $action) {
     switch ($donorLink['donation_entity']) {
       case 'Contribution':
         $contribution = civicrm_api3('Contribution', 'Getsingle', array('id' => $donorLink['donation_entity_id']));
-        $donorLinkRow['contact'] = $contribution['display_name'];
+        $contactUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$contribution['contact_id']);
+        $donorLinkRow['contact'] = '<a class="action-item" title="View contact" href="'.$contactUrl.'">'.$contribution['display_name'].'</a>';
         $donorLinkRow['amount'] = CRM_Utils_Money::format($contribution['total_amount']);
         $threepeasConfig = CRM_Threepeas_Config::singleton();
         if (isset($threepeasConfig->activeContributionStatus[$contribution['contribution_status_id']])) {
