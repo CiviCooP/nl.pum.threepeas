@@ -86,6 +86,10 @@ class CRM_Threepeas_BAO_PumProgramme extends CRM_Threepeas_DAO_PumProgramme {
     
     $pumProgramme = new CRM_Threepeas_BAO_PumProgramme();
     $pumProgramme->id = $pumProgrammeId;
+    /*
+     * delete linked donation links when programme is deleted
+     */
+    CRM_Threepeas_BAO_PumDonorLink::deleteByEntityId('Programme', $pumProgramme->id);
     $pumProgramme->delete();
     
     CRM_Utils_Hook::post('delete', 'PumProgramme', $pumProgramme->id, $pumProgramme);

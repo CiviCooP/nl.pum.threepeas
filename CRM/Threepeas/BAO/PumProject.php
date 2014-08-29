@@ -92,8 +92,12 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     /*
      * delete records from case_project with project_id
      */
-    CRM_Threepeas_BAO_PumCaseProject::deleteByProjectId($pumProjectId);
-    self::deleteProjectOptionValue($pumProjectId);
+    CRM_Threepeas_BAO_PumCaseProject::deleteByProjectId($pumProject->id);
+    self::deleteProjectOptionValue($pumProject->id);
+    /*
+     * delete linked donation links when programme is deleted
+     */
+    CRM_Threepeas_BAO_PumDonorLink::deleteByEntityId('Project', $pumProject->id);
     $pumProject->delete();
     
     CRM_Utils_Hook::post('delete', 'PumProject', $pumProject->id, $pumProject);

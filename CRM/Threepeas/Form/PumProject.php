@@ -30,9 +30,6 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * Function to build the form
    */  
   function buildQuickForm() {
-    if ($this->_action != CRM_Core_Action::ADD) {
-      $this->_id = CRM_Utils_Request::retrieve('pid', 'Integer', $this);
-    }
     /*
      * retrieve Select List Options
      */
@@ -47,6 +44,9 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * Function for processing before building the form
    */
   function preProcess() {
+    if ($this->_action != CRM_Core_Action::ADD) {
+      $this->_id = CRM_Utils_Request::retrieve('pid', 'Integer', $this);
+    }
     /*
      * set user context to return to pumproject list
      */
@@ -88,20 +88,15 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       foreach ($projectValues[$this->_id] as $name => $value) {
         $defaults[$name] = $value;
       }
-    } else {
-      $defaults['is_active'] = 1;
     }
     if ($this->_action != CRM_Core_Action::ADD) {
-      if (isset($defaults['customer_id']) && !empty($defaults['customer_id'])) {
-        $defaults['customer_id'] = CRM_Utils_Array::value($defaults['customer_id'], $this->_projectCustomers);
-      } else {
-        if (isset($defaults['country_id']) && !empty($defaults['country_id'])) {
-          $defaults['country_id'] = CRM_Utils_Array::value($defaults['country_id'], $this->_projectCountries);
-        }  
-      }
+      $this->correctAddDefaults($defaults);
     }
     if ($this->_action == CRM_Core_Action::VIEW) {
       $this->correctViewDefaults($defaults);
+    }
+    if ($this->_action == CRM_Core_Action::UPDATE) {
+      $this->correctUpdateDefaults($defaults);
     }
     return $defaults;
   }
@@ -143,6 +138,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->addDate('end_date', ts('End Date'), false);
     $this->add('text', 'is_active', ts('Enabled?'));
     $this->addButtons(array(array('type' => 'cancel', 'name' => ts('Done'), 'isDefault' => true)));
+    $this->setViewDonationLink();
   }
   /**
    * Function to set Add Elements
@@ -166,6 +162,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->addButtons(array(
       array('type' => 'next', 'name' => ts('Save'), 'isDefault' => true,),
       array('type' => 'cancel', 'name' => ts('Cancel'))));
+    $this->setAddUpdateDonationLink();
   }
   /**
    * Function to set Update Elements
@@ -197,13 +194,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->addButtons(array(
       array('type' => 'next', 'name' => ts('Save'), 'isDefault' => true,),
       array('type' => 'cancel', 'name' => ts('Cancel'))));   
-    $select = $this->addElement('select', 'donationSelect', ts('Linked donations'), 
-      array(
-        'PinkRibbon - €500.000 - Completed', 
-        'Postcodeloterij - €1.250.000 - Pending',
-        'DGIS - €5.000.000 - Completed'), 
-      array('size' => 6, 'style' => 'min-width:400px', 'class' => 'crm-select2'));
-    $select->setMultiple(TRUE);
+    $this->setAddUpdateDonationLink();
   }
   /**
    * Function to set page title
@@ -320,6 +311,10 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       $saveProject['is_active'] = $values['is_active'];
     }
     $result = CRM_Threepeas_BAO_PumProject::add($saveProject);
+    /*
+     * save related donor links
+     */
+    $this->saveDonorLink($result['id'], $values);
     return $result;
   }
   /**
@@ -410,5 +405,74 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       }
     }
     return TRUE;
+  }
+  /**
+   * Function to set view elements for donation links
+   */
+  function setViewDonationLink() {
+    $linkedDonations = array();
+    $params = array('entity' => 'Project', 'entity_id' => $this->_id, 'is_active' => 1);
+    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($currentContributions as $currentContribution) {
+      $linkedDonations[] = CRM_Threepeas_BAO_PumDonorLink::createViewRow($currentContribution);
+    }
+    $this->assign('linkedDonations', $linkedDonations);
+    $this->assign('linkEntity', 'Project');
+  }
+  /**
+   * Function to set add/update elements for donation links
+   */
+  function setAddUpdateDonationLink() {
+    $contributionsList = _threepeasGetContributionsList();
+    $this->add('advmultiselect', 'new_link', '', $contributionsList, false,  
+      array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
+        'class' => 'advmultiselect',
+      ));
+  }
+  /**
+   * Function to correct defaults in Add mode
+   */
+  function correctAddDefaults(&$defaults) {
+    $defaults['is_active'] = 1;
+    if (isset($defaults['customer_id']) && !empty($defaults['customer_id'])) {
+      $defaults['customer_id'] = CRM_Utils_Array::value($defaults['customer_id'], $this->_projectCustomers);
+    } else {
+      if (isset($defaults['country_id']) && !empty($defaults['country_id'])) {
+        $defaults['country_id'] = CRM_Utils_Array::value($defaults['country_id'], $this->_projectCountries);
+      }  
+    }
+  }
+  /**
+   * Function to correct defaults for Edit action
+   */
+  function correctUpdateDefaults(&$defaults) {
+    $params = array('entity' => 'Project', 'entity_id' => $this->_id, 'donation_entity' => 'Contribution', 'is_active' => 1);
+    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($currentContributions as $currentContribution) {
+      $defaults['new_link'][] = $currentContribution['donation_entity_id'];
+    }
+  }
+  /**
+   * Function to save donor links if required
+   */
+  function saveDonorLink($projectId, $values) {
+    /*
+     * if update, delete all current donor links for project
+     */
+    if ($this->_action == CRM_Core_Action::UPDATE) {
+      CRM_Threepeas_BAO_PumDonorLink::deleteByEntityId('Project', $projectId);
+    }
+    /*
+     * add new donor links
+     */
+    foreach ($values['new_link'] as $newLink) {
+      $params = array(
+        'donation_entity' => 'Contribution', 
+        'donation_entity_id' => $newLink,
+        'entity' => 'Project',
+        'entity_id' => $projectId,
+        'is_active' => 1);
+      CRM_Threepeas_BAO_PumDonorLink::add($params);
+    }
   }
 }

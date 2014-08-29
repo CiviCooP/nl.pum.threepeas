@@ -4,7 +4,8 @@
   <div class="crm-accordion-body" style="display: block">
     <div class="messages status no-popup">
       <div class="icon inform-icon"></div>
-      In this section you will see already linked donations as selected. You can remove existing or select new donations to link to.
+      In this section you will see all available donations to link to in the left box, and the already linked 
+      donations in the right box. You can add or remove donations by moving them between the boxes.
     </div>
     <div class="linked-donations">
       <div id="linked-donations" class="section-shown crm-contribution-additionalinfo-linked-donations-form-block">

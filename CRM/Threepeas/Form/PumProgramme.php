@@ -115,10 +115,10 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
       $defaults['is_active'] = 1;
     }
     if ($this->_action == CRM_Core_Action::VIEW) {
-      $defaults = $this->correctViewDefaults($defaults);
+      $this->correctViewDefaults($defaults);
     }
     if ($this->_action == CRM_Core_Action::UPDATE) {
-      $defaults = $this->correctUpdateDefaults($defaults);
+      $this->correctUpdateDefaults($defaults);
     }
     return $defaults;
   }
@@ -207,14 +207,14 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->setAddUpdateDonationLink();
   }
   /**
-   * Function to set add elements for donation links
+   * Function to set add/update elements for donation links
    */
   function setAddUpdateDonationLink() {
-    $label = ts('Select donation(s) to link programme to');
     $contributionsList = _threepeasGetContributionsList();
-    $listElement = $this->add('select', 'new_link', $label, $contributionsList, false);
-    $listElement->setMultiple(TRUE);
-    $listElement->setSize(count($contributionsList));
+    $this->add('advmultiselect', 'new_link', '', $contributionsList, false,  
+      array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
+        'class' => 'advmultiselect',
+      ));
     }
   /**
    * Function to set page title
@@ -327,7 +327,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   /**
    * Function to correct defaults for View action
    */
-  function correctViewDefaults($defaults) {
+  function correctViewDefaults(&$defaults) {
     if (isset($defaults['manager_id']) && !empty($defaults['manager_id'])) {
       $defaults['manager_id'] = CRM_Utils_Array::value($defaults['manager_id'], $this->_programmeManagers);
     }
@@ -338,12 +338,11 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
       $defaults['end_date'] = '';
     }
     $defaults['budget'] = CRM_Utils_Money::format($defaults['budget']);
-    return $defaults;
   }
   /**
    * Function to correct defaults for Edit action
    */
-  function correctUpdateDefaults($defaults) {
+  function correctUpdateDefaults(&$defaults) {
     if (isset($defaults['start_date'])) {
       list($defaults['start_date']) = CRM_Utils_Date::setDateDefaults($defaults['start_date']);
     }
@@ -358,7 +357,6 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     foreach ($currentContributions as $currentContribution) {
       $defaults['new_link'][] = $currentContribution['donation_entity_id'];
     }
-    return $defaults;
   }
   /**
    * Function to set validation rules
