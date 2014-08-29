@@ -352,7 +352,11 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     /*
      * show current donation links
      */
-    $defaults['new_link'] = array(1, 4);
+    $params = array('entity' => 'Programme', 'entity_id' => $this->_id, 'donation_entity' => 'Contribution', 'is_active' => 1);
+    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($currentContributions as $currentContribution) {
+      $defaults['new_link'][] = $currentContribution['donation_entity_id'];
+    }
     return $defaults;
   }
   /**
