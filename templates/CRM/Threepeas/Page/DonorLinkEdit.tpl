@@ -4,7 +4,7 @@
   <div class="crm-accordion-body" style="display: block">
     <div class="messages status no-popup">
       <div class="icon inform-icon"></div>
-      In this section you can update existing or create new link(s) to donation(s).
+      In this section you will see already linked donations as selected. You can remove existing or select new donations to link to.
     </div>
     <div class="linked-donations">
       <div id="linked-donations" class="section-shown crm-contribution-additionalinfo-linked-donations-form-block">

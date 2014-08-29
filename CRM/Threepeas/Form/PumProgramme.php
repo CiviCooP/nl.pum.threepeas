@@ -214,6 +214,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $contributionsList = _threepeasGetContributionsList();
     $listElement = $this->add('select', 'new_link', $label, $contributionsList, false);
     $listElement->setMultiple(TRUE);
+    $listElement->setSize(count($contributionsList));
     }
   /**
    * Function to set page title
@@ -400,12 +401,5 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     }
     $params['id'] = $this->_id;
     CRM_Threepeas_BAO_PumProgramme::add($params);
-  }
-  /**
-   * Function to get current donor links
-   */
-  function getCurrentDonorLinks($programmeId) {
-    $params = array('entity' => 'Programme', 'entity_id' => $programmeId, 'is_active' => 1);
-    $currentDonorLinks = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
   }
 }
