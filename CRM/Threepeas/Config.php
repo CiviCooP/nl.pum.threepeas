@@ -16,6 +16,7 @@ class CRM_Threepeas_Config {
   public $defaultContributionId = NULL;
   public $inactiveContributionStatus = array();
   public $activeContributionStatus = array();
+  public $allContributionStatus = array();
   /*
    * contact sub_type id for Customer and Country
    */
@@ -310,5 +311,6 @@ class CRM_Threepeas_Config {
         $this->activeContributionStatus[$optionValue['value']] = $optionValue['name'];
       }
     }
+    $this->allContributionStatus = array_merge($this->activeContributionStatus, $this->inactiveContributionStatus);
   }
 }

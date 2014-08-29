@@ -164,29 +164,6 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->setViewDonationLink();
   }
   /**
-   * Function to set update elements for donation links
-   */
-  function setUpdateDonationLink() {
-    $linkedDonations = array();
-    $params = array('entity' => 'Programme', 'entity_id' => $this->_id, 'is_active' => 1);
-    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
-    foreach ($currentContributions as $currentContribution) {
-      $linkedDonations[] = _threepeasCreateDonorLinkViewRow($currentContribution, $this->_action);
-    }
-    $this->assign('linkedDonations', $linkedDonations);
-    $this->assign('ribbonText', 'Linked Donation(s)');
-    $this->assign('informText', 'This section shows the donations the programme is linked to. You can add or remove links to donations.');    
-    $label = ts('Select new donation(s) to link programme to');
-    $contributionsList = _threepeasGetContributionsList();
-    foreach ($linkedDonations as $linkedDonation) {
-      if (isset($contributionsList[$linkedDonation['contribution_id']])) {
-        unset($contributionsList[$linkedDonation['contribution_id']]);
-      }
-    }
-    $this->add('select', 'new_link', $label, $contributionsList, false, array('multiple' => 'multiple'));
-
-  }
-  /**
    * Function to set view elements for donation links
    */
   function setViewDonationLink() {
@@ -194,7 +171,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $params = array('entity' => 'Programme', 'entity_id' => $this->_id, 'is_active' => 1);
     $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
     foreach ($currentContributions as $currentContribution) {
-      $linkedDonations[] = _threepeasCreateDonorLinkViewRow($currentContribution, $this->_action);
+      $linkedDonations[] = CRM_Threepeas_BAO_PumDonorLink::createViewRow($currentContribution);
     }
     $this->assign('linkedDonations', $linkedDonations);
     $this->assign('linkEntity', 'Programme');
@@ -227,17 +204,16 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->addButtons(array(
       array('type' => 'next', 'name' => ts('Save'), 'isDefault' => true,),
       array('type' => 'cancel', 'name' => ts('Cancel'))));
-    $this->setAddDonationLink();
+    $this->setAddUpdateDonationLink();
   }
   /**
    * Function to set add elements for donation links
    */
-  function setAddDonationLink() {
+  function setAddUpdateDonationLink() {
     $label = ts('Select donation(s) to link programme to');
     $contributionsList = _threepeasGetContributionsList();
-    $this->add('select', 'new_link', $label, $contributionsList, false, array('multiple' => 'multiple'));
-    $this->assign('ribbonText', 'Add Link to Donation(s)');
-    $this->assign('informText', 'This section allows you to add links to donations.');
+    $listElement = $this->add('select', 'new_link', $label, $contributionsList, false);
+    $listElement->setMultiple(TRUE);
     }
   /**
    * Function to set page title
@@ -284,7 +260,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->addButtons(array(
       array('type' => 'next', 'name' => ts('Save'), 'isDefault' => true,),
       array('type' => 'cancel', 'name' => ts('Cancel'))));
-    $this->setUpdateDonationLink();
+    $this->setAddUpdateDonationLink();
   }
   /**
    * Function to get the option values of the select lists
@@ -367,8 +343,16 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
    * Function to correct defaults for Edit action
    */
   function correctUpdateDefaults($defaults) {
-    list($defaults['start_date']) = CRM_Utils_Date::setDateDefaults($defaults['start_date']);
-    list($defaults['end_date']) = CRM_Utils_Date::setDateDefaults($defaults['end_date']);
+    if (isset($defaults['start_date'])) {
+      list($defaults['start_date']) = CRM_Utils_Date::setDateDefaults($defaults['start_date']);
+    }
+    if (isset($defaults['end_date'])) {
+      list($defaults['end_date']) = CRM_Utils_Date::setDateDefaults($defaults['end_date']);
+    }
+    /*
+     * show current donation links
+     */
+    $defaults['new_link'] = array(1, 4);
     return $defaults;
   }
   /**

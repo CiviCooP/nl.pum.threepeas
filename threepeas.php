@@ -940,34 +940,3 @@ function _threepeasGetContributionsList() {
   asort($optionContributions);
   return $optionContributions;
 }
-/**
- * Function top create a data row for donor link
- */
-function _threepeasCreateDonorLinkViewRow($donorLink, $action) {
-  $donorLinkRow = array();
-  if (!empty($donorLink) && isset($donorLink['donation_entity']) && isset($donorLink['donation_entity_id'])) {
-    switch ($donorLink['donation_entity']) {
-      case 'Contribution':
-        $contribution = civicrm_api3('Contribution', 'Getsingle', array('id' => $donorLink['donation_entity_id']));
-        $contactUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$contribution['contact_id']);
-        $donorLinkRow['contribution_id'] = $contribution['contribution_id'];
-        $donorLinkRow['contact'] = '<a class="action-item" title="View contact" href="'.$contactUrl.'">'.$contribution['display_name'].'</a>';
-        $donorLinkRow['amount'] = CRM_Utils_Money::format($contribution['total_amount']);
-        $threepeasConfig = CRM_Threepeas_Config::singleton();
-        if (isset($threepeasConfig->activeContributionStatus[$contribution['contribution_status_id']])) {
-          $donorLinkRow['status'] = $threepeasConfig->activeContributionStatus[$contribution['contribution_status_id']];
-        } else {
-          $donorLinkRow['status'] = $threepeasConfig->inactiveContributionStatus[$contribution['contribution_status_id']];
-        }
-        $donorLinkRow['date'] = date('d-M-Y', strtotime($contribution['receive_date']));
-        $viewContributionUrl = CRM_Utils_System::url('civicrm/contact/view/contribution', 'reset=1&id='
-          .$contribution['contribution_id'].'&cid='.$contribution['contact_id'].'&action=view');
-        $donorLinkRow['view_link'] = '<a class="action-item" title="View contribution" href="'.$viewContributionUrl.'">View contribution</a>';
-        if ($action == CRM_Core_Action::UPDATE) {
-          $donorLinkRow['remove_link'] = 'Remove Link';
-        }
-        break;
-    }
-  }
-  return $donorLinkRow;
-}
