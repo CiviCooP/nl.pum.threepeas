@@ -294,14 +294,14 @@ function threepeas_civicrm_tabs(&$tabs, $contactID) {
    * first check if contact_subtype is country
    */
   if (_threepeasContactIsCountry($contactID) == TRUE) {
+    $activeCountryTabs = array('contact_documents', 'rel', 'case', 'activity');
     foreach ($tabs as $tabKey => $tab) {
       $projectWeight = $tab['weight']++;
-      if ($tab['id'] != 'contact_documents' && $tab['id'] != 'rel' && $tab['id'] != 'case') {
+      if (!in_array($tab['id'], $activeCountryTabs)) {
         unset($tabs[$tabKey]);
       }
     }
     $tabs[] = _threepeasAddProjectTab($contactID, $threepeasConfig->countryContactType, $projectWeight);
-    
   } else {
     if (_threepeasContactIsCustomer($contactID) == TRUE) {
     foreach ($tabs as $tabKey => $tab) {
