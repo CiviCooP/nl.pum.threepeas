@@ -302,7 +302,6 @@ function threepeas_civicrm_tabs(&$tabs, $contactID) {
       }
     }
     $tabs[] = _threepeasAddProjectTab($contactID, $threepeasConfig->countryContactType, $projectWeight);
-    
   } else {
     if (_threepeasContactIsCustomer($contactID) == TRUE) {
     foreach ($tabs as $tabKey => $tab) {
