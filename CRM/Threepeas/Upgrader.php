@@ -81,10 +81,30 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
    * Upgrade 1004 - add fields is_active to civicrm_case_project
    */
   public function upgrade_1004() {
-    $this->ctx->log->info('Applying update 1003 (create civicrm_case_project table');
+    $this->ctx->log->info('Applying update 1004 (add is_active to civicrm_case_project table');
     if (CRM_Core_DAO::checkTableExists('civicrm_case_project')) {
       if (!CRM_Core_DAO::checkFieldExists('civicrm_case_project', 'is_active')) {
         CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_case_project ADD COLUMN is_active TINYINT(4)');
+      }
+    }
+    return TRUE;
+  }
+  /**
+   * Upgrade 1005 - remove fields country_coordinator_id, sector_coordinator_id and project_officer
+   * from table civicrm_project
+   */
+  public function upgrade_1005() {
+    $this->ctx->log->info('Applying update 1005 (remove country_coordinator_id, '
+      . 'sector_coordinator_id and project_officer_id from table civicrm_project');
+    if (CRM_Core_DAO::checkTableExists('civicrm_project')) {
+      if (CRM_Core_DAO::checkFieldExists('civicrm_project', 'country_coordinator_id')) {
+        CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_project DROP country_coordinator_id');
+      }
+      if (CRM_Core_DAO::checkFieldExists('civicrm_project', 'sector_coordinator_id')) {
+        CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_project DROP sector_coordinator_id');
+      }
+      if (CRM_Core_DAO::checkFieldExists('civicrm_project', 'project_officer_id')) {
+        CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_project DROP project_officer_id');
       }
     }
     return TRUE;
