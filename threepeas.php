@@ -528,14 +528,57 @@ function _threepeasAddProjectElementCaseView(&$form) {
  *             because trash functionality trigger post hook with trash operation
  *             AND delete operation
  *            https://issues.civicrm.org/jira/browse/CRM-9562?jql=text%20~%20%22post%20hook%20contact%20trash%22)
+ * 
+ * Issue 86: set default PUM case roles on Open Case activity (because
+ *           post on Case Create does not have client yet)
  */
 function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  /*
+   * issue 116
+   */
   if ($objectName == 'Organization') {
     if ($op == 'trash') {
       $GLOBALS['trashedOrganizationId'] = $objectId;
     }
     if ($op == 'delete') {
       _threepeasDeleteProject($objectId);
+    }
+  }
+  /*
+   * issue 86
+   */
+  if ($objectName =='Activity' && $op == 'create') {
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    if ($objectRef->activity_type_id == $threepeasConfig->openCaseActTypeId) {
+      /*
+       * case and later activity contact retrieved from DB and not with API because 
+       * API transaction mucks up the Case transaction causing weird errors like 
+       * can not find xml file for case type
+       */
+      $caseQry = 'SELECT case_type_id, start_date FROM civicrm_case WHERE id = %1';
+      $caseParams = array(1 => array($objectRef->case_id, 'Positive'));
+      $daoCase = CRM_Core_DAO::executeQuery($caseQry, $caseParams);
+      if ($daoCase->fetch()) {
+        /*
+         * substr because case_type_id is between Core_DAO::VALUE_SEPARATORs
+         */
+        $typeId = substr($daoCase->case_type_id, 1, 1);
+        if (isset($threepeasConfig->pumCaseTypes[$typeId])) {
+          if (empty($daoCase->start_date)) {
+            $caseStartDate = date('Ymd');
+          } else {
+            $caseStartDate = date('Ymd', strtotime($daoCase->start_date));
+          }
+          $actContactQry = 'SELECT contact_id FROM civicrm_activity_contact WHERE activity_id = %1 AND record_type_id = %2';
+          $actContactParams = array(
+            1 => array($objectId, 'Positive'),
+            2 => array($threepeasConfig->actTargetRecordType, 'Positive'));
+          $daoActContact = CRM_Core_DAO::executeQuery($actContactQry, $actContactParams);
+          if ($daoActContact->fetch()) {
+            CRM_Threepeas_BAO_PumProject::setDefaultCaseRoles($objectRef->case_id, $daoActContact->contact_id, $caseStartDate);
+          }
+        }
+      }
     }
   }
 }

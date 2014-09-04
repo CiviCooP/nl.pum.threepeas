@@ -32,6 +32,7 @@ class CRM_Threepeas_Config {
   public $caseTypes = array();
   public $caseStatusOptionGroupId = NULL;
   public $caseStatus = array();
+  public $pumCaseTypes = array();
   /*
    * project option group id
    */
@@ -44,6 +45,14 @@ class CRM_Threepeas_Config {
   public $projectOfficerRelationshipTypeId = NULL;
   public $representativeRelationshipTypeId = NULL;
   public $sectorCoordinatorRelationshipTypeId = NULL;
+  /*
+   * activity type for Open Case
+   */
+  public $openCaseActTypeId = NULL;
+  /*
+   * activity record type for target contacts
+   */
+  public $actTargetRecordType = NULL;
   /**
    * Constructor function
    */
@@ -58,10 +67,12 @@ class CRM_Threepeas_Config {
     $this->setCaseStatus();
     $this->setCaseTypes();
     $this->expertRelationshipTypeId = $this->setRelationshipTypeId('Expert');
-    $this->countryCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Country Coordinator is');
+    $this->countryCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Country Coordinator');
     $this->projectOfficerRelationshipTypeId = $this->setRelationshipTypeId('Project Officer');
-    $this->representativeRelationshipTypeId = $this->setRelationshipTypeId('Representative is');
+    $this->representativeRelationshipTypeId = $this->setRelationshipTypeId('Representative');
     $this->sectorCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Sector Coordinator');
+    $this->openCaseActTypeId = $this->setActivityTypeId('Open Case');
+    $this->setActTargetRecordType();
   }
   private function setCustomerContactType($customerContactType) {
     $this->customerContactType = $customerContactType;
@@ -148,10 +159,14 @@ class CRM_Threepeas_Config {
     }
   }
   private function setCaseTypes() {
+    $pumCaseTypes = array('Projectintake', 'Advice', 'BLP', 'RemoteCoaching', 'PDV', 'CAP', 'CTM');
     try {
       $apiCaseTypes = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $this->caseTypeOptionGroupId));
       foreach ($apiCaseTypes['values'] as $caseTypeId => $caseType) {
-        $this->caseTypes[$caseTypeId] = $caseType['label'];
+        $this->caseTypes[$caseType['value']] = $caseType['label'];
+        if (in_array($caseType['label'], $pumCaseTypes)) {
+          $this->pumCaseTypes[$caseType['value']] = $caseType['label'];
+        }
       }
     } catch (CiviCRM_API3_Exception $ex) {
       $this->caseTypes = array();
@@ -161,16 +176,16 @@ class CRM_Threepeas_Config {
     try {
       $apiCaseStatus = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $this->caseStatusOptionGroupId));
       foreach ($apiCaseStatus['values'] as $caseStatusId => $caseStatus) {
-        $this->caseStatus[$caseStatusId] = $caseStatus['label'];
+        $this->caseStatus[$caseStatus['value']] = $caseStatus['label'];
       }
     } catch (CiviCRM_API3_Exception $ex) {
       $this->caseStatus = array();
     }
   }
   /**
-   * Function to get a realtionship type ID with the CiviCRM API and store it in property
+   * Function to get a relationship type ID with the CiviCRM API and store it in property
    * 
-   * @param string $title name of the group of whic the id is to be set
+   * @param string $name name of the group of whic the id is to be set
    * @access private
    */
   private function setRelationshipTypeId($name) {
@@ -184,5 +199,39 @@ class CRM_Threepeas_Config {
       }
     }
     return $relationshipTypeId;
+  }
+  /**
+   * Function to get an activity type id with the CiviCRM API
+   */
+  private function setActivityTypeId($name) {
+    try {
+      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => 'activity_type', 'return' => 'id'));
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find an option group with name activity_type, error from API OptionGroup Getvalue : '.$ex->getMessage());
+    }
+    $params = array('option_group_id' => $optionGroupId, 'name' => $name, 'return' => 'value');
+    try {
+      $activityTypeId = civicrm_api3('OptionValue', 'Getvalue', $params);
+    } catch (CiviCRM_API3_Exception $ex) {
+      $activityTypeId = 0;
+    }
+    return $activityTypeId;
+  }
+  /**
+   * Function to retrieve the record type for activity targets
+   */
+  private function setActTargetRecordType() {
+    try {
+      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => 'activity_contacts', 'return' => 'id'));
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find an option group with name activity_contacts, error from API OptionGroup Getvalue : '.$ex->getMessage());
+    }
+    $params = array('option_group_id' => $optionGroupId, 'name' => 'Activity Targets', 'return' => 'value');
+    try {
+      $this->actTargetRecordType = civicrm_api3('OptionValue', 'Getvalue', $params);
+    } catch (CiviCRM_API3_Exception $ex) {
+      $this->actTargetRecordType = NULL;
+      throw new Exception('Could not find an option value with name Activity Targets in group activity_contacts, error from API OptionValue Getvalue : '.$ex->getMessage());
+    }
   }
 }

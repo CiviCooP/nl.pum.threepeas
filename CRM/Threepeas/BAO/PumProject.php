@@ -347,51 +347,91 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     return $projectType;
   }
   /**
-   * Function to retrieve the project officer for a project
+   * Function to retrieve the project officer for a customer
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 1 Sep 2014
-   * @param int $pumProjectId
+   * @param int $customerId
    * @return int $projectOfficerId
    * @access public
    * @static
    */
-  public static function getProjectOfficer($pumProjectId) {
-    $countryId = self::getProjectCountryId($pumProjectId);
+  public static function getProjectOfficer($customerId) {
+    $countryId = self::getCustomerCountryId($customerId);
     $threepeasConfig = CRM_Threepeas_Config::singleton();
-    $projectOfficerId = getRelationshipContactId($countryId, $threepeasConfig->projectOfficerRelationshipTypeId);
+    $projectOfficerId = self::getRelationshipContactId($countryId, $threepeasConfig->projectOfficerRelationshipTypeId);
     return $projectOfficerId;
   }
   /**
-   * Function to retrieve the country officer for a project
+   * Function to retrieve the country officer for a customer
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 1 Sep 2014
-   * @param int $pumProjectId
+   * @param int $customerId
    * @return int $countryCoordinatorId
    * @access public
    * @static
    */
-  public static function getCountryCoordinator($pumProjectId) {
-    $countryId = self::getProjectCountryId($pumProjectId);
+  public static function getCountryCoordinator($customerId) {
+    $countryId = self::getCustomerCountryId($customerId);
     $threepeasConfig = CRM_Threepeas_Config::singleton();
-    $countryCoordinatorId = getRelationshipContactId($countryId, $threepeasConfig->countryCoordinatorRelationshipTypeId);
+    $countryCoordinatorId = self::getRelationshipContactId($countryId, $threepeasConfig->countryCoordinatorRelationshipTypeId);
+    
     return $countryCoordinatorId;
+  }
+  /**
+   * Function to get the opposite contact_id of an active relation
+   * so if contact_id_a is found, contact_id_b is returned and the other way around
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 3 Sep 2014
+   * @param int $sourceContactId
+   * @param int $relationshipTypeId
+   * @return int $contactId
+   */
+  private static function getRelationshipContactId($sourceContactId, $relationshipTypeId) {
+    $params = array(
+      'is_active' => 1,
+      'relationship_type_id' => $relationshipTypeId,
+      'contact_id_a' => $sourceContactId
+    );
+    try {
+      $foundRelations = civicrm_api3('Relationship', 'Get', $params);
+    } catch (CiviCRM_API3_Exception $ex) {
+    }
+    if ($foundRelations['count'] > 0) {
+      foreach ($foundRelations['values'] as $foundRelation) {
+        $contactId = $foundRelation['contact_id_b'];
+      }
+    } else {
+      $params = array(
+        'is_active' => 1,
+        'relationship_type_id' => $relationshipTypeId,
+        'contact_id_b' => $sourceContactId
+      );
+      try {
+        $foundRelations = civicrm_api3('Relationship', 'Get', $params);
+        foreach ($foundRelations['values'] as $foundRelation) {
+          $contactId = $foundRelation['contact_id_a'];
+        }
+      } catch (CiviCRM_API3_Exception $ex) {
+      }
+    }
+    return $contactId;
   }
   /**
    * Function to retrieve the representative for a project
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 1 Sep 2014
-   * @param int $pumProjectId
+   * @param int $customerId
    * @return int $representativeId
    * @access public
    * @static
    */
-  public static function getRepresentative($pumProjectId) {
-    $countryId = self::getProjectCountryId($pumProjectId);
+  public static function getRepresentative($customerId) {
     $threepeasConfig = CRM_Threepeas_Config::singleton();
-    $representativeId = getRelationshipContactId($countryId, $threepeasConfig->representativeRelationshipTypeId);
+    $representativeId = self::getRelationshipContactId($customerId, $threepeasConfig->representativeRelationshipTypeId);
     return $representativeId;
   }
   /**
@@ -399,51 +439,23 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 1 Sep 2014
-   * @param int $pumProjectId
+   * @param int $customerId
    * @return int $sectorCoordinatorId
    * @access public
    * @static
    */
-  public static function getSectorCoordinator($pumProjectId) {
+  public static function getSectorCoordinator($customerId) {
     $sectorCoordinatorId = 0;
-    $pumProject = new CRM_Threepeas_BAO_PumProject();
-    $pumProject->id = $pumProjectId;
-    $pumProject->find(TRUE);
-    if (!empty($pumProject->customer_id)) {
-      $entityTagParams = array('entity_table' => 'civicrm_contact', 'entity_id' => $pumProject->customer_id);
-      $apiEntityTag = civicrm_api3('EntityTag', 'Get', $entityTagParams);
-      foreach ($apiEntityTag['values'] as $customerTag) {
-        $enhancedParams = array('is_active' => 1, 'tag_id' => $customerTag['tag_id'], 'return' => 'coordinator_id');
-          try {
-            $sectorCoordinatorId = civicrm_api3('TagEnhanced', 'Getvalue', $enhancedParams);
-          } catch (CiviCRM_API3_Exception $ex) {
-          }
+    $entityTagParams = array('entity_table' => 'civicrm_contact', 'entity_id' => $customerId);
+    $apiEntityTag = civicrm_api3('EntityTag', 'Get', $entityTagParams);
+    foreach ($apiEntityTag['values'] as $customerTag) {
+      $enhancedParams = array('is_active' => 1, 'tag_id' => $customerTag['tag_id'], 'return' => 'coordinator_id');
+      try {
+        $sectorCoordinatorId = civicrm_api3('TagEnhanced', 'Getvalue', $enhancedParams);
+      } catch (CiviCRM_API3_Exception $ex) {
       }
     }
     return $sectorCoordinatorId;
-  }
-  /**
-   * Function to get the country required for a project to get
-   * project officer, country coordinator and representative
-   * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 1 Sep 2014
-   * @param int $pumProjectId
-   * @return int $countryId
-   * @access private
-   * @static
-   */
-  private static function getProjectCountryId($pumProjectId) {
-    $countryId = 0;
-    $pumProject = new CRM_Threepeas_BAO_PumProject();
-    $pumProject->id = $pumProjectId;
-    $pumProject->find(TRUE);
-    if (!empty($pumProject->country_id)) {
-      $countryId = $pumProject->country_id;
-    } else {
-      $countryId = self::getProjectCustomerCountryId($pumProject->customer_id);
-    }
-    return $countryId;
   }
   /**
    * Function to get the country required for a customer
@@ -455,16 +467,74 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * @access private
    * @static
    */
-  private static function getProjectCustomerCountryId($customerId) {
+  private static function getCustomerCountryId($customerId) {
     $countryId = 0;
     $threepeasConfig = CRM_Threepeas_Config::singleton();
     if (!empty($customerId)) {
-      $contactData = civicrm_api3('Contact', 'Getsingle', array('id' => $customerId));
+      $contactData = civicrm_api3('Contact', 'Getsingle', array('contact_id' => $customerId));
       if (isset($contactData['country_id']) && !empty($contactData['country_id'])) {
-        $params = array('custom_'.$threepeasConfig->countryCustomFieldId, 'return' => 'id');
+        $params = array(
+          'custom_'.$threepeasConfig->countryCustomFieldId => $contactData['country_id'], 
+          'return' => 'id');
         $countryId = civicrm_api3('Contact', 'Getvalue', $params);
       }
     }
     return $countryId;
+  }
+  /**
+   * Function to set the default case roles for the PUM cases
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 3 Sep 2014
+   * @param int $caseId
+   * @param int $customerId
+   */
+  public static function setDefaultCaseRoles($caseId, $customerId, $caseStartDate) {
+    if (!empty($caseId) && !empty($customerId)) {
+      $threepeas = CRM_Threepeas_Config::singleton();
+      $countryCoordinatorId = self::getCountryCoordinator($customerId);
+      self::setCaseRelation($customerId, $countryCoordinatorId, $caseId, 
+        $threepeas->countryCoordinatorRelationshipTypeId, $caseStartDate);
+      
+      $projectOfficerId = self::getProjectOfficer($customerId);
+      self::setCaseRelation($customerId, $projectOfficerId, $caseId, 
+        $threepeas->projectOfficerRelationshipTypeId, $caseStartDate);
+      
+      $representativeId = self::getRepresentative($customerId);
+      self::setCaseRelation($customerId, $representativeId, $caseId, 
+        $threepeas->representativeRelationshipTypeId, $caseStartDate);
+      
+      $sectorCoordinatorId = self::getSectorCoordinator($customerId);
+      self::setCaseRelation($customerId, $sectorCoordinatorId, $caseId, 
+        $threepeas->sectorCoordinatorRelationshipTypeId, $caseStartDate);
+    }
+  }
+  /**
+   * Function to create a relation
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 4 Sep 2014
+   * @param int $contactAId
+   * @param int $contactBId
+   * @param int $caseId
+   * @param int $relationshipTypeId
+   * @param string $startDate
+   * @access private
+   * @static
+   */
+  private static function setCaseRelation($contactAId, $contactBId, $caseId, 
+    $relationshipTypeId, $startDate) {
+    $params = array(
+      'contact_id_a' => $contactAId,
+      'contact_id_b' => $contactBId,
+      'case_id' => $caseId,
+      'relationship_type_id' => $relationshipTypeId);
+    if (!empty($startDate)) {
+      $params['start_date'] = date('Ymd', strtotime($startDate));
+    }
+    try {
+      civicrm_api3('Relationship', 'Create', $params);
+    } catch (CiviCRM_API3_Exception $ex) {
+    }
   }
 }
