@@ -356,10 +356,14 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * @access public
    * @static
    */
-  public static function getProjectOfficer($customerId) {
-    $countryId = self::getCustomerCountryId($customerId);
+  public static function getProjectOfficer($customerId, $type) {
+    if ($type == 'customer') {
+      $contactId = self::getCustomerCountryId($customerId);
+    } else {
+      $contactId = $customerId;
+    }
     $threepeasConfig = CRM_Threepeas_Config::singleton();
-    $projectOfficerId = self::getRelationshipContactId($countryId, $threepeasConfig->projectOfficerRelationshipTypeId);
+    $projectOfficerId = self::getRelationshipContactId($contactId, $threepeasConfig->projectOfficerRelationshipTypeId);
     return $projectOfficerId;
   }
   /**
@@ -372,10 +376,14 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * @access public
    * @static
    */
-  public static function getCountryCoordinator($customerId) {
-    $countryId = self::getCustomerCountryId($customerId);
+  public static function getCountryCoordinator($customerId, $type) {
+    if ($type == 'customer') {
+      $contactId = self::getCustomerCountryId($customerId);
+    } else {
+      $contactId = $customerId;
+    }
     $threepeasConfig = CRM_Threepeas_Config::singleton();
-    $countryCoordinatorId = self::getRelationshipContactId($countryId, $threepeasConfig->countryCoordinatorRelationshipTypeId);
+    $countryCoordinatorId = self::getRelationshipContactId($contactId, $threepeasConfig->countryCoordinatorRelationshipTypeId);
     
     return $countryCoordinatorId;
   }
@@ -500,7 +508,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
   public static function setDefaultCaseRoles($caseId, $customerId, $caseStartDate) {
     if (!empty($caseId) && !empty($customerId)) {
       $threepeas = CRM_Threepeas_Config::singleton();
-      $countryCoordinatorId = self::getCountryCoordinator($customerId);
+      $countryCoordinatorId = self::getCountryCoordinator($customerId, 'customer');
       self::setCaseRelation($customerId, $countryCoordinatorId, $caseId, 
         $threepeas->countryCoordinatorRelationshipTypeId, $caseStartDate);
       
