@@ -390,6 +390,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * @return int $contactId
    */
   private static function getRelationshipContactId($sourceContactId, $relationshipTypeId) {
+    $contactId = 0;
     $params = array(
       'is_active' => 1,
       'relationship_type_id' => $relationshipTypeId,

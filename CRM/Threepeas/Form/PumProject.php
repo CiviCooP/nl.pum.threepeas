@@ -18,9 +18,6 @@ require_once 'CRM/Core/Form.php';
  */
 class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   
-  protected $_countryCoordinators = array();
-  protected $_projectOfficers = array();
-  protected $_sectorCoordinators = array();
   protected $_projectCustomers = array();
   protected $_projectCountries = array();
   protected $_programmes = array();
@@ -85,6 +82,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $defaults = array();
     if (isset($this->_id)) {
       $projectValues = CRM_Threepeas_BAO_PumProject::getValues(array('id' => $this->_id));
+      $this->setDefaultProjectRelations($projectValues[$this->_id], $defaults);
       foreach ($projectValues[$this->_id] as $name => $value) {
         $defaults[$name] = $value;
       }
@@ -104,6 +102,22 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       $this->correctViewDefaults($defaults);
     }
     return $defaults;
+  }
+  /**
+   * Function to set defaults for Country Coordinator, Project Officer, 
+   * Represenative and Sector Coordinator
+   */
+  function setDefaultProjectRelations($project, &$defaults) {
+    if (isset($project['customer_id']) && !empty($project['customer_id'])) {
+      $countryCoordinatorId = CRM_Threepeas_BAO_PumProject::getCountryCoordinator($project['customer_id']);
+      $defaults['country_coordinator'] = civicrm_api3('Contact', 'Getvalue', array('id' => $countryCoordinatorId, 'return' => 'display_name'));
+      $sectorCoordinatorId = CRM_Threepeas_BAO_PumProject::getSectorCoordinator($project['customer_id']);
+      $defaults['sector_coordinator'] = civicrm_api3('Contact', 'Getvalue', array('id' => $sectorCoordinatorId, 'return' => 'display_name'));
+      $projectOfficerId = CRM_Threepeas_BAO_PumProject::getProjectOfficer($project['customer_id']);
+      $defaults['project_officer'] = civicrm_api3('Contact', 'Getvalue', array('id' => $projectOfficerId, 'return' => 'display_name'));
+      $representativeId = CRM_Threepeas_BAO_PumProject::getRepresentative($project['customer_id']);
+      $defaults['representative'] = civicrm_api3('Contact', 'Getvalue', array('id' => $representativeId, 'return' => 'display_name'));
+    }
   }
   /**
    * Function to set form elements based on action
@@ -136,9 +150,10 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       array('rows'    => 4, 'readonly'=> 'readonly', 'cols'    => 80), false);
     $this->add('textarea', 'qualifications', ts('Qualifications'), 
       array('rows'    => 4, 'readonly'=> 'readonly', 'cols' => 80), false);    
-    $this->add('text', 'sector_coordinator_id', ts('Sector Coordinator'), array('size' => CRM_Utils_Type::HUGE));
-    $this->add('text', 'country_coordinator_id', ts('Country Coordinator'), array('size' => CRM_Utils_Type::HUGE));
-    $this->add('text', 'project_officer_id', ts('Project Officer'), array('size' => CRM_Utils_Type::HUGE));
+    $this->add('text', 'sector_coordinator', ts('Sector Coordinator'), array('size' => CRM_Utils_Type::HUGE));
+    $this->add('text', 'country_coordinator', ts('Country Coordinator'), array('size' => CRM_Utils_Type::HUGE));
+    $this->add('text', 'project_officer', ts('Project Officer'), array('size' => CRM_Utils_Type::HUGE));
+    $this->add('text', 'representative', ts('Representative'), array('size' => CRM_Utils_Type::HUGE));
     $this->addDate('start_date', ts('Start Date'), false);
     $this->addDate('end_date', ts('End Date'), false);
     $this->add('text', 'is_active', ts('Enabled?'));
@@ -157,9 +172,6 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->add('textarea', 'work_description', ts('Work description'), array('rows'  => 4,  'cols'  => 80), false);
     $this->add('textarea', 'expected_results', ts('Expected results'), array('rows'  => 4,  'cols'  => 80), false);
     $this->add('textarea', 'qualifications', ts('Qualifications'), array('rows'  => 4,  'cols'  => 80), false);
-    $this->add('select', 'sector_coordinator_id', ts('Sector Coordinator'), $this->_sectorCoordinators);
-    $this->add('select', 'country_coordinator_id', ts('Country Coordinator'), $this->_countryCoordinators);
-    $this->add('select', 'project_officer_id', ts('Project Officer'), $this->_projectOfficers);
     $this->addDate('start_date', ts('Start Date'), false);
     $this->addDate('end_date', ts('End Date'), false);
     $this->add('checkbox', 'is_active', ts('Enabled'));
@@ -188,9 +200,10 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->add('textarea', 'work_description', ts('Work description'), array('rows'  => 4,  'cols'  => 80), false);
     $this->add('textarea', 'expected_results', ts('Expected results'), array('rows'  => 4,  'cols'  => 80), false);
     $this->add('textarea', 'qualifications', ts('Qualifications'), array('rows'  => 4,  'cols'  => 80), false);
-    $this->add('select', 'sector_coordinator_id', ts('Sector Coordinator'), $this->_sectorCoordinators);
-    $this->add('select', 'country_coordinator_id', ts('Country Coordinator'), $this->_countryCoordinators);
-    $this->add('select', 'project_officer_id', ts('Project Officer'), $this->_projectOfficers);
+    $this->add('text', 'sector_coordinator', ts('Sector Coordinator'), array('size' => CRM_Utils_Type::HUGE));
+    $this->add('text', 'country_coordinator', ts('Country Coordinator'), array('size' => CRM_Utils_Type::HUGE));
+    $this->add('text', 'project_officer', ts('Project Officer'), array('size' => CRM_Utils_Type::HUGE));
+    $this->add('text', 'representative', ts('Representative'), array('size' => CRM_Utils_Type::HUGE));
     $this->addDate('start_date', ts('Start Date'), false);
     $this->addDate('end_date', ts('End Date'), false);
     $this->add('checkbox', 'is_active', ts('Enabled'));
@@ -225,9 +238,6 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   function setOptionValues() {
     $this->setProgrammeList();
     $this->setProjectCustomerList();
-    $this->setSectorCoordinatorList();
-    $this->setCountryCoordinatorList();
-    $this->setProjectOfficerList();
     $this->setProjectCountryList();
   }
   /**
@@ -250,36 +260,6 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->_projectCustomers = $this->retrieveContacts($customerParams);
     $this->_projectCustomers[0] = '- select -';
     asort($this->_projectCustomers);
-  }
-  /**
-   * Function to get the list of sector coordinators
-   */
-  function setSectorCoordinatorList() {
-    $threepeasConfig = CRM_Threepeas_Config::singleton();    
-    $sectorCoordParams = array('group' => $threepeasConfig->sectorCoordinatorsGroupId, 'is_deleted' => 0);
-    $this->_sectorCoordinators = $this->retrieveContacts($sectorCoordParams);
-    $this->_sectorCoordinators[0] = '- select -';
-    asort($this->_sectorCoordinators);
-  }
-  /**
-   * function to get the list of country coordinators
-   */
-  function setCountryCoordinatorList() {
-    $threepeasConfig = CRM_Threepeas_Config::singleton();
-    $countryCoordParams = array('group' => $threepeasConfig->countryCoordinatorsGroupId, 'is_deleted' => 0);
-    $this->_countryCoordinators = $this->retrieveContacts($countryCoordParams);
-    $this->_countryCoordinators[0] = '- select -';
-    asort($this->_countryCoordinators);
-  }
-  /**
-   * Function to get the list of project officers
-   */
-  function setProjectOfficerList() {
-    $threepeasConfig = CRM_Threepeas_Config::singleton();
-    $projectOfficerParams = array('group' => $threepeasConfig->projectOfficersGroupId, 'is_deleted' => 0);
-    $this->_projectOfficers = $this->retrieveContacts($projectOfficerParams);
-    $this->_projectOfficers[0] = '- select -';
-    asort($this->_projectOfficers);
   }
   /**
    * function to get the list of countries
@@ -321,15 +301,6 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   function correctViewDefaults(&$defaults) {
     if (isset($defaults['programme_id']) && !empty($defaults['programme_id'])) {
       $defaults['programme_id'] = CRM_Utils_Array::value($defaults['programme_id'], $this->_programmes);
-    }
-    if (isset($defaults['sector_coordinator_id']) && !empty($defaults['sector_coordinator_id'])) {
-      $defaults['sector_coordinator_id'] = CRM_Utils_Array::value($defaults['sector_coordinator_id'], $this->_sectorCoordinators);
-    }
-    if (isset($defaults['country_coordinator_id']) && !empty($defaults['country_coordinator_id'])) {
-      $defaults['country_coordinator_id'] = CRM_Utils_Array::value($defaults['country_coordinator_id'], $this->_countryCoordinators);
-    }
-    if (isset($defaults['proejct_officer_id']) && !empty($defaults['proejct_officer_id'])) {
-      $defaults['proejct_officer_id'] = CRM_Utils_Array::value($defaults['proejct_officer_id'], $this->_projectOfficers);
     }
     if (!isset($defaults['start_date'])) {
       $defaults['start_date'] = '';

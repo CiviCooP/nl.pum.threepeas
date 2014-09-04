@@ -56,20 +56,25 @@
           <div class="clear"></div>
         </div>  
         <div class="crm-section">
-          <div class="label">{$form.sector_coordinator_id.label}</div>
-          <div class="content">{$form.sector_coordinator_id.value}</div>
+          <div class="label">{$form.sector_coordinator.label}</div>
+          <div class="content">{$form.sector_coordinator.value}</div>
           <div class="clear"></div>
         </div>  
         <div class="crm-section">
-          <div class="label">{$form.country_coordinator_id.label}</div>
-          <div class="content">{$form.country_coordinator_id.value}</div>
+          <div class="label">{$form.country_coordinator.label}</div>
+          <div class="content">{$form.country_coordinator.value}</div>
           <div class="clear"></div>
         </div>
         <div class="crm-section">
-          <div class="label">{$form.project_officer_id.label}</div>
-          <div class="content">{$form.project_officer_id.value}</div>
+          <div class="label">{$form.project_officer.label}</div>
+          <div class="content">{$form.project_officer.value}</div>
           <div class="clear"></div>
         </div>
+          <div class="crm-section">
+          <div class="label">{$form.representative.label}</div>
+          <div class="content">{$form.representative.value}</div>
+          <div class="clear"></div>            
+          </div>
         <div class="crm-section">
           <div class="label">{$form.start_date.label}</div>
           <div class="content">{$form.start_date.value|crmDate}</div>
@@ -130,22 +135,30 @@
           <div class="label">{$form.qualifications.label}</div>
           <div class="content">{$form.qualifications.html}</div>
           <div class="clear"></div>
-        </div>  
-        <div class="crm-section">
-          <div class="label">{$form.sector_coordinator_id.label}</div>
-          <div class="content">{$form.sector_coordinator_id.html}</div>
-          <div class="clear"></div>
-        </div>  
-        <div class="crm-section">
-          <div class="label">{$form.country_coordinator_id.label}</div>
-          <div class="content">{$form.country_coordinator_id.html}</div>
-          <div class="clear"></div>
         </div>
-        <div class="crm-section">
-          <div class="label">{$form.project_officer_id.label}</div>
-          <div class="content">{$form.project_officer_id.html}</div>
-          <div class="clear"></div>
-        </div>
+        {* do not show coordinators if action is add *}
+        {if $action ne 1}
+          <div class="crm-section">
+            <div class="label">{$form.sector_coordinator.label}</div>
+            <div class="content">{$form.sector_coordinator.value}</div>
+            <div class="clear"></div>
+          </div>  
+          <div class="crm-section">
+            <div class="label">{$form.country_coordinator.label}</div>
+            <div class="content">{$form.country_coordinator.value}</div>
+            <div class="clear"></div>
+          </div>
+          <div class="crm-section">
+            <div class="label">{$form.project_officer.label}</div>
+            <div class="content">{$form.project_officer.value}</div>
+            <div class="clear"></div>
+          </div>
+          <div class="crm-section">
+            <div class="label">{$form.representative.label}</div>
+            <div class="content">{$form.representative.value}</div>
+            <div class="clear"></div>
+          </div>
+        {/if}    
         <div class="crm-section">
           <div class="label">{$form.start_date.label}</div>
           <div class="content">{include file="CRM/common/jcalendar.tpl" elementName=start_date}</div>
