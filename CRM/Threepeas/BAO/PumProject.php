@@ -432,6 +432,13 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
   public static function getRepresentative($customerId) {
     $threepeasConfig = CRM_Threepeas_Config::singleton();
     $representativeId = self::getRelationshipContactId($customerId, $threepeasConfig->representativeRelationshipTypeId);
+    /*
+     * if no customer representative found, retrieve from country
+     */
+    if (empty($representativeId)) {
+      $countryId = self::getCustomerCountryId($customerId);
+      $representativeId = self::getRelationshipContactId($countryId, $threepeasConfig->representativeRelationshipTypeId);
+    }
     return $representativeId;
   }
   /**
