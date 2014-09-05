@@ -82,18 +82,24 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
         $row = array();
         $row['project_id'] = $project['id'];
         if (!empty($project['customer_id'])) {
-          $row['project_officer_id'] = CRM_Threepeas_BAO_PumProject::getProjectOfficer($project['customer_id']);
+          $row['project_officer_id'] = CRM_Threepeas_BAO_PumProject::getProjectOfficer($project['customer_id'], 'customer');
+        } else {
+          if (!empty($project['country_id'])) {
+          $row['project_officer_id'] = CRM_Threepeas_BAO_PumProject::getProjectOfficer($project['country_id'], 'country');            
+          }
         }
-        $contactParams = array(
-          'id'    =>  $project['project_officer_id'],
-          'return'=>  'display_name'
-        );
-        try {
-          $projectOfficerName = civicrm_api3('Contact', 'Getvalue', $contactParams);
-        } catch (CiviCRM_API3_Exception $e) {
-          $projectOfficerName = "";
+        if (isset($row['project_officer_id'])) {
+          $contactParams = array(
+            'id'    =>  $project['project_officer_id'],
+            'return'=>  'display_name'
+          );
+          try {
+            $projectOfficerName = civicrm_api3('Contact', 'Getvalue', $contactParams);
+          } catch (CiviCRM_API3_Exception $e) {
+            $projectOfficerName = "";
+          }
+          $row['project_officer_name'] = $projectOfficerName;
         }
-        $row['project_officer_name'] = $projectOfficerName;
 
         $projectUrl = CRM_Utils_System::url('civicrm/pumproject', 'action=view&pid='.$project['id']);
         $projectHtml = '<a href="'.$projectUrl. '">'.$project['title'].'</a>';
