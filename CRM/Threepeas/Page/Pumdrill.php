@@ -90,7 +90,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
         }
         if (isset($row['project_officer_id'])) {
           $contactParams = array(
-            'id'    =>  $project['project_officer_id'],
+            'id'    =>  $row['project_officer_id'],
             'return'=>  'display_name'
           );
           try {
@@ -105,8 +105,12 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
         $projectHtml = '<a href="'.$projectUrl. '">'.$project['title'].'</a>';
         $row['project_title'] = $projectHtml;
 
-        $row['project_start_date'] = $project['start_date'];
-        $row['project_end_date'] = $project['end_date'];
+        if (isset($row['project_start_date'])) {
+          $row['project_start_date'] = $project['start_date'];
+        }
+        if (isset($row['project_end_date'])) {
+          $row['project_end_date'] = $project['end_date'];
+        }
         if ($project['is_active'] == 1) {
           $row['project_active'] = "Yes";
         } else {
