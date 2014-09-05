@@ -48,8 +48,10 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
         $displayProject['programme_id'] = $project['programme_id'];
         $displayProject['programme_name'] = CRM_Threepeas_BAO_PumProgramme::getProgrammeTitleWithId($project['programme_id']);
       }
-            
+      $coordinatorType = NULL;      
       if (isset($project['customer_id']) && !empty($project['customer_id'])) {
+        $coordinatorType = 'customer';
+        $coordinatorId = $project['customer_id'];
         $displayProject['customer_id'] = $project['customer_id'];
         $contactParams = array(
           'id'    =>  $project['customer_id'],
@@ -59,6 +61,8 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
         $displayProject['showCustomer'] = 1;
       } else {
         if (isset($project['country_id']) && !empty($project['country_id'])) {
+          $coordinatorType = 'country';
+          $coordinatorId = $project['country_id'];
           $displayProject['country_id'] = $project['country_id'];
           $contactParams = array(
             'id'    =>  $project['country_id'],
@@ -68,34 +72,54 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
           $displayProject['showCustomer'] = 0;
         }
       }
-            
-      if (isset($project['sector_coordinator_id']) && !empty($project['sector_coordinator_id'])) {
-        $displayProject['sector_coordinator_id'] = $project['sector_coordinator_id'];
-        $contactParams = array(
-          'id'     =>  $project['sector_coordinator_id'],
-          'return' =>  'display_name'
-        );
-        $displayProject['sector_coordinator_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
-      }
-            
-      if (isset($project['country_coordinator_id']) && !empty($project['country_coordinator_id'])) {
-        $displayProject['country_coordinator_id'] = $project['country_coordinator_id'];
-        $contactParams = array(
-          'id'     =>  $project['country_coordinator_id'],
-          'return' =>  'display_name'
-      );
-      $displayProject['country_coordinator_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
-      }
-            
-      if (isset($project['project_officer_id']) && !empty($project['project_officer_id'])) {
-        $displayProject['project_officer_id'] = $project['project_officer_id'];
-        $contactParams = array(
-          'id'     =>  $project['project_officer_id'],
-          'return' =>  'display_name'
-        );
-        $displayProject['project_officer_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
-      }
+      
+      if ($coordinatorType == 'customer' || $coordinatorType == 'country') {
+        if ($coordinatorType == 'customer') {
+          $displayProject['sector_coordinator_id'] = CRM_Threepeas_BAO_PumProject::getSectorCoordinator($coordinatorId, $coordinatorType);
+          $contactParams = array(
+            'id'     =>  $displayProject['sector_coordinator_id'],
+            'return' =>  'display_name'
+          );
+          try {
+            $displayProject['sector_coordinator_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
+          } catch (CiviCRM_API3_Exception $ex) {
+            $displayProject['sector_coordinator_name'] = NULL;
+          }
+        }
 
+        $displayProject['country_coordinator_id'] = CRM_Threepeas_BAO_PumProject::getCountryCoordinator($coordinatorId, $coordinatorType);
+        $contactParams = array(
+          'id'     =>  $displayProject['country_coordinator_id'],
+          'return' =>  'display_name'
+        );
+        try {
+          $displayProject['country_coordinator_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
+        } catch (CiviCRM_API3_Exception $ex) {
+          $displayProject['country_coordinator_name'] = NULL;
+        }
+        $displayProject['project_officer_id'] = CRM_Threepeas_BAO_PumProject::getProjectOfficer($coordinatorId, $coordinatorType);
+        $contactParams = array(
+          'id'     =>  $displayProject['project_officer_id'],
+          'return' =>  'display_name'
+        );
+        try {
+          $displayProject['project_officer_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
+        } catch (CiviCRM_API3_Exception $ex) {
+          $displayProject['project_officer_name'] = NULL;
+        }
+
+        $displayProject['representative_id'] = CRM_Threepeas_BAO_PumProject::getRepresentative($coordinatorId, $coordinatorType);
+        $contactParams = array(
+          'id'     =>  $displayProject['representative_id'],
+          'return' =>  'display_name'
+        );
+        try {
+          $displayProject['representative_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
+        } catch (CiviCRM_API3_Exception $ex) {
+          $displayProject['representative_name'] = NULL;
+        }
+      }
+      
       if (isset($project['start_date']) && !empty($project['start_date'])) {
         $displayProject['start_date'] = $project['start_date'];
       }

@@ -19,6 +19,7 @@
           <th class="sorting-disabled" rowspan="1" colspan="1">Sector Coordinator</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Country Coordinator</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Project Officer</th>
+          <th class="sorting-disabled" rowspan="1" colspan="1">Representative</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Start date</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">End date</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Enabled</th>
@@ -34,6 +35,7 @@
             <td hidden="1">{$project.sector_coordinator_id}</td>
             <td hidden="1">{$project.country_coordinator_id}</td>
             <td hidden="1">{$project.project_officer_id}</td>
+            <td hidden="1">{$project.representative_id}</td>
             <td hidden="1">{$project.customer_id}</td>
             <td>{$project.title}</td>
             <td>{$project.programme_name}</td>
@@ -45,6 +47,7 @@
             <td>{$project.sector_coordinator_name}</td>
             <td>{$project.country_coordinator_name}</td>
             <td>{$project.project_officer_name}</td>
+            <td>{$project.representative_name}</td>
             <td>{$project.start_date|crmDate}</td>
             <td>{$project.end_date|crmDate}</td>
             <td>{$project.is_active}</td>

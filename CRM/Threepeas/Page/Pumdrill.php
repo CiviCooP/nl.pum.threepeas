@@ -81,7 +81,9 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
       if (empty($cases)) {
         $row = array();
         $row['project_id'] = $project['id'];
-        $row['project_officer_id'] = $project['project_officer_id'];
+        if (!empty($project['customer_id'])) {
+          $row['project_officer_id'] = CRM_Threepeas_BAO_PumProject::getProjectOfficer($project['customer_id']);
+        }
         $contactParams = array(
           'id'    =>  $project['project_officer_id'],
           'return'=>  'display_name'
@@ -112,7 +114,9 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
           $row = array();
           if ($firstRow) {
             $row['project_id'] = $project['id'];
-            $row['project_officer_id'] = $project['project_officer_id'];
+            if (!empty($project['customer_id'])) {
+              $row['project_officer_id'] = CRM_Threepeas_BAO_PumProject::getProjectOfficer($project['customer_id']);
+            }
             $contactParams = array(
               'id'    =>  $project['project_officer_id'],
               'return'=>  'display_name'

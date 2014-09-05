@@ -87,77 +87,6 @@ function threepeas_civicrm_disable() {
 function threepeas_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
   return _threepeas_civix_civicrm_upgrade($op, $queue);
 }
-
-/**
- * Implementation of hook_civicrm_managed
- * 
- * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
- * @date 10 Feb 2014
- *
- * Generate a list of entities to create/deactivate/delete when this module
- * is installed, disabled, uninstalled.
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_managed
- */
-function threepeas_civicrm_managed(&$entities) {
-  /*
-   * create specific groups for PUM
-   */
-  $entities[] = array(
-    'module'    => 'nl.pum.threepeas',
-    'name'      => 'Programme Managers',
-    'entity'    => 'Group',
-    'params'    => array(
-      'version'       => 3,
-      'name'          => 'Programme Managers',
-      'title'         => 'Programme Managers',
-      'description'   => 'Group for Possible Programme Managers',
-      'is_active'     =>  1,
-      'is_reserved'   =>  1,
-      'group_type'    =>  array(2 => 1))
-  );
-  $entities[] = array(
-    'module'    => 'nl.pum.threepeas',
-    'name'      => 'Sector Coordinators',
-    'entity'    => 'Group',
-    'params'    => array(
-      'version'       => 3,
-      'name'          => 'Sector Coordinators',
-      'title'         => 'Sector Coordinators',
-      'description'   => 'Group for Possible Sector Coordinators',
-      'is_active'     =>  1,
-      'is_reserved'   =>  1,
-      'group_type'    =>  array(2 => 1))
-  );
-  $entities[] = array(
-    'module'    => 'nl.pum.threepeas',
-    'name'      => 'Country Coordinators',
-    'entity'    => 'Group',
-    'params'    => array(
-      'version'       => 3,
-      'name'          => 'Country Coordinators',
-      'title'         => 'Country Coordinators',
-      'description'   => 'Group for Possible Country Coordinators',
-      'is_active'     =>  1,
-      'is_reserved'   =>  1,
-      'group_type'    =>  array(2 => 1))
-  );
-  $entities[] = array(
-    'module'    => 'nl.pum.threepeas',
-    'name'      => 'Project Officers',
-    'entity'    => 'Group',
-    'params'    => array(
-      'version'       => 3,
-      'name'          => 'Project Officers',
-      'title'         => 'Project Officers',
-      'description'   => 'Group for Possible Project Officers',
-      'is_active'     =>  1,
-      'is_reserved'   =>  1,
-      'group_type'    =>  array(2 => 1))
-  );
-  return _threepeas_civix_civicrm_managed($entities);
-}
-
 /**
  * Implementation of hook_civicrm_caseTypes
  *
@@ -789,8 +718,14 @@ function _threepeasAddProjectElementCaseView(&$form) {
  *             because trash functionality trigger post hook with trash operation
  *             AND delete operation
  *            https://issues.civicrm.org/jira/browse/CRM-9562?jql=text%20~%20%22post%20hook%20contact%20trash%22)
+ * 
+ * Issue 86: set default PUM case roles on Open Case activity (because
+ *           post on Case Create does not have client yet)
  */
 function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  /*
+   * issue 116
+   */
   if ($objectName == 'Organization') {
     if ($op == 'trash') {
       $GLOBALS['trashedOrganizationId'] = $objectId;
@@ -812,6 +747,43 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
 function _threepeasDeleteContributionEnhancedData($contributionId) {
   CRM_Threepeas_BAO_PumContributionProjects::deleteById($contributionId);
   CRM_Threepeas_BAO_PumDonorLink::deleteByDonationEntityId('Contribution', $contributionId);
+  /*
+   * issue 86
+   */
+  if ($objectName =='Activity' && $op == 'create') {
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    if ($objectRef->activity_type_id == $threepeasConfig->openCaseActTypeId) {
+      /*
+       * case and later activity contact retrieved from DB and not with API because 
+       * API transaction mucks up the Case transaction causing weird errors like 
+       * can not find xml file for case type
+       */
+      $caseQry = 'SELECT case_type_id, start_date FROM civicrm_case WHERE id = %1';
+      $caseParams = array(1 => array($objectRef->case_id, 'Positive'));
+      $daoCase = CRM_Core_DAO::executeQuery($caseQry, $caseParams);
+      if ($daoCase->fetch()) {
+        /*
+         * substr because case_type_id is between Core_DAO::VALUE_SEPARATORs
+         */
+        $typeId = substr($daoCase->case_type_id, 1, 1);
+        if (isset($threepeasConfig->pumCaseTypes[$typeId])) {
+          if (empty($daoCase->start_date)) {
+            $caseStartDate = date('Ymd');
+          } else {
+            $caseStartDate = date('Ymd', strtotime($daoCase->start_date));
+          }
+          $actContactQry = 'SELECT contact_id FROM civicrm_activity_contact WHERE activity_id = %1 AND record_type_id = %2';
+          $actContactParams = array(
+            1 => array($objectId, 'Positive'),
+            2 => array($threepeasConfig->actTargetRecordType, 'Positive'));
+          $daoActContact = CRM_Core_DAO::executeQuery($actContactQry, $actContactParams);
+          if ($daoActContact->fetch()) {
+            CRM_Threepeas_BAO_PumProject::setDefaultCaseRoles($objectRef->case_id, $daoActContact->contact_id, $caseStartDate);
+          }
+        }
+      }
+    }
+  }
 }
 /**
  * Function to delete projects for a contact

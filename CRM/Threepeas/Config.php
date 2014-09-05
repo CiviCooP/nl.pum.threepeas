@@ -28,22 +28,6 @@ class CRM_Threepeas_Config {
   public $countryCustomFieldId = NULL;
   public $countryCustomFieldColumn = NULL;
   public $countryCustomTable = NULL;
-  /*
-   * group id for Programme Manager
-   */
-  public $programmeManagersGroupId = NULL;
-  /*
-   * group id for Project Officer
-   */
-  public $projectOfficersGroupId = NULL;
-  /*
-   * group id for Sector Coordinator
-   */
-  public $sectorCoordinatorsGroupId = NULL;
-  /*
-   * group id for Country Coordinator
-   */
-  public $countryCoordinatorsGroupId = NULL;
   /* 
    * custom group id for Project Information (used in case Projectintake)
    */
@@ -55,12 +39,13 @@ class CRM_Threepeas_Config {
   public $caseTypes = array();
   public $caseStatusOptionGroupId = NULL;
   public $caseStatus = array();
+  public $pumCaseTypes = array();
   /*
    * project option group id
    */
   public $projectOptionGroupId = NULL;
   /*
-   * PUM expert at relationship type id
+   * PUM relationship types
    */
   public $expertRelationshipTypeId = NULL;
   /*
@@ -79,10 +64,6 @@ class CRM_Threepeas_Config {
     $this->setCountryContactType('Country');
     $this->setCountryCustomField('civicrm_country_id');
     $this->setCountryCustomTable('pumCountry');
-    $this->setGroupId('Programme Managers');
-    $this->setGroupId('Sector Coordinators');
-    $this->setGroupId('Country Coordinators');
-    $this->setGroupId('Project Officers');
     $this->setCustomGroupId('Projectinformation');    
     $this->setCaseOptionGroupId();
     $this->setProjectOptionGroupId();
@@ -133,41 +114,6 @@ class CRM_Threepeas_Config {
     }
     return self::$_singleton;
   }
-  /**
-   * Function to get a group ID with the CiviCRM API and store it in property
-   * 
-   * @param string $title name of the group of whic the id is to be set
-   * @access private
-   */
-  private function setGroupId($title) {
-    if (!empty($title)) {
-      $groupParams = array('title' => $title, 'return' => 'id');
-      try {
-        $propName = $this->setGroupProperty($title);
-        $this->$propName = civicrm_api3('Group', 'Getvalue', $groupParams);
-      } catch (CiviCRM_API3_Exception $ex) {
-        throw new Exception(ts('Could not find a group with title '
-          .$title.', error from API Group Getvalue : '.$ex->getMessage()));
-      }
-    }
-    return;
-  }
-  /**
-   * Function to set the property that is required
-   * 
-   * @param string $label ($label that has to be processed into a property name)
-   * @return string $property
-   * @access private
-   */
-  private function setGroupProperty($label) {
-    $parts = explode(' ', $label);
-    $property = strtolower($parts[0]);
-    if (isset($parts[1])) {
-      $property .= ucfirst($parts[1]);
-    }
-    $property .= 'GroupId';
-    return $property;
-  }
 /**
 * Functio to set the custom group id
 *
@@ -216,10 +162,14 @@ class CRM_Threepeas_Config {
     }
   }
   private function setCaseTypes() {
+    $pumCaseTypes = array('Projectintake', 'Advice', 'BLP', 'RemoteCoaching', 'PDV', 'CAP', 'CTM');
     try {
       $apiCaseTypes = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $this->caseTypeOptionGroupId));
       foreach ($apiCaseTypes['values'] as $caseTypeId => $caseType) {
-        $this->caseTypes[$caseTypeId] = $caseType['label'];
+        $this->caseTypes[$caseType['value']] = $caseType['label'];
+        if (in_array($caseType['label'], $pumCaseTypes)) {
+          $this->pumCaseTypes[$caseType['value']] = $caseType['label'];
+        }
       }
     } catch (CiviCRM_API3_Exception $ex) {
       $this->caseTypes = array();
@@ -229,16 +179,16 @@ class CRM_Threepeas_Config {
     try {
       $apiCaseStatus = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $this->caseStatusOptionGroupId));
       foreach ($apiCaseStatus['values'] as $caseStatusId => $caseStatus) {
-        $this->caseStatus[$caseStatusId] = $caseStatus['label'];
+        $this->caseStatus[$caseStatus['value']] = $caseStatus['label'];
       }
     } catch (CiviCRM_API3_Exception $ex) {
       $this->caseStatus = array();
     }
   }
   /**
-   * Function to get a realtionship type ID with the CiviCRM API and store it in property
+   * Function to get a relationship type ID with the CiviCRM API and store it in property
    * 
-   * @param string $title name of the group of whic the id is to be set
+   * @param string $name name of the group of whic the id is to be set
    * @access private
    */
   private function setRelationshipTypeId($name) {
