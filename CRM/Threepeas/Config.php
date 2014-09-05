@@ -48,6 +48,10 @@ class CRM_Threepeas_Config {
    * PUM relationship types
    */
   public $expertRelationshipTypeId = NULL;
+  public $countryCoordinatorRelationshipTypeId = NULL;
+  public $projectOfficerRelationshipTypeId = NULL;
+  public $representativeRelationshipTypeId = NULL;
+  public $sectorCoordinatorRelationshipTypeId = NULL;
   /*
    * properties to hold active programme, project and case list
    */
@@ -70,6 +74,10 @@ class CRM_Threepeas_Config {
     $this->setCaseStatus();
     $this->setCaseTypes();
     $this->expertRelationshipTypeId = $this->setRelationshipTypeId('Expert');
+    $this->countryCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Country Coordinator is');
+    $this->projectOfficerRelationshipTypeId = $this->setRelationshipTypeId('Project Officer is');
+    $this->representativeRelationshipTypeId = $this->setRelationshipTypeId('Representative is');
+    $this->sectorCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Sector Coordinator');
     $this->setActiveProjectList();
     $this->setActiveProgrammeList();
     $this->setActiveCaseList();
