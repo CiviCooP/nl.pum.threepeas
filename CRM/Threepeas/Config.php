@@ -67,9 +67,9 @@ class CRM_Threepeas_Config {
     $this->setCaseStatus();
     $this->setCaseTypes();
     $this->expertRelationshipTypeId = $this->setRelationshipTypeId('Expert');
-    $this->countryCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Country Coordinator for');
-    $this->projectOfficerRelationshipTypeId = $this->setRelationshipTypeId('Project Officer for');
-    $this->representativeRelationshipTypeId = $this->setRelationshipTypeId('Representative for');
+    $this->countryCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Country Coordinator is');
+    $this->projectOfficerRelationshipTypeId = $this->setRelationshipTypeId('Project Officer is');
+    $this->representativeRelationshipTypeId = $this->setRelationshipTypeId('Representative is');
     $this->sectorCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Sector Coordinator');
     $this->openCaseActTypeId = $this->setActivityTypeId('Open Case');
     $this->setActTargetRecordType();
