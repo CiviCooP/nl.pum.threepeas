@@ -1,4 +1,3 @@
-<br />
 <div id="donor-link-wrapper" class="crm-accordion-wrapper crm-ajax-accordion crm-DonationApplication-accordion">
   <div id="donation-application" class="crm-accordion-header">Add Link(s) to Donation(s)</div>
   <div class="crm-accordion-body" style="display: block">

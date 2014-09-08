@@ -361,6 +361,20 @@ function threepeas_civicrm_buildForm($formName, &$form) {
   }
   if ($formName == 'CRM_Case_Form_CaseView') {
     _threepeasAddProjectElementCaseView($form);
+    $caseId = $form->getVar('_caseID');
+    $contributionsList = _threepeasGetContributionsList();
+    $form->add('advmultiselect', 'new_link', '', $contributionsList, false,  
+      array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
+        'class' => 'advmultiselect',
+      ));
+    $params = array('entity' => 'Case', 'entity_id' => $caseId, 'donation_entity' => 'Contribution', 'is_active' => 1);
+    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($currentContributions as $currentContribution) {
+      $defaults['new_link'][] = $currentContribution['donation_entity_id'];
+    }
+    if (!empty($defaults)) {
+      $form->setDefaults($defaults);
+    }
   }
   if ($formName == 'CRM_Contribute_Form_ContributionView') {
     $action = $form->getVar('_action');
@@ -405,6 +419,8 @@ function threepeas_civicrm_postProcess($formName, &$form) {
         break;
     }
   }
+  CRM_Core_Error::debug('formName', $formName);
+  exit();
   /*
    * manage data in civicrm_donor_link
    */

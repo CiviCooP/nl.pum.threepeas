@@ -819,6 +819,8 @@ function addRole() {
     <div class="clear"></div>
   </div>
 </div>
+    
+{include file="CRM/Threepeas/Page/DonorLinkEdit.tpl"}
 
 {literal}
 <script type="text/javascript">
