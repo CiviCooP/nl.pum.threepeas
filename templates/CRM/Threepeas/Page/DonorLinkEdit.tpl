@@ -16,6 +16,11 @@
             </tr>
           </tbody>
         </table>
+      {if $form.formName eq 'CaseView'}
+        <div class="crm-submit-buttons">
+          <input type="button" class="form-submit" onClick="javascript:addDonorLinks()" value="{ts}Save Donation Links{/ts}" />
+        </div>
+      {/if}  
       </div>
     </div>
   </div>
