@@ -30,6 +30,7 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
    * Constructor function
    */
   function __construct() {
+    $this->_add2groupSupported = false;
     $this->getCampaigns();
     $this->setReportColumns();
     $this->_groupFilter = TRUE;
@@ -48,10 +49,16 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     $this->_from .= 
       " LEFT JOIN civicrm_contact {$this->_aliases['civicrm_contact']} "
     . "ON {$this->_aliases['civicrm_contribution']}.contact_id = {$this->_aliases['civicrm_contact']}.id";
+    $this->_from .= 
+      " LEFT JOIN civicrm_donor_link donor_link_civireport ON {$this->_aliases['civicrm_contribution']}.
+        id = donor_link_civireport.donation_entity_id AND donor_link_civireport.donation_entity = 
+        'Contribution' AND donor_link_civireport.is_active = 1";
   }
 
   function orderBy() {
-    $this->_orderBy = " ORDER BY {$this->_aliases['civicrm_contact']}.sort_name";
+    $this->_orderBy = " ORDER BY {$this->_aliases['civicrm_contact']}.sort_name, "
+    . "{$this->_aliases['civicrm_contribution']}.receive_date, donor_link_civireport.entity, "
+    . "donor_link_civireport.entity_id";
   }
 
   function postProcess() {
@@ -62,10 +69,9 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     $this->buildACLClause($this->_aliases['civicrm_contact']);
     $this->_whereClauses[] = $this->_aliases['civicrm_contribution'].".is_test = 0";
     $sql = $this->buildQuery(TRUE);
-
-    CRM_Core_Error::debug('sql', $sql);
     $rows = array();
     $this->buildRows($sql, $rows);
+    //CRM_Core_Error::debug('rows', $rows);
     $this->formatDisplay($rows);
     $this->doTemplateAssignment($rows);
     $this->endPostProcess($rows);
@@ -97,7 +103,7 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
           ),
         'filters' =>  array(
           'sort_name' => array('title' => ts('Donor Name'), 'operator' => 'like'),
-          'id' => array('title' => ts('Contact ID'), 'no_display' => TRUE, 'type' => CRM_Utils_Type::T_INT),
+          'id' => array('title' => ts('Contact ID'), 'no_display' => true, 'type' => CRM_Utils_Type::T_INT),
         ),
       ),
       'civicrm_contribution' => array(
@@ -322,7 +328,54 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
    * Function to add select statements for donor links
    */
   private function addDonorLinkClauses() {
-    CRM_Core_Error::debug('select', $this->_select);
-    exit();
+    $donorLinkSelect = 'contact_civireport.id as civicrm_contact_id, '
+      . 'contribution_civireport.id as civicrm_contribution_id, donor_link_civireport.'
+      . 'entity as civicrm_donor_link_entity, donor_link_civireport.entity_id as '
+      . 'civicrm_donor_link_entity_id';
+    if (empty($this->_select)) {
+      $this->_select = $donorLinkSelect;
+    } else {
+      $this->_select .= ', '.$donorLinkSelect;
+    }
+  }
+  /*
+   * Function to add column headers 
+   */
+  function modifyColumnHeaders() {
+    $this->_columnHeaders['civicrm_donor_link_entity'] = array('title' => ts('Linked'), 'type' => 2);
+    $this->_columnHeaders['civicrm_donor_link_entity_id'] = array('title' => ts('Linked Title'), 'type' => 2);
+    $this->_columnHeaders['civicrm_contact_id'] = array('title' => ts('Contact ID'), 'type' => 1, 'no_display' => true);
+    $this->_columnHeaders['civicrm_contribution_id'] = array('title' => ts('Contribution ID'), 'type' => 1, 'no_display' => true);
+  }
+  /*
+   * Function to modify the display of rows
+   */
+  function alterDisplay(&$rows) {
+    $displayRows = array();
+    $firstRow = true;
+    // custom code to alter rows
+    $entryFound = FALSE;
+    $previousContribution = NULL;
+    foreach ($rows as $rowNum => $row) {
+      CRM_Core_Error::debug('row', $row);
+      if ($row['civicrm_contribution_id'] == $previousContribution) {
+        $row['civicrm_contact_sort_name'] = '';
+        $row['civicrm_contribution_financial_type_id'] = '';
+        $row['civicrm_contribution_total_amount'] = '';
+        $row['civicrm_contribution_receive_date'] = '';
+        $row['civicrm_contribution_contribution_status_id'] = '';
+        $row['civicrm_contribution_campaign_id'] = '';
+        $row['first_row'] = 0;
+      } else {
+        if (!$firstRow) {
+          $displayRows[] = array('first_row' => 1);
+        } else {
+          $firstRow = false;
+        }
+        $previousContribution = $row['civicrm_contribution_id'];
+      }
+      $displayRows[] = $row;
+    }
+    $rows = $displayRows;
   }
 }
