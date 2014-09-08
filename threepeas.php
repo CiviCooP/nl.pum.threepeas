@@ -376,6 +376,13 @@ function threepeas_civicrm_buildForm($formName, &$form) {
       _threepeasAddDonorLinkElements($action, $form, $contributionId);
     }    
   }
+  if ($formName == 'CRM_Case_Form_Case') {
+    $contributionsList = _threepeasGetContributionsList();
+    $form->add('advmultiselect', 'new_link', '', $contributionsList, false,  
+      array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
+        'class' => 'advmultiselect',
+      ));
+  }
 }
 /**
  * Implementation of hook civicrm_postProcess
@@ -390,6 +397,7 @@ function threepeas_civicrm_postProcess($formName, &$form) {
       case CRM_Core_Action::ADD:
         $values = $form->exportValues();
         _threepeasAddCaseProject($values);
+        _threepeasProcessCaseDonorLink($values);
         break;
       case CRM_Core_Action::DELETE:
         $caseId = $form->getVar('_caseId');
@@ -912,3 +920,31 @@ function _threepeasGetContributionsList() {
   asort($optionContributions);
   return $optionContributions;
 }
+/**
+ * Function to create links from contribution to cases
+ */
+function _threepeasProcessCaseDonorLink($values) {
+  if (isset($values['new_link'])) {
+    if (!isset($values['case_id'])) {
+      $daoMaxCaseId = CRM_Core_DAO::executeQuery('SELECT MAX(id) AS maxCaseId FROM civicrm_case');
+      if ($daoMaxCaseId->fetch()) {
+        $caseId = $daoMaxCaseId->maxCaseId;
+      }
+    } else {
+      $caseId = $values['case_id'];
+    }
+    if (!empty($caseId)) {
+      CRM_Threepeas_BAO_PumDonorLink::deleteByEntityId('Case', $caseId);
+      foreach ($values['new_link'] as $newLink) {
+        $params = array(
+          'donation_entity' => 'Contribution', 
+          'donation_entity_id' => $newLink,
+          'entity' => 'Case',
+          'entity_id' => $caseId,
+          'is_active' => 1);
+        CRM_Threepeas_BAO_PumDonorLink::add($params);
+      }
+    }
+  }
+}
+
