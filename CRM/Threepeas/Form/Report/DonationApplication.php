@@ -66,7 +66,6 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     CRM_Core_Error::debug('sql', $sql);
     $rows = array();
     $this->buildRows($sql, $rows);
-
     $this->formatDisplay($rows);
     $this->doTemplateAssignment($rows);
     $this->endPostProcess($rows);
@@ -125,7 +124,7 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
           'total_amount' => array('title' => ts('Contribution Amount')),
           'receive_date' => array('operatorType' => CRM_Report_Form::OP_DATE),
         )
-      )
+      ),
     );
     if ($this->_campaignEnabled) {
       $this->_columns['civicrm_contribution']['fields']['campaign_id'] = array('title' => ts('Campaign'));
@@ -292,5 +291,38 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     }
 
     return $clause;
+  }
+  /*
+   * specific buildQuery to add selects for donor links
+   */
+  function buildQuery($applyLimit = TRUE) {
+    $this->select();
+    $this->from();
+    $this->customDataFrom();
+    $this->where();
+    $this->groupBy();
+    $this->orderBy();
+    $this->addDonorLinkClauses();
+
+    // order_by columns not selected for display need to be included in SELECT
+    $unselectedSectionColumns = $this->unselectedSectionColumns();
+    foreach ($unselectedSectionColumns as $alias => $section) {
+      $this->_select .= ", {$section['dbAlias']} as {$alias}";
+    }
+
+    if ($applyLimit && !CRM_Utils_Array::value('charts', $this->_params)) {
+      $this->limit();
+    }
+    CRM_Utils_Hook::alterReportVar('sql', $this, $this);
+
+    $sql = "{$this->_select} {$this->_from} {$this->_where} {$this->_groupBy} {$this->_having} {$this->_orderBy} {$this->_limit}";
+    return $sql;
+  }
+  /*
+   * Function to add select statements for donor links
+   */
+  private function addDonorLinkClauses() {
+    CRM_Core_Error::debug('select', $this->_select);
+    exit();
   }
 }
