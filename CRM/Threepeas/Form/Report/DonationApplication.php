@@ -25,6 +25,8 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
   protected $_customGroupExtends = array('Contribution');
   protected $_customGroupGroupBy = FALSE; 
   protected $_campaignEnabled = false;
+  protected $_financialTypes = array();
+  protected $_contributionStatusIds = array();
   
   /*
    * Constructor function
@@ -87,12 +89,15 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
       $getCampaigns = CRM_Campaign_BAO_Campaign::getPermissionedCampaigns(NULL, NULL, TRUE, FALSE, TRUE);
       $this->activeCampaigns = $getCampaigns['campaigns'];
       asort($this->activeCampaigns);
+      CRM_Core_Error::debug("actives", $this->activeCampaigns);
     }
   }
   /*
    * Function to add columns to report
    */
   private function setReportColumns() {
+    $this->_financialTypes = CRM_Contribute_PseudoConstant::financialType();
+    $this->_contributionStatusIds = CRM_Contribute_PseudoConstant::contributionStatus();
     $this->_columns = array(
       'civicrm_contact' => array(
         'dao'     =>  'CRM_Contact_DAO_Contact',
@@ -119,13 +124,13 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
             'title' => ts('Financial Type'),
             'type' => CRM_Utils_Type::T_INT, 
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-            'options' => CRM_Contribute_PseudoConstant::financialType(),
+            'options' => $this->_financialTypes,
           ),
           'contribution_status_id' => array(
             'title' => ts('Contribution Status'),
             'type' => CRM_Utils_Type::T_INT,
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-            'options' => CRM_Contribute_PseudoConstant::contributionStatus(),
+            'options' => $this->_contributionStatusIds,
           ),
           'total_amount' => array('title' => ts('Contribution Amount')),
           'receive_date' => array('operatorType' => CRM_Report_Form::OP_DATE),
@@ -357,7 +362,6 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     $entryFound = FALSE;
     $previousContribution = NULL;
     foreach ($rows as $rowNum => $row) {
-      CRM_Core_Error::debug('row', $row);
       if ($row['civicrm_contribution_id'] == $previousContribution) {
         $row['civicrm_contact_sort_name'] = '';
         $row['civicrm_contribution_financial_type_id'] = '';
@@ -367,6 +371,15 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
         $row['civicrm_contribution_campaign_id'] = '';
         $row['first_row'] = 0;
       } else {
+        if (isset($row['civicrm_contribution_financial_type_id'])) {
+          $row['civicrm_contribution_financial_type_id'] = $this->_financialTypes[$row['civicrm_contribution_financial_type_id']];
+        }
+        if ($row['civicrm_contribution_contribution_status_id']) {
+          $row['civicrm_contribution_contribution_status_id'] = $this->_contributionStatusIds[$row['civicrm_contribution_contribution_status_id']];
+        }
+        if (isset($row['civicrm_contribution_campaign_id'])) {
+          $row['civicrm_contribution_campaign_id'] = $this->activeCampaigns[$row['civicrm_contribution_campaign_id']];
+        }
         if (!$firstRow) {
           $displayRows[] = array('first_row' => 1);
         } else {
