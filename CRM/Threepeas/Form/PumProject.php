@@ -112,7 +112,9 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       if (isset($project['customer_id']) && !empty($project['customer_id'])) {
         $countryCoordinatorId = CRM_Threepeas_BAO_PumProject::getCountryCoordinator($project['customer_id'], 'customer');
         $sectorCoordinatorId = CRM_Threepeas_BAO_PumProject::getSectorCoordinator($project['customer_id']);
-        $defaults['sector_coordinator'] = civicrm_api3('Contact', 'Getvalue', array('id' => $sectorCoordinatorId, 'return' => 'display_name'));
+        if (isset($sectorCoordinatorId) && !empty($sectorCoordinatorId)) {
+          $defaults['sector_coordinator'] = civicrm_api3('Contact', 'Getvalue', array('id' => $sectorCoordinatorId, 'return' => 'display_name'));
+        }
         $projectOfficerId = CRM_Threepeas_BAO_PumProject::getProjectOfficer($project['customer_id'], 'customer');
         $representativeId = CRM_Threepeas_BAO_PumProject::getRepresentative($project['customer_id']);
       } else {
@@ -120,9 +122,15 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
         $projectOfficerId = CRM_Threepeas_BAO_PumProject::getProjectOfficer($project['country_id'], 'country');
         $representativeId = CRM_Threepeas_BAO_PumProject::getRepresentative($project['country_id']);
       }
-      $defaults['country_coordinator'] = civicrm_api3('Contact', 'Getvalue', array('id' => $countryCoordinatorId, 'return' => 'display_name'));     
-      $defaults['project_officer'] = civicrm_api3('Contact', 'Getvalue', array('id' => $projectOfficerId, 'return' => 'display_name'));
-      $defaults['representative'] = civicrm_api3('Contact', 'Getvalue', array('id' => $representativeId, 'return' => 'display_name'));
+      if (isset($countryCoordinatorId) && !empty($countryCoordinatorId)) {
+        $defaults['country_coordinator'] = civicrm_api3('Contact', 'Getvalue', array('id' => $countryCoordinatorId, 'return' => 'display_name'));     
+      }
+      if (isset($projectOfficerId) && !empty($projectOfficerId)) {
+        $defaults['project_officer'] = civicrm_api3('Contact', 'Getvalue', array('id' => $projectOfficerId, 'return' => 'display_name'));
+      }
+      if (isset($representativeId) && !empty($representativeId)) {
+        $defaults['representative'] = civicrm_api3('Contact', 'Getvalue', array('id' => $representativeId, 'return' => 'display_name'));
+      }
     }
   }
   /**
