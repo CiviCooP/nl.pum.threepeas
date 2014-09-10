@@ -58,6 +58,10 @@ class CRM_Threepeas_Config {
   public $activeProgrammeList = array();
   public $activeProjectList = array();
   public $activeCaseList = array();
+  /*
+   * group for Programme Managers
+   */
+  public $programmeManagersGroupId = NULL;
   /**
    * Constructor function
    */
@@ -71,6 +75,7 @@ class CRM_Threepeas_Config {
     $this->setCustomGroupId('Projectinformation');    
     $this->setCaseOptionGroupId();
     $this->setProjectOptionGroupId();
+    $this->setGroupId('Programme Managers');
     $this->setCaseStatus();
     $this->setCaseTypes();
     $this->expertRelationshipTypeId = $this->setRelationshipTypeId('Expert');
@@ -270,5 +275,40 @@ class CRM_Threepeas_Config {
       }
     }
     $this->allContributionStatus = array_merge($this->activeContributionStatus, $this->inactiveContributionStatus);
+  }
+  /**
+   * Function to get a group ID with the CiviCRM API and store it in property
+   *
+   * @param string $title name of the group of whic the id is to be set
+   * @access private
+   */
+  private function setGroupId($title) {
+    if (!empty($title)) {
+      $groupParams = array('title' => $title, 'return' => 'id');
+      try {
+        $propName = $this->setGroupProperty($title);
+        $this->$propName = civicrm_api3('Group', 'Getvalue', $groupParams);
+      } catch (CiviCRM_API3_Exception $ex) {
+        throw new Exception(ts('Could not find a group with title '
+          .$title.', error from API Group Getvalue : '.$ex->getMessage()));
+      }
+    }
+    return;
+  }
+  /**
+   * Function to set the property that is required
+   *
+   * @param string $label ($label that has to be processed into a property name)
+   * @return string $property
+   * @access private
+   */
+  private function setGroupProperty($label) {
+    $parts = explode(' ', $label);
+    $property = strtolower($parts[0]);
+    if (isset($parts[1])) {
+      $property .= ucfirst($parts[1]);
+    }
+    $property .= 'GroupId';
+    return $property;
   }
 }

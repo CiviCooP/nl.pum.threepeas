@@ -8,7 +8,7 @@
     </div>
     <div class="linked-donations">
       <div id="linked-donations" class="section-shown crm-contribution-additionalinfo-linked-donations-form-block">
-        <table class="form-layout-compressed">
+        <table id="linked-donations-table" class="form-layout-compressed">
           <tbody>
             <tr class="crm-contribution-form-block-new-donation">
               <td class="label">{$form.new_link.label}</td>
@@ -16,11 +16,6 @@
             </tr>
           </tbody>
         </table>
-      {if $form.formName eq 'CaseView'}
-        <div class="crm-submit-buttons">
-          <input type="submit" class="form-submit" value="{ts}Save Donation Links{/ts}" />
-        </div>
-      {/if}  
       </div>
     </div>
   </div>

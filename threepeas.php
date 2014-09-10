@@ -362,6 +362,17 @@ function threepeas_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Case_Form_CaseView') {
     _threepeasAddProjectElementCaseView($form);
     $caseId = $form->getVar('_caseID');
+    //$caseDonorLinkUrl = CRM_Utils_System::url('civicrm/casedonorlink', 'cid='.$caseId);
+    //$form->assign('caseDonorLinkUrl', $caseDonorLinkUrl);
+    $form->addButtons(array(
+        array('type' => 'cancel',
+          'name' => ts("Done"),
+          'spacing' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+          'isDefault' => TRUE,
+        ),
+        array('type' => 'next', 'name' => ts('Save Donation Links')),
+      )
+    );
     $contributionsList = _threepeasGetContributionsList();
     $form->add('advmultiselect', 'new_link', '', $contributionsList, false,  
       array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
@@ -403,6 +414,16 @@ function threepeas_civicrm_buildForm($formName, &$form) {
  */
 function threepeas_civicrm_postProcess($formName, &$form) {
   /*
+   * manage case donation links
+   */
+  if ($formName == 'CRM_Case_Form_CaseView') {
+    $values = $form->exportValues();
+    $caseId = $form->getVar('_caseID');
+    _threepeasCaseDonationLinks($values, $caseId);
+    $session = CRM_Core_Session::singleton();
+    CRM_Utils_System::redirect($session->readUserContext());
+  }
+  /*
    * manage data in civicrm_case_project
    */
   if ($formName == 'CRM_Case_Form_Case') {
@@ -419,8 +440,6 @@ function threepeas_civicrm_postProcess($formName, &$form) {
         break;
     }
   }
-  CRM_Core_Error::debug('formName', $formName);
-  exit();
   /*
    * manage data in civicrm_donor_link
    */
@@ -963,4 +982,24 @@ function _threepeasProcessCaseDonorLink($values) {
     }
   }
 }
-
+/**
+ * function to reset the donation links for cases
+ */
+function _threepeasCaseDonationLinks($values, $caseId) {
+  /*
+   * if update, delete all current donor links for case
+   */
+  CRM_Threepeas_BAO_PumDonorLink::deleteByEntityId('Case', $caseId);
+  /*
+   * add new donor links
+   */
+  foreach ($values['new_link'] as $newLink) {
+    $params = array(
+      'donation_entity' => 'Contribution', 
+      'donation_entity_id' => $newLink,
+      'entity' => 'Case',
+      'entity_id' => $caseId,
+      'is_active' => 1);
+    CRM_Threepeas_BAO_PumDonorLink::add($params);
+  }  
+}

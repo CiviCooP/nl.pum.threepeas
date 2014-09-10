@@ -50,12 +50,16 @@
   </div>
 </div>
 {if $action eq 4}
-  <script type="text/javascript">
-    cj('#donor-link-wrapper').insertAfter('#ContributionView');
-  </script>
+  {literal}
+    <script type="text/javascript">
+      cj('#donor-link-wrapper').insertAfter('#ContributionView');
+    </script>
+  {/literal}
 {else}
-  <script type="text/javascript">
-    cj('#donor-link-wrapper').insertBefore('#softCredit');
-  </script>
+  {literal}
+    <script type="text/javascript">
+      cj('#donor-link-wrapper').insertBefore('#softCredit');
+    </script>
+  {/literal}
 {/if}
   

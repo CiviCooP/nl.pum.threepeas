@@ -73,7 +73,6 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     $sql = $this->buildQuery(TRUE);
     $rows = array();
     $this->buildRows($sql, $rows);
-    //CRM_Core_Error::debug('rows', $rows);
     $this->formatDisplay($rows);
     $this->doTemplateAssignment($rows);
     $this->endPostProcess($rows);
@@ -89,7 +88,6 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
       $getCampaigns = CRM_Campaign_BAO_Campaign::getPermissionedCampaigns(NULL, NULL, TRUE, FALSE, TRUE);
       $this->activeCampaigns = $getCampaigns['campaigns'];
       asort($this->activeCampaigns);
-      CRM_Core_Error::debug("actives", $this->activeCampaigns);
     }
   }
   /*

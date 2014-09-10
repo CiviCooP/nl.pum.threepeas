@@ -30,4 +30,10 @@
     <title>Pumdrill</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/casedonorlink</path>
+    <page_callback>CRM_Threepeas_Page_CaseDonorLink</page_callback>
+    <title>CaseDonorLink</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>
