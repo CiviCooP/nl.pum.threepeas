@@ -93,7 +93,9 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
    */
   public function upgrade_2001() {
     $this->ctx->log->info('Applying update 2001 (drop civicrm_programme_division table');
-    $this->executeSql('DROP TABLE civicrm_programme_division');
+    if (CRM_Core_DAO::checkTableExists('civicrm_programme_division')) {
+      CRM_Core_DAO::executeQuery('DROP TABLE civicrm_programme_division');
+    }
     return TRUE;    
   }
 }
