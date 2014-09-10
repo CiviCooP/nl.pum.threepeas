@@ -62,7 +62,14 @@ class CRM_Threepeas_Config {
    * group for Programme Managers
    */
   public $programmeManagersGroupId = NULL;
-  /**
+  /*
+   * activity type for Open Case
+   */
+  public $openCaseActTypeId = NULL;
+  /*
+   * activity record type for target contacts
+   */
+  public $actTargetRecordType = NULL;  /**
    * Constructor function
    */
   function __construct() {
@@ -86,6 +93,8 @@ class CRM_Threepeas_Config {
     $this->setActiveProjectList();
     $this->setActiveProgrammeList();
     $this->setActiveCaseList();
+    $this->openCaseActTypeId = $this->setActivityTypeId('Open Case');
+    $this->setActTargetRecordType();
   }
   private function setDefaultContributionId($contributionId) {
     $this->defaultContributionId = $contributionId;
@@ -310,5 +319,39 @@ class CRM_Threepeas_Config {
     }
     $property .= 'GroupId';
     return $property;
+  }
+  /**
+   * Function to get an activity type id with the CiviCRM API
+   */
+  private function setActivityTypeId($name) {
+    try {
+      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => 'activity_type', 'return' => 'id'));
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find an option group with name activity_type, error from API OptionGroup Getvalue : '.$ex->getMessage());
+    }
+    $params = array('option_group_id' => $optionGroupId, 'name' => $name, 'return' => 'value');
+    try {
+      $activityTypeId = civicrm_api3('OptionValue', 'Getvalue', $params);
+    } catch (CiviCRM_API3_Exception $ex) {
+      $activityTypeId = 0;
+    }
+    return $activityTypeId;
+  }
+  /**
+   * Function to retrieve the record type for activity targets
+   */
+  private function setActTargetRecordType() {
+    try {
+      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => 'activity_contacts', 'return' => 'id'));
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find an option group with name activity_contacts, error from API OptionGroup Getvalue : '.$ex->getMessage());
+    }
+    $params = array('option_group_id' => $optionGroupId, 'name' => 'Activity Targets', 'return' => 'value');
+    try {
+      $this->actTargetRecordType = civicrm_api3('OptionValue', 'Getvalue', $params);
+    } catch (CiviCRM_API3_Exception $ex) {
+      $this->actTargetRecordType = NULL;
+      throw new Exception('Could not find an option value with name Activity Targets in group activity_contacts, error from API OptionValue Getvalue : '.$ex->getMessage());
+    }
   }
 }

@@ -516,7 +516,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       self::setCaseRelation($customerId, $countryCoordinatorId, $caseId, 
         $threepeas->countryCoordinatorRelationshipTypeId, $caseStartDate);
       
-      $projectOfficerId = self::getProjectOfficer($customerId);
+      $projectOfficerId = self::getProjectOfficer($customerId, 'customer');
       self::setCaseRelation($customerId, $projectOfficerId, $caseId, 
         $threepeas->projectOfficerRelationshipTypeId, $caseStartDate);
       
@@ -544,17 +544,19 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    */
   private static function setCaseRelation($contactAId, $contactBId, $caseId, 
     $relationshipTypeId, $startDate) {
-    $params = array(
-      'contact_id_a' => $contactAId,
-      'contact_id_b' => $contactBId,
-      'case_id' => $caseId,
-      'relationship_type_id' => $relationshipTypeId);
-    if (!empty($startDate)) {
-      $params['start_date'] = date('Ymd', strtotime($startDate));
-    }
-    try {
-      civicrm_api3('Relationship', 'Create', $params);
-    } catch (CiviCRM_API3_Exception $ex) {
+    if (!empty($contactAId) && !empty($contactBId)) {
+      $params = array(
+        'contact_id_a' => $contactAId,
+        'contact_id_b' => $contactBId,
+        'case_id' => $caseId,
+        'relationship_type_id' => $relationshipTypeId);
+      if (!empty($startDate)) {
+        $params['start_date'] = date('Ymd', strtotime($startDate));
+      }
+      try {
+        civicrm_api3('Relationship', 'Create', $params);
+      } catch (CiviCRM_API3_Exception $ex) {
+      }
     }
   }
 }
