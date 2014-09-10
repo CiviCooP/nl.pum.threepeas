@@ -19,7 +19,6 @@ require_once 'CRM/Core/Form.php';
 class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   
   protected $_programmeManagers = array();
-  protected $_divisionCountries = array();
   
   /**
    * Function to build the form
@@ -64,12 +63,6 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/programmelist'));
     }
     /*
-     * if action is not add, retrieve budget divisions
-     */
-    if ($this->_action != CRM_Core_Action::ADD) {
-      $this->getProgrammeDivisions();
-    }
-    /*
      * set page title based on action
      */
     $this->setPageTitle();
@@ -79,16 +72,10 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
    */
   function postProcess() {
     $values = $this->exportValues();
-    $savedProgramme = $this->saveProgramme($values);
+    $this->saveProgramme($values);
     $session = CRM_Core_Session::singleton();
-    if ($this->_action == CRM_Core_Action::UPDATE && $values['_qf_PumProgramme_next'] == 'Add Line') {
-      $this->saveProgrammeDivision($values);
-      $session->setStatus('Budget Division Added', 'Saved', 'success');
-      $session->pushUserContext(CRM_Utils_System::url('civicrm/pumprogramme', 'action=update&pid='.$savedProgramme['id'], true));            
-    } else {
-      $session->setStatus('Programme Saved', 'Saved', 'success');
-      $session->pushUserContext(CRM_Utils_System::url('civicrm/programmelist', '', true));
-    }
+    $session->setStatus('Programme Saved', 'Saved', 'success');
+    $session->pushUserContext(CRM_Utils_System::url('civicrm/programmelist', '', true));
     parent::postProcess();
   }
   /**
@@ -128,10 +115,10 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
       $defaults['is_active'] = 1;
     }
     if ($this->_action == CRM_Core_Action::VIEW) {
-      $defaults = $this->correctViewDefaults($defaults);
+      $this->correctViewDefaults($defaults);
     }
     if ($this->_action == CRM_Core_Action::UPDATE) {
-      $defaults = $this->correctUpdateDefaults($defaults);
+      $this->correctUpdateDefaults($defaults);
     }
     return $defaults;
   }
@@ -174,7 +161,25 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->addDate('end_date', ts('End Date'), false);
     $this->add('text', 'is_active', ts('Enabled?'));
     $this->addButtons(array(array('type' => 'cancel', 'name' => ts('Done'), 'isDefault' => true)));
+    $this->setViewDonationLink();
   }
+  /**
+   * Function to set view elements for donation links
+   */
+  function setViewDonationLink() {
+    $linkedDonations = array();
+    $params = array('entity' => 'Programme', 'entity_id' => $this->_id, 'is_active' => 1);
+    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($currentContributions as $currentContribution) {
+      $linkedDonations[] = CRM_Threepeas_BAO_PumDonorLink::createViewRow($currentContribution);
+    }
+    $this->assign('linkedDonations', $linkedDonations);
+    $this->assign('linkEntity', 'Programme');
+  }
+  /**
+   * Function to build Donation Link Row
+   */
+  
   /**
    * Function to set Add Elements
    */
@@ -199,7 +204,18 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->addButtons(array(
       array('type' => 'next', 'name' => ts('Save'), 'isDefault' => true,),
       array('type' => 'cancel', 'name' => ts('Cancel'))));
+    $this->setAddUpdateDonationLink();
   }
+  /**
+   * Function to set add/update elements for donation links
+   */
+  function setAddUpdateDonationLink() {
+    $contributionsList = _threepeasGetContributionsList();
+    $this->add('advmultiselect', 'new_link', '', $contributionsList, false,  
+      array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
+        'class' => 'advmultiselect',
+      ));
+    }
   /**
    * Function to set page title
    */
@@ -245,11 +261,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->addButtons(array(
       array('type' => 'next', 'name' => ts('Save'), 'isDefault' => true,),
       array('type' => 'cancel', 'name' => ts('Cancel'))));
-    $this->add('select', 'division_country', '', $this->_divisionCountries, true);
-    $this->add('text', 'min_projects', '', array('size' => CRM_Utils_Type::TWENTY));
-    $this->add('text', 'max_projects', '', array('size' => CRM_Utils_Type::TWENTY));
-    $this->add('text', 'min_budget', '', array('size' => CRM_Utils_Type::TWENTY));
-    $this->add('text', 'max_budget', '', array('size' => CRM_Utils_Type::TWENTY));
+    $this->setAddUpdateDonationLink();
   }
   /**
    * Function to get the option values of the select lists
@@ -265,15 +277,6 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     }
     $this->_programmeManagers[0] = '- select -';
     asort($this->_programmeManagers);
-    /*
-     * countries
-     */
-    $countries = civicrm_api3('Country', 'Get', array('options' => array('limit' => 9999)));
-    foreach ($countries['values'] as $countryId => $country) {
-      $this->_divisionCountries[$countryId] = $country['name'];
-    }
-    $this->_divisionCountries[0] = '- select -';
-    asort($this->_divisionCountries);
   }
   /**
    * Function to save the programme
@@ -292,58 +295,39 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
       $saveProgramme['is_active'] = $values['is_active'];
     }
     $result = CRM_Threepeas_BAO_PumProgramme::add($saveProgramme);
-    return $result;
+    /*
+     * save related donor links
+     */
+    $this->saveDonorLink($result['id'], $values);
+    return;
   }
   /**
-   * Function to save the programme division line
+   * Function to save donor links if required
    */
-  function saveProgrammeDivision($values) {
-    $saveProgrammeDivision['programme_id'] = $this->_id;
-    $saveProgrammeDivision['country_id'] = $values['division_country'];
-    if (!empty($values['min_projects'])) {
-      $saveProgrammeDivision['min_projects'] = $values['min_projects'];
+  function saveDonorLink($programmeId, $values) {
+    /*
+     * if update, delete all current donor links for programme
+     */
+    if ($this->_action == CRM_Core_Action::UPDATE) {
+      CRM_Threepeas_BAO_PumDonorLink::deleteByEntityId('Programme', $programmeId);
     }
-    if (!empty($values['max_projects'])) {
-      $saveProgrammeDivision['max_projects'] = $values['max_projects'];
+    /*
+     * add new donor links
+     */
+    foreach ($values['new_link'] as $newLink) {
+      $params = array(
+        'donation_entity' => 'Contribution', 
+        'donation_entity_id' => $newLink,
+        'entity' => 'Programme',
+        'entity_id' => $programmeId,
+        'is_active' => 1);
+      CRM_Threepeas_BAO_PumDonorLink::add($params);
     }
-    if (!empty($values['min_budget'])) {
-      $saveProgrammeDivision['min_budget'] = $values['min_budget'];
-    }
-    if (!empty($values['max_budget'])) {
-      $saveProgrammeDivision['max_budget'] = $values['max_budgets'];
-    }
-    CRM_Threepeas_BAO_PumProgrammeDivision::add($saveProgrammeDivision);
-  }
-  /**
-   * Function to retrieve programme divisions
-   */
-  function getProgrammeDivisions() {
-    $displayDivisions = array();
-    $programmeDivisions = CRM_Threepeas_BAO_PumProgrammeDivision::getValues(array('programme_id' => $this->_id));
-    foreach ($programmeDivisions as $divisionId => $division) {
-      $displayDivision = array();
-      $displayDivision['id'] = $divisionId;
-      $displayDivision['country'] = CRM_Utils_Array::value($division['country_id'], $this->_divisionCountries);
-      if (isset($division['min_projects'])) {
-        $displayDivision['min_projects'] = $division['min_projects'];
-      }
-      if (isset($division['max_projects'])) {
-        $displayDivision['max_projects'] = $division['max_projects'];
-      }
-      if (isset($division['min_budget'])) {
-        $displayDivision['min_budget'] = $division['min_budget'];
-      }
-      if (isset($division['max_budget'])) {
-        $displayDivision['max_budget'] = $division['max_budget'];
-      }
-      $displayDivisions[] = $displayDivision;
-    }
-    $this->assign('programmeDivisions', $displayDivisions);
   }
   /**
    * Function to correct defaults for View action
    */
-  function correctViewDefaults($defaults) {
+  function correctViewDefaults(&$defaults) {
     if (isset($defaults['manager_id']) && !empty($defaults['manager_id'])) {
       $defaults['manager_id'] = CRM_Utils_Array::value($defaults['manager_id'], $this->_programmeManagers);
     }
@@ -354,15 +338,25 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
       $defaults['end_date'] = '';
     }
     $defaults['budget'] = CRM_Utils_Money::format($defaults['budget']);
-    return $defaults;
   }
   /**
    * Function to correct defaults for Edit action
    */
-  function correctUpdateDefaults($defaults) {
-    list($defaults['start_date']) = CRM_Utils_Date::setDateDefaults($defaults['start_date']);
-    list($defaults['end_date']) = CRM_Utils_Date::setDateDefaults($defaults['end_date']);
-    return $defaults;
+  function correctUpdateDefaults(&$defaults) {
+    if (isset($defaults['start_date'])) {
+      list($defaults['start_date']) = CRM_Utils_Date::setDateDefaults($defaults['start_date']);
+    }
+    if (isset($defaults['end_date'])) {
+      list($defaults['end_date']) = CRM_Utils_Date::setDateDefaults($defaults['end_date']);
+    }
+    /*
+     * show current donation links
+     */
+    $params = array('entity' => 'Programme', 'entity_id' => $this->_id, 'donation_entity' => 'Contribution', 'is_active' => 1);
+    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($currentContributions as $currentContribution) {
+      $defaults['new_link'][] = $currentContribution['donation_entity_id'];
+    }
   }
   /**
    * Function to set validation rules
@@ -388,48 +382,10 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     if ($ruleParams['action'] == CRM_Core_Action::ADD && CRM_Threepeas_BAO_PumProgramme::checkTitleExists($fields['title'])) {
       $errors['title'] = ts('You already have a programme with that title '.$fields['title']);
     }
-    /*
-     * programmeDivision validation
-     */
-    if ($fields['_qf_PumProgramme_next'] == 'Add Line') {
-      $fields['programme_id'] = $ruleParams['programme_id'];
-      self::validateProgrammeDivision($fields, $errors);
-    }
     if (empty($errors)) {
       return TRUE;
     } else {
       return $errors;
-    }
-  }
-  /**
-   * Function to execute budget division validation rules
-   * 
-   * @param array $fields - form values
-   * @param array $errors by reference
-   */
-  static function validateProgrammeDivision($fields, &$errors) {
-    if (empty($fields['min_projects']) && empty($fields['max_projects']) && empty($fields['min_budget']) && empty($fields['max_budget'])) {
-      $errors['min_projects'] = ts('Nothing to add for budget division line!');
-    } else {
-      if ($fields['division_country'] == 0) {
-        $errors['division_country'] = ts('You have to select a country!');
-      } else {
-        $countryExists = CRM_Threepeas_BAO_PumProgrammeDivision::checkCountryExists(
-          $fields['division_country'], $fields['programme_id']);
-        if ($countryExists == TRUE) {
-          $errors['division_country'] = ts('You already have this country in your divisions, delete it first!');
-        }
-      }
-      if (!empty($fields['max_projects'])) {
-        if ($fields['max_projects'] < $fields['min_projects']) {
-          $errors['max_projects'] = ts('Maximum projects can not be smaller than minimum projects');
-        }
-      }
-      if (!empty($fields['max_budget'])) {
-        if ($fields['max_budget'] < $fields['min_budget']) {
-          $errors['max_budget'] = ts('Maximum budget can not be smaller than minimum budget');
-        }
-      }
     }
   }
   /**

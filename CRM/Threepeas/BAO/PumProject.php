@@ -7,7 +7,7 @@
  * @date 16 Apr 2014
  * 
  * Copyright (C) 2014 Coöperatieve CiviCooP U.A. <http://www.civicoop.org>
- * Licensed to PUM <http://www.pum.nl> and CiviCRM under the Academic Free License version 3.0.
+ * Licensed to PUM <http://www.pum.nl> and CiviCRM under AGPL-3.0
  */
 class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
 
@@ -92,8 +92,12 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     /*
      * delete records from case_project with project_id
      */
-    CRM_Threepeas_BAO_PumCaseProject::deleteByProjectId($pumProjectId);
-    self::deleteProjectOptionValue($pumProjectId);
+    CRM_Threepeas_BAO_PumCaseProject::deleteByProjectId($pumProject->id);
+    self::deleteProjectOptionValue($pumProject->id);
+    /*
+     * delete linked donation links when programme is deleted
+     */
+    CRM_Threepeas_BAO_PumDonorLink::deleteByEntityId('Project', $pumProject->id);
     $pumProject->delete();
     
     CRM_Utils_Hook::post('delete', 'PumProject', $pumProject->id, $pumProject);

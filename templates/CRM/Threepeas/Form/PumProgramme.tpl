@@ -11,7 +11,7 @@
   <table class="form-layout-compressed">
     <tbody>
       {foreach from=$elementNames item=elementName}
-        {if $elementName ne 'start_date' and $elementName ne 'end_date' and $elementName ne 'is_active'}
+        {if $elementName ne 'start_date' and $elementName ne 'end_date' and $elementName ne 'is_active' and $elementName ne 'new_link'}
         <div class="crm-section">
             <div class="label">{$form.$elementName.label}</div>
             {if $action eq 4}
@@ -54,15 +54,11 @@
       </div>
     </tbody>
   </table>
-  {* allow add budgetdivision if action is edit *}
-  {if $action eq 2}
-    {include file="CRM/Threepeas/Form/NewProgrammeDivision.tpl"}
+  {if $action eq 4}   
+    {include file="CRM/Threepeas/Page/DonorLinkView.tpl"}
+  {else}
+    {include file="CRM/Threepeas/Page/DonorLinkEdit.tpl"}
   {/if}
-  {* include condition details if they are there *}
-  {if $action ne 1}
-    {include file="CRM/Threepeas/Page/CurrentProgrammeDivision.tpl"}
-  {/if}
-
   {* FOOTER *}
   <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="bottom"}

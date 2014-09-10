@@ -11,6 +11,13 @@ class CRM_Threepeas_Config {
    */
   static private $_singleton = NULL;
   /*
+   * properties for sponsor link
+   */
+  public $defaultContributionId = NULL;
+  public $inactiveContributionStatus = array();
+  public $activeContributionStatus = array();
+  public $allContributionStatus = array();
+  /*
    * contact sub_type id for Customer and Country
    */
   public $customerContactType = NULL;
@@ -46,17 +53,21 @@ class CRM_Threepeas_Config {
   public $representativeRelationshipTypeId = NULL;
   public $sectorCoordinatorRelationshipTypeId = NULL;
   /*
-   * activity type for Open Case
+   * properties to hold active programme, project and case list
    */
-  public $openCaseActTypeId = NULL;
+  public $activeProgrammeList = array();
+  public $activeProjectList = array();
+  public $activeCaseList = array();
   /*
-   * activity record type for target contacts
+   * group for Programme Managers
    */
-  public $actTargetRecordType = NULL;
+  public $programmeManagersGroupId = NULL;
   /**
    * Constructor function
    */
   function __construct() {
+    $this->setDefaultContributionId(4);
+    $this->setInactiveContributionStatus();
     $this->setCustomerContactType('Customer');
     $this->setCountryContactType('Country');
     $this->setCountryCustomField('civicrm_country_id');
@@ -64,6 +75,7 @@ class CRM_Threepeas_Config {
     $this->setCustomGroupId('Projectinformation');    
     $this->setCaseOptionGroupId();
     $this->setProjectOptionGroupId();
+    $this->setGroupId('Programme Managers');
     $this->setCaseStatus();
     $this->setCaseTypes();
     $this->expertRelationshipTypeId = $this->setRelationshipTypeId('Expert');
@@ -71,8 +83,12 @@ class CRM_Threepeas_Config {
     $this->projectOfficerRelationshipTypeId = $this->setRelationshipTypeId('Project Officer for');
     $this->representativeRelationshipTypeId = $this->setRelationshipTypeId('Representative is');
     $this->sectorCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Sector Coordinator');
-    $this->openCaseActTypeId = $this->setActivityTypeId('Open Case');
-    $this->setActTargetRecordType();
+    $this->setActiveProjectList();
+    $this->setActiveProgrammeList();
+    $this->setActiveCaseList();
+  }
+  private function setDefaultContributionId($contributionId) {
+    $this->defaultContributionId = $contributionId;
   }
   private function setCustomerContactType($customerContactType) {
     $this->customerContactType = $customerContactType;
@@ -201,37 +217,98 @@ class CRM_Threepeas_Config {
     return $relationshipTypeId;
   }
   /**
-   * Function to get an activity type id with the CiviCRM API
+   * Function to get all active programmes
    */
-  private function setActivityTypeId($name) {
-    try {
-      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => 'activity_type', 'return' => 'id'));
-    } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Could not find an option group with name activity_type, error from API OptionGroup Getvalue : '.$ex->getMessage());
+  private function setActiveProgrammeList() {
+    $programmes = CRM_Threepeas_BAO_PumProgramme::getValues(array('is_active' => 1));
+    foreach ($programmes as $programme) {
+      $this->activeProgrammeList[$programme['id']] = $programme['title'];
     }
-    $params = array('option_group_id' => $optionGroupId, 'name' => $name, 'return' => 'value');
-    try {
-      $activityTypeId = civicrm_api3('OptionValue', 'Getvalue', $params);
-    } catch (CiviCRM_API3_Exception $ex) {
-      $activityTypeId = 0;
-    }
-    return $activityTypeId;
+    $this->activeProgrammeList[0] = '- select -';
+    asort($this->activeProgrammeList);
   }
   /**
-   * Function to retrieve the record type for activity targets
+   * Function to get all active projects
    */
-  private function setActTargetRecordType() {
-    try {
-      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => 'activity_contacts', 'return' => 'id'));
-    } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Could not find an option group with name activity_contacts, error from API OptionGroup Getvalue : '.$ex->getMessage());
+  private function setActiveProjectList() {
+    $projects = CRM_Threepeas_BAO_PumProject::getValues(array('is_active' => 1));
+    foreach ($projects as $project) {
+      $this->activeProjectList[$project['id']] = $project['title'];
     }
-    $params = array('option_group_id' => $optionGroupId, 'name' => 'Activity Targets', 'return' => 'value');
-    try {
-      $this->actTargetRecordType = civicrm_api3('OptionValue', 'Getvalue', $params);
-    } catch (CiviCRM_API3_Exception $ex) {
-      $this->actTargetRecordType = NULL;
-      throw new Exception('Could not find an option value with name Activity Targets in group activity_contacts, error from API OptionValue Getvalue : '.$ex->getMessage());
+    $this->activeProjectList[0] = '- select -';
+    asort($this->activeProjectList);
+  }
+  /**
+   * Function to get all active cases
+   */
+  private function setActiveCaseList() {
+    $query = 'SELECT a.id, a.subject, b.label FROM civicrm_case a '
+      . 'LEFT JOIN civicrm_option_value b ON a.case_type_id = b.value AND option_group_id = '
+      .$this->caseTypeOptionGroupId.' WHERE is_deleted = 0';
+    $dao = CRM_Core_DAO::executeQuery($query);
+    while ($dao->fetch()) {
+      $this->activeCaseList[$dao->id] = $dao->subject.' ('.$dao->label.')';
     }
+    $this->activeCaseList[0] = '- select -';
+    asort($this->activeCaseList);
+  }
+  /*
+   * Function to set the names of the contribution statuses that are deemed
+   * Inactive and are not to be selected when linking
+   */
+  private function setInactiveContributionStatus() {
+    $inactiveContributionStatus = array('Cancelled', 'Failed', 'Refunded');
+    try {
+      $params = array('name'=> 'contribution_status', 'return' => 'id');
+      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', $params);
+      $optionValues = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $optionGroupId));
+    } catch (CiviCRM_API3_Exception $ex) {
+        $this->inactiveContributionStatus = array();
+        $this->activeContributionStatus = array();
+    }
+    foreach ($optionValues['values'] as $optionValue) {
+      $found = CRM_Utils_Array::key($optionValue['name'], $inactiveContributionStatus);
+      if (!is_null($found)) {
+        $this->inactiveContributionStatus[$optionValue['value']] = $optionValue['name'];
+      } else {
+        $this->activeContributionStatus[$optionValue['value']] = $optionValue['name'];
+      }
+    }
+    $this->allContributionStatus = array_merge($this->activeContributionStatus, $this->inactiveContributionStatus);
+  }
+  /**
+   * Function to get a group ID with the CiviCRM API and store it in property
+   *
+   * @param string $title name of the group of whic the id is to be set
+   * @access private
+   */
+  private function setGroupId($title) {
+    if (!empty($title)) {
+      $groupParams = array('title' => $title, 'return' => 'id');
+      try {
+        $propName = $this->setGroupProperty($title);
+        $this->$propName = civicrm_api3('Group', 'Getvalue', $groupParams);
+      } catch (CiviCRM_API3_Exception $ex) {
+        throw new Exception(ts('Could not find a group with title '
+          .$title.', error from API Group Getvalue : '.$ex->getMessage()));
+      }
+    }
+    return;
+  }
+  /**
+   * Function to set the property that is required
+   *
+   * @param string $label ($label that has to be processed into a property name)
+   * @return string $property
+   * @access private
+   */
+  private function setGroupProperty($label) {
+    $parts = explode(' ', $label);
+    $property = strtolower($parts[0]);
+    if (isset($parts[1])) {
+      $property .= ucfirst($parts[1]);
+    }
+    $property .= 'GroupId';
+    return $property;
   }
 }

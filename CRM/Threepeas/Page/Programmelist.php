@@ -57,12 +57,10 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
             $drillUrl = CRM_Utils_System::url('civicrm/pumdrill', 'pumEntity=programme&pid='.$programme['id']);
             $disableUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=disable&pid={$programme['id']}");
             $enableUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=enable&pid={$programme['id']}");
-            $divideUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=update&pid={$programme['id']}");
             $pageActions = array();
             $pageActions[] = '<a class="action-item" title="View programme details" href="'.$viewUrl.'">View</a>';
             $pageActions[] = '<a class="action-item" title="Edit programme" href="'.$editUrl.'">Edit</a>';
             $pageActions[] = '<a class="action-item" title="Drill down programme" href="'.$drillUrl.'">Drill Down</a>';
-            $pageActions[] = '<a class="action-item" title="Divide budget" href="'.$divideUrl.'">Divide budget</a>';
             if ($programme['is_active'] == 1) {
                 $pageActions[] = '<a class="action-item" title="Disable programme" href="'.$disableUrl.'">Disable</a>';
             } else {

@@ -1,4 +1,4 @@
-CREATE TABLE `civicrm_project` (
+CREATE TABLE IF NOT EXISTS `civicrm_project` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(80) DEFAULT NULL,
   `programme_id` int(11) DEFAULT NULL,
@@ -17,5 +17,3 @@ CREATE TABLE `civicrm_project` (
   KEY `CUSTOMER_id` (`customer_id`),
   KEY `COUNTRY_id` (`country_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
-
-

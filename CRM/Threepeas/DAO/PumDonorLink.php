@@ -1,15 +1,15 @@
 <?php
 /**
- * DAO PumProgrammeDivision for dealing with programme budget divisions (PUM)
+ * DAO PumDonorLink for dealing with civicrm_donor_link
  * 
  * @client PUM (http://www.pum.nl)
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
- * @date 18 Apr 2014
+ * @date 14 Jul 2014
  * 
  * Copyright (C) 2014 Coöperatieve CiviCooP U.A. <http://www.civicoop.org>
  * Licensed to PUM <http://www.pum.nl> and CiviCRM under the Academic Free License version 3.0.
  */
-class CRM_Threepeas_DAO_PumProgrammeDivision extends CRM_Core_DAO {
+class CRM_Threepeas_DAO_PumDonorLink extends CRM_Core_DAO {
   
   /**
    * static instance to hold the field values
@@ -23,7 +23,7 @@ class CRM_Threepeas_DAO_PumProgrammeDivision extends CRM_Core_DAO {
    * empty definition for virtual function
    */
   static function getTableName() {
-    return 'civicrm_programme_division';
+    return 'civicrm_donor_link';
   }
   
   /**
@@ -41,29 +41,28 @@ class CRM_Threepeas_DAO_PumProgrammeDivision extends CRM_Core_DAO {
           'type' => CRM_Utils_Type::T_INT,
           'required' => true
         ) ,
-        'programme_id' => array(
-          'name' => 'programme_id',
-          'type' => CRM_Utils_Type::T_INT
+        'donation_entity' => array(
+          'name' => 'donation_entity',
+          'type' => CRM_Utils_Type::T_STRING,
+          'maxlength' => 75,
         ) ,
-        'country_id' => array(
-          'name' => 'country_id',
-          'type' => CRM_Utils_Type::T_INT
-        ) ,
-        'min_projects' => array(
-          'name' => 'min_projects',
-          'type' => CRM_Utils_Type::T_INT
-        ) ,
-        'max_projects' => array(
-          'name' => 'max_projects',
-          'type' => CRM_Utils_Type::T_INT
-        ) ,
-        'min_budget' => array(
-          'name' => 'min_budget',
-          'type' => CRM_Utils_Type::T_INT
-        ) ,
-        'max_budget' => array(
-          'name' => 'max_budget',
+        'donation_entity_id' => array(
+          'name' => 'donation_entity_id',
           'type' => CRM_Utils_Type::T_INT,
+        ) ,
+        'entity' => array(
+          'name' => 'entity',
+          'type' => CRM_Utils_Type::T_STRING,
+          'maxlength' => 75,
+        ) ,
+        'entity_id' => array(
+          'name' => 'entity_id',
+          'type' => CRM_Utils_Type::T_INT,
+        ) ,
+        'is_active' => array(
+          'name' => 'is_active',
+          'type' => CRM_Utils_Type::T_BOOLEAN,
+          'default' => '1',          
         )
       );
     }
@@ -80,17 +79,14 @@ class CRM_Threepeas_DAO_PumProgrammeDivision extends CRM_Core_DAO {
   {
     if (!(self::$_fieldKeys)) {
       self::$_fieldKeys = array(
-        'id'          =>  'id',
-        'programme_id'=>  'programme_id',
-        'country_id'  =>  'country_id',
-        'min_projects'=>  'min_projects',
-        'max_projects'=>  'max_projects',
-        'min_budget'  =>  'min_budget',
-        'max_budget'  =>  'max_budget',
+        'id' => 'id', 
+        'donation_entity' => 'donation_entity',
+        'donation_entity_id'=> 'donation_entity_id',
+        'entity' => 'entity',
+        'entity_id' => 'entity_id',
+        'is_active' => 'is_active'
       );
     }
     return self::$_fieldKeys;
   }
-  
-  
 }

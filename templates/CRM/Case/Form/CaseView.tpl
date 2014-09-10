@@ -819,7 +819,7 @@ function addRole() {
     <div class="clear"></div>
   </div>
 </div>
-
+    
 {literal}
 <script type="text/javascript">
 cj("#manageTags select[multiple]").crmasmSelect({
@@ -1116,6 +1116,8 @@ function printCaseReport( ) {
 
 </script>
 {/literal}
+
+{include file="CRM/Threepeas/Page/DonorLinkEdit.tpl"}
 
 <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="bottom"}</div>
 
