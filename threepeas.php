@@ -793,9 +793,12 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       $daoCase = CRM_Core_DAO::executeQuery($caseQry, $caseParams);
       if ($daoCase->fetch()) {
         /*
-         * substr because case_type_id is between Core_DAO::VALUE_SEPARATORs
+         * strip Core_DAO::VALUE_SEPARATORs from case_type
          */
-        $typeId = substr($daoCase->case_type_id, 1, 1);
+        $typeParts = explode(CRM_Core_DAO::VALUE_SEPARATOR, $daoCase->case_type_id);
+        if (isset($typeParts[1])) {
+          $typeId = $typeParts[1];
+        }
         if (isset($threepeasConfig->pumCaseTypes[$typeId])) {
           if (empty($daoCase->start_date)) {
             $caseStartDate = date('Ymd');
