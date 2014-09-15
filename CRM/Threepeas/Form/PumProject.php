@@ -431,6 +431,12 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * Function to correct defaults for Edit action
    */
   function correctUpdateDefaults(&$defaults) {
+    if (isset($defaults['start_date'])) {
+      list($defaults['start_date']) = CRM_Utils_Date::setDateDefaults($defaults['start_date']);
+    }
+    if (isset($defaults['end_date'])) {
+      list($defaults['end_date']) = CRM_Utils_Date::setDateDefaults($defaults['end_date']);
+    }
     $params = array('entity' => 'Project', 'entity_id' => $this->_id, 'donation_entity' => 'Contribution', 'is_active' => 1);
     $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
     foreach ($currentContributions as $currentContribution) {
