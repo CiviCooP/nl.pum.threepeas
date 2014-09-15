@@ -29,9 +29,11 @@ class CRM_Threepeas_Config {
   public $countryCustomFieldColumn = NULL;
   public $countryCustomTable = NULL;
   /* 
-   * custom group id for Project Information (used in case Projectintake)
+   * custom group id for Project Information (used in case Projectintake),
+   * country action plan (used in case CP-AP)
    */
-  public $projectCustomGroupId = NULL;  /*
+  public $projectCustomGroupId = NULL;
+  public $capCustomGroupId = NULL;
   /*
    * case type and status option group id
    */
@@ -79,7 +81,8 @@ class CRM_Threepeas_Config {
     $this->setCountryContactType('Country');
     $this->setCountryCustomField('civicrm_country_id');
     $this->setCountryCustomTable('pumCountry');
-    $this->setCustomGroupId('Projectinformation');    
+    $this->projectCustomGroupId = $this->setCustomGroupId('Projectinformation');    
+    $this->capCustomGroupId = $this->setCustomGroupId('country_action_plan');    
     $this->setCaseOptionGroupId();
     $this->setProjectOptionGroupId();
     $this->setGroupId('Programme Managers');
@@ -147,13 +150,13 @@ class CRM_Threepeas_Config {
     if (!empty($name)) {
       $customGroupParams = array('name' => $name, 'return' => 'id');
       try {
-        $this->projectCustomGroupId = civicrm_api3('CustomGroup', 'Getvalue', $customGroupParams);
+        $customGroupId = civicrm_api3('CustomGroup', 'Getvalue', $customGroupParams);
       } catch (CiviCRM_API3_Exception $ex) {
         throw new CiviCRM_API3_Exception('Could not find a custom group with name '
           .$name.', error from API CustomGroup Getvalue: '.$ex->getMessage());
       }
     }
-    return;
+    return $customGroupId;
   }
   private function setCaseOptionGroupId() {
     try {
@@ -184,7 +187,7 @@ class CRM_Threepeas_Config {
     }
   }
   private function setCaseTypes() {
-    $pumCaseTypes = array('Projectintake', 'Advice', 'BLP', 'RemoteCoaching', 'PDV', 'CAP', 'CTM');
+    $pumCaseTypes = array('Projectintake', 'Advice', 'BLP', 'RemoteCoaching', 'PDV', 'CPA', 'CTM');
     try {
       $apiCaseTypes = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $this->caseTypeOptionGroupId));
       foreach ($apiCaseTypes['values'] as $caseTypeId => $caseType) {
