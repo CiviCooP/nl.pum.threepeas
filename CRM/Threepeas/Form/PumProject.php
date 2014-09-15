@@ -202,8 +202,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
      */
     $this->_projectType = CRM_Threepeas_BAO_PumProject::getProjectType($this->_id);
     if ($this->_projectType === 'Country') {
-      $this->add('select', 'customer_id', ts('Customer'), $this->_projectCustomers);
-      $this->add('select', 'country_id', ts('Country'), $this->_projectCountries);
+      $this->add('text', 'country_id', ts('Customer or Country'), array('size' => CRM_Utils_Type::HUGE));
     } else {
       $this->add('text', 'customer_id', ts('Customer or Country'), array('size' => CRM_Utils_Type::HUGE));
     }
@@ -297,6 +296,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     if ($this->_action == CRM_Core_Action::UPDATE) {
       $saveProject['id'] = $this->_id;
       unset($saveProject['customer_id']);
+      unset($saveProject['country_id']);
     }
     $saveProject['start_date'] = CRM_Utils_Date::processDate($values['start_date']);
     $saveProject['end_date'] = CRM_Utils_Date::processDate($values['end_date']);

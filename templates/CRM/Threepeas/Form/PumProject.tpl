@@ -103,13 +103,21 @@
           <div class="clear"></div>
         </div>
        {* only show customer in update mode *}
-       {if $action eq 2 and !empty($form.customer_id.value)}
-          <div class="crm-section">
-            <div class="label">{$form.customer_id.label}</div>
-            <div class="content">{$form.customer_id.value}</div>
-            <div class="clear"></div>
-          </div>
-        {else}
+       {if $action eq 2}
+         {if !empty($form.customer_id.value)}
+            <div class="crm-section">
+             <div class="label">{$form.customer_id.label}</div>
+             <div class="content">{$form.customer_id.value}</div>
+             <div class="clear"></div>
+            </div>
+         {else}
+            <div class="crm-section">
+             <div class="label">{$form.country_id.label}</div>
+             <div class="content">{$form.country_id.value}</div>
+             <div class="clear"></div>
+            </div>
+         {/if}
+       {else}
           <div class="crm-section">
             <div class="label">{$form.country_id.label}</div>
             <div class="content">{$form.country_id.html}</div>
