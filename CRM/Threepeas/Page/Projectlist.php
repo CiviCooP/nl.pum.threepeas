@@ -13,10 +13,16 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
   function run() {
+    
     CRM_Utils_System::setTitle(ts('List of Projects'));    
     $snippet = CRM_Utils_Request::retrieve('snippet', 'Positive');
     if ($snippet != 1) {
       $addUrl = CRM_Utils_System::url('civicrm/pumproject', 'action=add', true);
+      /*
+       * set user context to return to pumproject list
+       */
+      $session = CRM_Core_Session::singleton();
+      $session->pushUserContext(CRM_Utils_System::url('civicrm/projectlist'));
     } else {
       $addUrl = '';
     }

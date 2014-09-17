@@ -54,11 +54,6 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       $this->_id = CRM_Utils_Request::retrieve('pid', 'Integer', $this);
     }
     /*
-     * set user context to return to pumproject list
-     */
-    $session = CRM_Core_Session::singleton();
-    $session->pushUserContext(CRM_Utils_System::url('civicrm/projectlist'));
-    /*
      * if action = delete, execute delete immediately
      */
     if ($this->_action == CRM_Core_Action::DELETE) {

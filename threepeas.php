@@ -417,8 +417,6 @@ function threepeas_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Case_Form_CaseView') {
     _threepeasAddProjectElementCaseView($form);
     $caseId = $form->getVar('_caseID');
-    //$caseDonorLinkUrl = CRM_Utils_System::url('civicrm/casedonorlink', 'cid='.$caseId);
-    //$form->assign('caseDonorLinkUrl', $caseDonorLinkUrl);
     $form->addButtons(array(
         array('type' => 'cancel',
           'name' => ts("Done"),
