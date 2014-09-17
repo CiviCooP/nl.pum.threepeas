@@ -35,6 +35,15 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
      * add form elements
      */
     $this->setFormElements();
+    /*
+     * only allow edit if user has 'edit all contacts'
+     */
+    if (CRM_Core_Permission::check('edit all contacts')) {
+      $permission = CRM_Core_Permission::ALL;
+    } else {
+      $permission = CRM_Core_Permission::VIEW;
+    }
+    $this->assign('permission', $permission);
     parent::buildQuickForm();
   }
   /**

@@ -121,7 +121,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
       'label'      => 'Programmes, Projects and Products',
       'name'       => 'Programmes, Projects and Products',
       'url'        => null,
-      'permission' => null,
+      'permission' => 'edit all contacts',
       'operator'   => null,
       'separator'  => null,
       'parentID'   => null,

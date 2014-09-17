@@ -13,15 +13,16 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
   function run() {
-    CRM_Utils_System::setTitle(ts('List of Projects'));
-    
+    CRM_Utils_System::setTitle(ts('List of Projects'));    
     $snippet = CRM_Utils_Request::retrieve('snippet', 'Positive');
     if ($snippet != 1) {
       $addUrl = CRM_Utils_System::url('civicrm/pumproject', 'action=add', true);
     } else {
       $addUrl = '';
     }
-    $this->assign('addUrl', $addUrl);
+    if (CRM_Core_Permission::check('edit all contacts') || CRM_Core_Permission::check('administer CiviCRM')) {
+      $this->assign('addUrl', $addUrl);
+    }
     $type = CRM_Utils_Request::retrieve('type', 'String');
     $customerId = CRM_Utils_Request::retrieve('cid', 'Positive');
     $threepeasConfig = CRM_Threepeas_Config::singleton();
@@ -124,9 +125,9 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
         $displayProject['start_date'] = $project['start_date'];
       }
 
-        if (isset($project['end_date']) && !empty($project['end_date'])) {
-          $displayProject['end_date'] = $project['end_date'];
-        }
+      if (isset($project['end_date']) && !empty($project['end_date'])) {
+        $displayProject['end_date'] = $project['end_date'];
+      }
 
       if (!isset($project['is_active'])) {
         $displayProject['is_active'] = ts("No");
@@ -149,19 +150,21 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
       $delUrl = CRM_Utils_System::url('civicrm/pumproject', "action=delete&pid=".$project['id'], true);
       $pageActions = array();
       $pageActions[] = '<a class="action-item" title="View project details" href="'.$viewUrl.'">View</a>';
-      $pageActions[] = '<a class="action-item" title="Edit project" href="'.$editUrl.'">Edit</a>';
+      if (CRM_Core_Permission::check('edit all contacts') || CRM_Core_Permission::check('administer CiviCRM')) {
+        $pageActions[] = '<a class="action-item" title="Edit project" href="'.$editUrl.'">Edit</a>';
+        if (isset($project['is_active']) && $project['is_active'] == 1) {
+          $pageActions[] = '<a class="action-item" title="Disable project" href="'.$disableUrl.'">Disable</a>';
+        } else {
+          $pageActions[] = '<a class="action-item" title="Enable project" href="'.$enableUrl.'">Enable</a>';                
+        }
+        if (CRM_Threepeas_BAO_PumProject::checkCanBeDeleted($project['id'])) {
+          $pageActions[] = '<a class="action-item" title="Delete project" href="'.$delUrl.'">Delete</a>';
+        }
+      }
       $pageActions[] = '<a class="action-item" title="Drill down project" href="'.$drillUrl.'">Drill Down</a>';
       //load extra actions from hooks
       $pageActions = array_merge($pageActions, $this->getProjectActions($project));
       
-      if (isset($project['is_active']) && $project['is_active'] == 1) {
-        $pageActions[] = '<a class="action-item" title="Disable project" href="'.$disableUrl.'">Disable</a>';
-      } else {
-        $pageActions[] = '<a class="action-item" title="Enable project" href="'.$enableUrl.'">Enable</a>';                
-      }
-      if (CRM_Threepeas_BAO_PumProject::checkCanBeDeleted($project['id'])) {
-        $pageActions[] = '<a class="action-item" title="Delete project" href="'.$delUrl.'">Delete</a>';
-      }
       $displayProject['actions'] = $pageActions;
       $displayProjects[] = $displayProject;
     }
