@@ -1039,11 +1039,7 @@ function _threepeasGetContributionsList() {
   foreach ($contributions['values'] as $contribution) {
     if (isset($threepeasConfig->activeContributionStatus[$contribution['contribution_status_id']])) {
       $status = $threepeasConfig->activeContributionStatus[$contribution['contribution_status_id']];
-      $optionText = $contribution['display_name'].' - '.CRM_Utils_Money::format($contribution['total_amount'])
-        .' - '.$status;
-      if (!empty($contribution['receipt_date'])) {
-        $optionText .= ' - '.date('d-M-Y', strtotime($contribution['receipt_date']));
-      }
+      $optionText = $contribution['display_name'];
       $optionContributions[$contribution['contribution_id']] = $optionText;
     }
   }
