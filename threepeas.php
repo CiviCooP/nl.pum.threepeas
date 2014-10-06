@@ -411,9 +411,6 @@ function _threepeasSetCountryProject($params) {
  * @date 19 May 2014
  */
 function threepeas_civicrm_buildForm($formName, &$form) {
-  if ($formName == 'CRM_Case_Form_Case') {
-    _threepeasAddProjectElementCase($form);
-  }
   if ($formName == 'CRM_Case_Form_CaseView') {
     _threepeasAddProjectElementCaseView($form);
     $caseId = $form->getVar('_caseID');
@@ -455,11 +452,16 @@ function threepeas_civicrm_buildForm($formName, &$form) {
     }    
   }
   if ($formName == 'CRM_Case_Form_Case') {
-    $contributionsList = _threepeasGetContributionsList();
-    $form->add('advmultiselect', 'new_link', '', $contributionsList, false,  
-      array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
-        'class' => 'advmultiselect',
-      ));
+    $action = $form->getVar('_action');
+    if ($action != CRM_Core_Action::DELETE) {
+      _threepeasSetDefaultCaseSubject($form);
+      _threepeasAddProjectElementCase($form);
+      $contributionsList = _threepeasGetContributionsList();
+      $form->add('advmultiselect', 'new_link', '', $contributionsList, false,  
+        array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
+          'class' => 'advmultiselect',
+        ));
+    }
   }
 }
 /**
@@ -877,6 +879,12 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       _threepeasDeleteContributionEnhancedData($objectId);
     }
   }
+  if ($objectName == 'Case' && $op == 'create') {
+    /*
+     * issue 515 put case type and case_id in subject if required
+     */
+    _threepeaseReformCaseSubject($objectId, $objectRef);
+  }
 }
 /**
  * Function to delete additional data for contribution
@@ -1093,4 +1101,52 @@ function _threepeasCaseDonationLinks($values, $caseId) {
       'is_active' => 1);
     CRM_Threepeas_BAO_PumDonorLink::add($params);
   }  
+}
+/**
+ * Function to set a default case subject
+ */
+function _threepeasSetDefaultCaseSubject(&$form) {
+  $activitySubject = null;
+  $caseId = $form->getVar('_caseId');
+  $caseTypeId = $form->getVar('_caseTypeId');
+  $currentContact = $form->getVar('_currentlyViewedContactId');
+  if (!empty($currentContact)) {
+    $activitySubject = civicrm_api3('Contact', 'Getvalue', array('id' => $currentContact, 'return' => 'display_name'));
+  } else {
+    $activitySubject = '<hier komt de klantnaam>'; 
+
+  }
+  if (!empty($caseTypeId)) {
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    $activitySubject .= '-'.CRM_Utils_Array::value($caseTypeId, $threepeasConfig->caseTypes);
+  } else {
+    $activitySubject .= '-{caseType}';
+  }
+  if (!empty($caseId)) {
+    $activitySubject .= '-'.$caseId;
+  } else {
+    $activitySubject .= '-{caseId}'; 
+  }
+  $defaults['activity_subject'] = $activitySubject;
+  $form->setDefaults($defaults);
+}
+/**
+ * Function to modify case subject if required
+ */
+function _threepeaseReformCaseSubject($objectId, $objectRef) {
+  if (!empty($objectRef->subject)) {
+    $typeParts = explode(CRM_Core_DAO::VALUE_SEPARATOR, $objectRef->case_type_id);
+    if (isset($typeParts[1])) {
+      $caseTypeId = $typeParts[1];
+    }
+    $subject = $objectRef->subject;
+    $subject = str_replace('{caseId}', $objectId, $subject);
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    $caseType = $threepeasConfig->caseTypes[$caseTypeId];
+    $caseTypeId = $objectRef->case_type_id;    
+    $subject = str_replace('{caseType}', $caseType, $subject);
+    $query = 'UPDATE civicrm_case SET subject = %1 WHERE id = %2';
+    $params = array(1 => array($subject, 'String'), 2 => array($objectId, 'Positive'));
+    CRM_Core_DAO::executeQuery($query, $params);
+  }
 }

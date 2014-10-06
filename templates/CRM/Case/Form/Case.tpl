@@ -163,7 +163,9 @@ cj(".crm-case-form-block-tag select[multiple]").crmasmSelect({
 {if $action eq 4}   
   {include file="CRM/Threepeas/Page/DonorLinkView.tpl"}
 {else}
-  {include file="CRM/Threepeas/Page/DonorLinkEdit.tpl"}
+  {if $action ne  8}
+    {include file="CRM/Threepeas/Page/DonorLinkEdit.tpl"}
+  {/if}  
 {/if}
 
 <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="bottom"}</div>
