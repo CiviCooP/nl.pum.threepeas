@@ -838,11 +838,6 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($objectName =='Activity' && $op == 'create') {
     $threepeasConfig = CRM_Threepeas_Config::singleton();
     if ($objectRef->activity_type_id == $threepeasConfig->openCaseActTypeId) {
-      /*
-       * case and later activity contact retrieved from DB and not with API because
-       * API transaction mucks up the Case transaction causing weird errors like
-       * can not find xml file for case type
-       */
       $caseQry = 'SELECT case_type_id, start_date FROM civicrm_case WHERE id = %1';
       $caseParams = array(1 => array($objectRef->case_id, 'Positive'));
       $daoCase = CRM_Core_DAO::executeQuery($caseQry, $caseParams);
@@ -854,6 +849,11 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
         if (isset($typeParts[1])) {
           $typeId = $typeParts[1];
         }
+        /*
+         * reform open case subject if necessary
+         */
+        _threepeasReformOpenCaseSubject($objectRef->case_id, $typeId, $objectId, $objectRef->subject);
+        
         if (isset($threepeasConfig->pumCaseTypes[$typeId])) {
           if (empty($daoCase->start_date)) {
             $caseStartDate = date('Ymd');
@@ -1143,10 +1143,23 @@ function _threepeaseReformCaseSubject($objectId, $objectRef) {
     $subject = str_replace('{caseId}', $objectId, $subject);
     $threepeasConfig = CRM_Threepeas_Config::singleton();
     $caseType = $threepeasConfig->caseTypes[$caseTypeId];
-    $caseTypeId = $objectRef->case_type_id;    
     $subject = str_replace('{caseType}', $caseType, $subject);
     $query = 'UPDATE civicrm_case SET subject = %1 WHERE id = %2';
     $params = array(1 => array($subject, 'String'), 2 => array($objectId, 'Positive'));
+    CRM_Core_DAO::executeQuery($query, $params);
+  }
+}
+/**
+ * Function to modify open case activity subject if required
+ */
+function _threepeasReformOpenCaseSubject($caseId, $caseTypeId, $activityId, $subject) {
+  if (!empty($subject)) {
+    $subject = str_replace('{caseId}', $caseId, $subject);
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    $caseType = $threepeasConfig->caseTypes[$caseTypeId];
+    $subject = str_replace('{caseType}', $caseType, $subject);
+    $query = 'UPDATE civicrm_activity SET subject = %1 WHERE id = %2';
+    $params = array(1 => array($subject, 'String'), 2 => array($activityId, 'Positive'));
     CRM_Core_DAO::executeQuery($query, $params);
   }
 }
