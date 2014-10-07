@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS `civicrm_project` (
   `expected_results` text,
   `customer_id` int(11) DEFAULT NULL,
   `country_id` int(11) DEFAULT NULL,
+  `projectmanager_id` int(11) DEFAULT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
   `is_active` varchar(45) DEFAULT NULL,

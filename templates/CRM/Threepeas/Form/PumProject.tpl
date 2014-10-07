@@ -53,6 +53,11 @@
             </div>
           {/if}
           <div class="crm-section">
+            <div class="label">{$form.projectmanager_id.label}</div>
+            <div class="content">{$form.projectmanager_id.value}</div>
+              <div class="clear"></div>            
+          </div>
+          <div class="crm-section">
             <div class="label">{$form.reason.label}</div>
             <div class="content">{$form.reason.value}</div>
             <div class="clear"></div>
@@ -141,6 +146,11 @@
               <div class="clear"></div>
           </div>
           {/if}
+          <div class="crm-section">
+            <div class="label">{$form.projectmanager_id.label}</div>
+            <div class="content">{$form.projectmanager_id.html}</div>
+            <div class="clear"></div>
+          </div>            
           <div class="crm-section">
             <div class="label">{$form.reason.label}</div>
             <div class="content">{$form.reason.html}</div>

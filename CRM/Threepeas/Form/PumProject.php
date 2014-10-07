@@ -20,6 +20,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   
   protected $_projectCustomers = array();
   protected $_projectCountries = array();
+  protected $_projectManagers = array();
   protected $_programmes = array();
   protected $_projectType = NULL;
   
@@ -155,6 +156,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->add('text', 'title', ts('Title'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'programme_id', ts('Programme'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'customer_id', ts('Customer or Country'), array('size' => CRM_Utils_Type::HUGE));
+    $this->add('text', 'projectmanager_id', ts('Project Manager'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('textarea', 'reason', ts('What is the reason for this request for Assistance?'), 
       array('rows'    => 4, 'readonly'=> 'readonly', 'cols'    => 80), false);
     $this->add('textarea', 'work_description', ts('Which project activities do you expect the expert to perform?'), 
@@ -182,6 +184,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->add('select', 'programme_id', ts('Programme'), $this->_programmes);
     $this->add('select', 'customer_id', ts('Customer'), $this->_projectCustomers);
     $this->add('select', 'country_id', ts('Country'), $this->_projectCountries);
+    $this->add('select', 'projectmanager_id', ts('Project Manager'), $this->_projectManagers);
     $this->add('textarea', 'reason', ts('Reason'), array('rows'  => 4, 'cols'  => 80), false);
     $this->add('textarea', 'work_description', ts('Work description'), array('rows'  => 4,  'cols'  => 80), false);
     $this->add('textarea', 'expected_results', ts('Expected results'), array('rows'  => 4,  'cols'  => 80), false);
@@ -210,6 +213,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     } else {
       $this->add('text', 'customer_id', ts('Customer or Country'), array('size' => CRM_Utils_Type::HUGE));
     }
+    $this->add('select', 'projectmanager_id', ts('Project Manager'), $this->_projectManagers);
     $this->add('textarea', 'reason', ts('Reason'), array('rows'  => 4, 'cols'  => 80), false);
     $this->add('textarea', 'work_description', ts('Work description'), array('rows'  => 4,  'cols'  => 80), false);
     $this->add('textarea', 'expected_results', ts('Expected results'), array('rows'  => 4,  'cols'  => 80), false);
@@ -254,6 +258,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->setProgrammeList();
     $this->setProjectCustomerList();
     $this->setProjectCountryList();
+    $this->setProjectmanagersList();
   }
   /**
    * Function to get the list of programmes
@@ -275,6 +280,25 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->_projectCustomers = $this->retrieveContacts($customerParams);
     $this->_projectCustomers[0] = '- select -';
     asort($this->_projectCustomers);
+  }
+  /**
+   * Function to get the list of project managers
+   */
+  function setProjectmanagersList() {
+    $this->_projectManagers = [];
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    $groupContactParams = array('group_id' => $threepeasConfig->projectmanagerGroupId);
+    try {
+      $projectManagers = civicrm_api3('GroupContact', 'Get', $groupContactParams);
+    } catch (CiviCRM_API3_Exception $ex) {
+      $this->_projectManagers = array();
+    }
+    foreach ($projectManagers['values'] as $projectManager) {
+      $nameParams = array('id' => $projectManager['contact_id'], 'return' => 'display_name');
+      $this->_projectManagers[$projectManager['contact_id']] = civicrm_api3('Contact', 'Getvalue', $nameParams);      
+    }
+    $this->_projectManagers[0] = '- select -';
+    asort($this->_projectManagers);
   }
   /**
    * function to get the list of countries
@@ -321,6 +345,9 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   function correctViewDefaults(&$defaults) {
     if (isset($defaults['programme_id']) && !empty($defaults['programme_id'])) {
       $defaults['programme_id'] = CRM_Utils_Array::value($defaults['programme_id'], $this->_programmes);
+    }
+    if (isset($defaults['projectmanager_id']) && !empty($defaults['projectmanager_id'])) {
+      $defaults['projectmanager_id'] = $this->_projectManagers[$defaults['projectmanager_id']];
     }
     if (!isset($defaults['start_date'])) {
       $defaults['start_date'] = '';

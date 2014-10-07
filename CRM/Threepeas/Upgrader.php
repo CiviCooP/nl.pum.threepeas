@@ -98,4 +98,16 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
     }
     return TRUE;    
   }
+  /**
+   * Upgrade 2100 - add projectmanager_id to civicrm_project table
+   */
+  public function upgrade_2100() {
+    $this->ctx->log->info('Applying update 2100 (add projectmanager_id to civicrm_project table');
+    if (CRM_Core_DAO::checkTableExists('civicrm_project')) {
+      if (!CRM_Core_DAO::checkFieldExists('civicrm_project', 'projectmanager_id')) {
+        CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_project ADD COLUMN projectmanager_id INT(11) DEFAULT NULL AFTER country_id');
+      }
+    }
+    return TRUE;    
+  }
 }

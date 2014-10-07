@@ -61,9 +61,10 @@ class CRM_Threepeas_Config {
   public $activeProjectList = array();
   public $activeCaseList = array();
   /*
-   * group for Programme Managers
+   * group for Programme en Project Managers
    */
   public $programmeManagersGroupId = NULL;
+  public $projectmanagerGroupId = NULL;
   /*
    * activity type for Open Case
    */
@@ -86,6 +87,7 @@ class CRM_Threepeas_Config {
     $this->setCaseOptionGroupId();
     $this->setProjectOptionGroupId();
     $this->setGroupId('Programme Managers');
+    $this->setGroupId('Projectmanager');
     $this->setCaseStatus();
     $this->setCaseTypes();
     $this->expertRelationshipTypeId = $this->setRelationshipTypeId('Expert');
