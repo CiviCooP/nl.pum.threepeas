@@ -129,7 +129,7 @@ class CRM_Threepeas_BAO_PumProgramme extends CRM_Threepeas_DAO_PumProgramme {
    * @access public
    * @static
    */
-  public static function getProgrammeTitleWithid($pumProgrammeId) {
+  public static function getProgrammeTitleWithId($pumProgrammeId) {
     if (empty($pumProgrammeId)) {
       return '';
     }

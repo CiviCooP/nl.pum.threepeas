@@ -97,7 +97,7 @@
            {eval var=$sectionHeaderTemplate}
             <tr  class="{cycle values="odd-row,even-row"} {$row.class} crm-report" id="crm-report_{$rowid}">
               {if $row.first_row eq 1}
-                <td colspan="100%"><hr/></td>
+                <td colspan="100%"><hr/></td></tr><tr>
               {/if}
                 {foreach from=$columnHeaders item=header key=field}
                     {assign var=fieldLink value=$field|cat:"_link"}

@@ -360,6 +360,9 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     $entryFound = FALSE;
     $previousContribution = NULL;
     foreach ($rows as $rowNum => $row) {
+      if (isset($row['civicrm_donor_link_entity']) && !empty($row['civicrm_donor_link_entity'])) {
+        $this->setDonorLinkTitle($row);
+      }
       if ($row['civicrm_contribution_id'] == $previousContribution) {
         $row['civicrm_contact_sort_name'] = '';
         $row['civicrm_contribution_financial_type_id'] = '';
@@ -372,7 +375,7 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
         if (isset($row['civicrm_contribution_financial_type_id'])) {
           $row['civicrm_contribution_financial_type_id'] = $this->_financialTypes[$row['civicrm_contribution_financial_type_id']];
         }
-        if ($row['civicrm_contribution_contribution_status_id']) {
+        if (isset($row['civicrm_contribution_contribution_status_id'])) {
           $row['civicrm_contribution_contribution_status_id'] = $this->_contributionStatusIds[$row['civicrm_contribution_contribution_status_id']];
         }
         if (isset($row['civicrm_contribution_campaign_id'])) {
@@ -385,8 +388,75 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
         }
         $previousContribution = $row['civicrm_contribution_id'];
       }
+      $this->addUrlsForClickables($row);
       $displayRows[] = $row;
     }
     $rows = $displayRows;
+  }
+  /**
+   * Function to add urls to fields that can be clicked
+   */
+  private function addUrlsForClickables(&$row) {
+    if (isset($row['civicrm_contact_sort_name']) && !empty($row['civicrm_contact_sort_name'])) {
+      $sortNameUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.
+        $row['civicrm_contact_id'], $this->_absoluteUrl);
+      $row['civicrm_contact_sort_name_link'] = $sortNameUrl;
+      $row['civicrm_contact_sort_name_hover'] = ts("Click to view contact");
+    }
+    if (isset($row['civicrm_contribution_total_amount']) && !empty($row['civicrm_contribution_total_amount'])) {
+      $contributionUrl = CRM_Utils_System::url('civicrm/contact/view/contribution', 'reset=1&id='.
+        $row['civicrm_contribution_id'].'&cid='.$row['civicrm_contact_id'].'&action=view', 
+        $this->_absoluteUrl);
+      $row['civicrm_contribution_total_amount_link'] = $contributionUrl;
+      $row['civicrm_contribution_total_amount_hover'] = ts("Click to view contribution");      
+    }
+    if (isset($row['civicrm_contribution_contribution_status_id']) && !empty($row['civicrm_contribution_contribution_status_id'])) {
+      $contributionUrl = CRM_Utils_System::url('civicrm/contact/view/contribution', 'reset=1&id='.
+        $row['civicrm_contribution_id'].'&cid='.$row['civicrm_contact_id'].'&action=view', 
+        $this->_absoluteUrl);
+      $row['civicrm_contribution_contribution_status_id_link'] = $contributionUrl;
+      $row['civicrm_contribution_contribution_status_id_hover'] = ts("Click to view contribution");      
+    }
+  }
+  /**
+   * Function to add name/title of linked entity to row
+   */
+  private function setDonorLinkTitle(&$row) {
+    switch ($row['civicrm_donor_link_entity']) {
+      case 'Case':
+        $caseUrl = CRM_Utils_System::url('civicrm/contact/view/case', 'rest=1&action=view&id='.
+          $row['civicrm_donor_link_entity_id'].'&cid='.$row['civicrm_contact_id'], 
+          $this->_absoluteUrl);
+        $row['civicrm_donor_link_entity_id'] = $this->getCaseSubject($row['civicrm_donor_link_entity_id']);
+        $row['civicrm_donor_link_entity_id_link'] = $caseUrl;
+        $row['civicrm_donor_link_entity_id_hover'] = ts("Click to view programme");          
+        break;
+      case 'Programme':
+        $programmeUrl = CRM_Utils_System::url('civicrm/pumprogramme', 'action=view&pid='.
+          $row['civicrm_donor_link_entity_id'], $this->_absoluteUrl);
+        $row['civicrm_donor_link_entity_id'] = CRM_Threepeas_BAO_PumProgramme::getProgrammeTitleWithId($row['civicrm_donor_link_entity_id']);
+        $row['civicrm_donor_link_entity_id_link'] = $programmeUrl;
+        $row['civicrm_donor_link_entity_id_hover'] = ts("Click to view programme");          
+        break;
+      case 'Project':
+        $projectUrl = CRM_Utils_System::url('civicrm/pumproject', 'action=view&pid='.
+          $row['civicrm_donor_link_entity_id'], $this->_absoluteUrl);
+        $row['civicrm_donor_link_entity_id'] = CRM_Threepeas_BAO_PumProject::getProjectTitleWithId($row['civicrm_donor_link_entity_id']);
+        $row['civicrm_donor_link_entity_id_link'] = $projectUrl;
+        $row['civicrm_donor_link_entity_id_hover'] = ts("Click to view project");          
+        break;
+    }
+  }
+  /**
+   * Function to get case subject with id
+   */
+  private function getCaseSubject($caseId) {
+    $params = array('id' => $caseId, 'return' => 'subject');
+    try {
+      $subject = civicrm_api3('Case', 'Getvalue', $params);
+    } catch (CiviCRM_API3_Exception $ex) {
+      return '';
+    }
+    return $subject;
   }
 }

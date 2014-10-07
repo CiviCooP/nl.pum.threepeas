@@ -559,4 +559,26 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       }
     }
   }
+  /**
+   * Function to get project title only with id
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 7 Oct 2014
+   * @param int $pumProjectId
+   * @return string $pumProject->title
+   * @access public
+   * @static
+   */
+  public static function getProjectTitleWithId($pumProjectId) {
+    if (empty($pumProjectId)) {
+      return '';
+    }
+    $pumProject = new CRM_Threepeas_BAO_PumProject();
+    $pumProject->id = $pumProjectId;
+    if ($pumProject->find(true)) {
+      return $pumProject->title;
+    } else {
+      return '';
+    }
+  }
 }
