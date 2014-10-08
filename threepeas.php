@@ -322,7 +322,9 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
       }
       $pumProject['is_active'] = 1;
       $createdProject = CRM_Threepeas_BAO_PumProject::add($pumProject);
-      _threepeasGenerateProjectTitle($createdProject['id'], $createdProject['country_id']);
+      if ($createdProject['country_id']) {
+        _threepeasGenerateProjectTitle($createdProject['id'], $createdProject['country_id']);
+      }
       $pumCaseProject = array('case_id' => $entityID, 'project_id' => $createdProject['id'], 'is_active' => 1);
       CRM_Threepeas_BAO_PumCaseProject::add($pumCaseProject);
     } 
@@ -1133,25 +1135,21 @@ function _threepeasSetDefaultCaseSubject(&$form) {
 /**
  * Function to modify case subject if required
  */
-function _threepeasReformCaseSubject($caseId, $subject, $caseTypeId) {
+function _threepeasReformCaseSubject($caseId, $subject, $caseTypeId, $customerName = '') {
   if (!empty($subject)) {
-    $caseParams = array('id' => $caseId, 'return' => 'client_id');
-    $caseClientIds = civicrm_api3('Case', 'Getvalue', $caseParams);
-    foreach ($caseClientIds as $caseClientId) {
-      $contactParams = array('id' => $caseClientId, 'return' => 'display_name');
-      $customerName = civicrm_api3('Contact', 'Getvalue', $contactParams);
+    if (!empty($customerName)) {
+      $subject = str_replace('{customerName}', $customerName, $subject);      
     }
-    $subject = str_replace('{customerName}', $customerName, $subject);
     $typeParts = explode(CRM_Core_DAO::VALUE_SEPARATOR, $caseTypeId);
     if (isset($typeParts[1])) {
       $caseTypeId = $typeParts[1];
     }
-    $subject = str_replace('{caseId}', $objectId, $subject);
+    $subject = str_replace('{caseId}', $caseId, $subject);
     $threepeasConfig = CRM_Threepeas_Config::singleton();
     $caseType = $threepeasConfig->caseTypes[$caseTypeId];
     $subject = str_replace('{caseType}', $caseType, $subject);
     $query = 'UPDATE civicrm_case SET subject = %1 WHERE id = %2';
-    $params = array(1 => array($subject, 'String'), 2 => array($objectId, 'Positive'));
+    $params = array(1 => array($subject, 'String'), 2 => array($caseId, 'Positive'));
     CRM_Core_DAO::executeQuery($query, $params);
   }
 }
@@ -1177,6 +1175,6 @@ function _threepeasReformOpenCaseSubject($caseId, $caseTypeId, $activityId, $sub
      * modify case subject too if required. This to ensure that adding a case without
      * a customer works too.
      */
-    _threepeasReformCaseSubject($caseId, $caseData['subject'], $caseTypeId);
+    _threepeasReformCaseSubject($caseId, $caseData['subject'], $caseTypeId, $customerName);
   }
 }
