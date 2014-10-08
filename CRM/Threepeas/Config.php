@@ -54,6 +54,7 @@ class CRM_Threepeas_Config {
   public $projectOfficerRelationshipTypeId = NULL;
   public $representativeRelationshipTypeId = NULL;
   public $sectorCoordinatorRelationshipTypeId = NULL;
+  public $anamonRelationshipTypeId = NULL;
   /*
    * properties to hold active programme, project and case list
    */
@@ -95,6 +96,7 @@ class CRM_Threepeas_Config {
     $this->projectOfficerRelationshipTypeId = $this->setRelationshipTypeId('Project Officer for');
     $this->representativeRelationshipTypeId = $this->setRelationshipTypeId('Representative is');
     $this->sectorCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Sector Coordinator');
+    $this->anamonRelationshipTypeId = $this->setRelationshipTypeId('Anamon');
     $this->setActiveProjectList();
     $this->setActiveProgrammeList();
     $this->setActiveCaseList();

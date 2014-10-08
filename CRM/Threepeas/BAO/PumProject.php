@@ -351,7 +351,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     return $projectType;
   }
   /**
-   * Function to retrieve the project officer for a customer
+   * Function to retrieve the project officer for a customer/country
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 1 Sep 2014
@@ -371,7 +371,28 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     return $projectOfficerId;
   }
   /**
-   * Function to retrieve the country officer for a customer
+   * Function to retrieve the anamon for a customer/country
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 8 Oct 2014
+   * @param int $customerId
+   * @param string $type
+   * @return int $anamonId
+   * @access public
+   * @static
+   */
+  public static function getAnamon($customerId, $type) {
+    if ($type == 'customer') {
+      $contactId = self::getCustomerCountryId($customerId);
+    } else {
+      $contactId = $customerId;
+    }
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    $anamonId = self::getRelationshipContactId($contactId, $threepeasConfig->anamonRelationshipTypeId);
+    return $anamonId;
+  }
+  /**
+   * Function to retrieve the country officer for a customer/country
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 1 Sep 2014
@@ -523,6 +544,10 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       $representativeId = self::getRepresentative($customerId);
       self::setCaseRelation($customerId, $representativeId, $caseId, 
         $threepeas->representativeRelationshipTypeId, $caseStartDate);
+      
+      $anamonId = self::getAnamon($customerId, 'customer');
+      self::setCaseRelation($customerId, $anamonId, $caseId, 
+        $threepeas->anamonRelationshipTypeId, $caseStartDate);
       
       $sectorCoordinatorId = self::getSectorCoordinator($customerId);
       self::setCaseRelation($customerId, $sectorCoordinatorId, $caseId, 
