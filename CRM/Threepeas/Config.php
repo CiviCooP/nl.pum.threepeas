@@ -238,7 +238,9 @@ class CRM_Threepeas_Config {
   private function setActiveProgrammeList() {
     $programmes = CRM_Threepeas_BAO_PumProgramme::getValues(array('is_active' => 1));
     foreach ($programmes as $programme) {
-      $this->activeProgrammeList[$programme['id']] = $programme['title'];
+      if (isset($programme['title'])) {
+        $this->activeProgrammeList[$programme['id']] = $programme['title'];
+      }
     }
     $this->activeProgrammeList[0] = '- select -';
     asort($this->activeProgrammeList);
@@ -249,7 +251,9 @@ class CRM_Threepeas_Config {
   private function setActiveProjectList() {
     $projects = CRM_Threepeas_BAO_PumProject::getValues(array('is_active' => 1));
     foreach ($projects as $project) {
-      $this->activeProjectList[$project['id']] = $project['title'];
+      if (isset($project['title'])) {
+        $this->activeProjectList[$project['id']] = $project['title'];
+      }
     }
     $this->activeProjectList[0] = '- select -';
     asort($this->activeProjectList);

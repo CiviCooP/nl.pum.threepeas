@@ -75,7 +75,6 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $savedProject = $this->saveProject($values);
     $session = CRM_Core_Session::singleton();
     $session->setStatus('Project '.$savedProject['title'].' Saved', 'Saved', 'success');
-    $session->pushUserContext(CRM_Utils_System::url('civicrm/projectlist', '', true));
     parent::postProcess();
   }
   /**
