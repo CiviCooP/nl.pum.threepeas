@@ -42,6 +42,7 @@ class CRM_Threepeas_Config {
   public $caseStatusOptionGroupId = NULL;
   public $caseStatus = array();
   public $pumCaseTypes = array();
+  public $countryActionPlanCaseTypeId = NULL;
   /*
    * project option group id
    */
@@ -79,6 +80,8 @@ class CRM_Threepeas_Config {
    */
   private $pumCfo = array();
   private $pumCeo = array();
+  public $ceoRelationshipTypeId = NULL;
+  public $cfoRelationshipTypeId = NULL;
   /**
    * Constructor function
    */
@@ -89,20 +92,28 @@ class CRM_Threepeas_Config {
     $this->setCountryContactType('Country');
     $this->setCountryCustomField('civicrm_country_id');
     $this->setCountryCustomTable('pumCountry');
+    
     $this->projectCustomGroupId = $this->setCustomGroupId('Projectinformation');    
-    $this->capCustomGroupId = $this->setCustomGroupId('country_action_plan');    
+    $this->capCustomGroupId = $this->setCustomGroupId('country_action_plan'); 
+    
     $this->setCaseOptionGroupId();
     $this->setProjectOptionGroupId();
+    
     $this->setGroupId('Programme Managers');
     $this->setGroupId('Projectmanager');
+    
     $this->setCaseStatus();
     $this->setCaseTypes();
+    
     $this->expertRelationshipTypeId = $this->setRelationshipTypeId('Expert');
     $this->countryCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Country Coordinator is');
     $this->projectOfficerRelationshipTypeId = $this->setRelationshipTypeId('Project Officer for');
     $this->representativeRelationshipTypeId = $this->setRelationshipTypeId('Representative is');
     $this->sectorCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Sector Coordinator');
     $this->anamonRelationshipTypeId = $this->setRelationshipTypeId('Anamon');
+    $this->ceoRelationshipTypeId = $this->setRelationshipTypeId('CEO');
+    $this->cfoRelationshipTypeId = $this->setRelationshipTypeId('CFO');
+    
     $this->setActiveProjectList();
     $this->setActiveProgrammeList();
     $this->setActiveCaseList();
@@ -211,6 +222,9 @@ class CRM_Threepeas_Config {
         $this->caseTypes[$caseType['value']] = $caseType['label'];
         if (in_array($caseType['label'], $pumCaseTypes)) {
           $this->pumCaseTypes[$caseType['value']] = $caseType['label'];
+          if ($caseType['label'] == 'CPA') {
+            $this->countryActionPlanCaseTypeId = $caseType['value'];
+          }
         }
       }
     } catch (CiviCRM_API3_Exception $ex) {
