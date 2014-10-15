@@ -490,13 +490,37 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     $entityTagParams = array('entity_table' => 'civicrm_contact', 'entity_id' => $customerId);
     $apiEntityTag = civicrm_api3('EntityTag', 'Get', $entityTagParams);
     foreach ($apiEntityTag['values'] as $customerTag) {
-      $enhancedParams = array('is_active' => 1, 'tag_id' => $customerTag['tag_id'], 'return' => 'coordinator_id');
-      try {
-        $sectorCoordinatorId = civicrm_api3('TagEnhanced', 'Getvalue', $enhancedParams);
-      } catch (CiviCRM_API3_Exception $ex) {
+      if (self::isSectorTag($customerTag['tag_id']) == TRUE) {
+        $enhancedParams = array('is_active' => 1, 'tag_id' => $customerTag['tag_id'], 'return' => 'coordinator_id');
+        try {
+          $sectorCoordinatorId = civicrm_api3('TagEnhanced', 'Getvalue', $enhancedParams);
+        } catch (CiviCRM_API3_Exception $ex) {
+        }
       }
     }
     return $sectorCoordinatorId;
+  }
+  /**
+   * Function to check if the tag is one of the sector tags (top parent is Sector)
+   * 
+   * @auther Erik Hommel (CiviCooP)
+   * @date 15 Oct 2014
+   * @param int $tagId
+   * @return boolean
+   * @access private
+   * @static
+   */
+  private static function isSectorTag($tagId) {
+    if (empty($tagId)) {
+      return FALSE;
+    }
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    $sectorTree = $threepeasConfig->getSectorTree();
+    if (in_array($tagId, $sectorTree)) {
+      return TRUE;
+    } else {
+      return FALSE;
+    }
   }
   /**
    * Function to get the country required for a customer

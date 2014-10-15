@@ -73,7 +73,12 @@ class CRM_Threepeas_Config {
   /*
    * activity record type for target contacts
    */
-  public $actTargetRecordType = NULL;  /**
+  public $actTargetRecordType = NULL;  
+  /*
+   * protected sectorTree
+   */
+  private $sectorTree = array();
+  /**
    * Constructor function
    */
   function __construct() {
@@ -102,6 +107,51 @@ class CRM_Threepeas_Config {
     $this->setActiveCaseList();
     $this->openCaseActTypeId = $this->setActivityTypeId('Open Case');
     $this->setActTargetRecordType();
+    $this->setSectorTree();
+  }
+  public function getSectorTree() {
+    return $this->sectorTree;
+  }
+  private function setSectorTree() {
+    /*
+     * first check if tag 'Sector' exists
+     */
+    try {
+      $sectorTagId = civicrm_api3('Tag', 'Getvalue', array('name' => 'Sector', 'return' => 'id'));
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find a Tag called Sector, error from API Tag Getvalue: '.$ex->getMessage());
+    }
+    $this->sectorTree[] = $sectorTagId;
+    $this->getSectorChildren($sectorTagId);
+  }
+  private function getSectorChildren($sectorTagId) {
+    $gotAllChildren = FALSE;
+    $levelChildren = array($sectorTagId);
+    while ($gotAllChildren == FALSE) {
+      foreach ($levelChildren as $levelChildTagId) {
+        $childParams = array('parent_id' => $levelChildTagId,'is_selectable' => 1);
+        $tagChildren = civicrm_api3('Tag', 'Get', $childParams);
+        $gotAllChildren = $this->gotAllSectorChildren($tagChildren['count']);
+        if ($tagChildren['count'] > 0) {
+          $this->addSectorChildren($tagChildren['values']);
+          $levelChildren = $this->sectorTree;
+        }
+      }
+    }    
+  }
+  private function addSectorChildren($tagChildren) {
+    foreach($tagChildren as $tagChild) {
+      if (!in_array($tagChild['id'], $this->sectorTree)) {
+        $this->sectorTree[] = $tagChild['id'];
+      }
+    }    
+  }
+  private function gotAllSectorChildren($count) {
+    if ($count == 0) {
+      return TRUE;
+    } else {
+      return FALSE;
+    }
   }
   private function setDefaultContributionId($contributionId) {
     $this->defaultContributionId = $contributionId;
