@@ -77,8 +77,8 @@ class CRM_Threepeas_Config {
   /*
    * config variables for CEO and CFO
    */
-  public $pumCfo = NULL;
-  public $pumCeo = NULL;
+  private $pumCfo = array();
+  private $pumCeo = array();
   /**
    * Constructor function
    */
@@ -109,6 +109,12 @@ class CRM_Threepeas_Config {
     $this->openCaseActTypeId = $this->setActivityTypeId('Open Case');
     $this->setActTargetRecordType();
     $this->setCeoCfo();
+  }
+  public function getCeo() {
+    return $this->pumCeo;
+  }
+  public function getCfo() {
+    return $this->pumCfo;
   }
   private function setDefaultContributionId($contributionId) {
     $this->defaultContributionId = $contributionId;
@@ -378,7 +384,38 @@ class CRM_Threepeas_Config {
    * Assumption is that PUM is contact_id 1
    */
   private function setCeoCfo() {
-    $pumEmployees = civicrm_api3('Relationship', 'Get', array('contact_id_b' => 1));
-    
+    $relationshipParams = array(
+      'contact_id_b' => 1,
+      'is_active' => 1,
+      'relationship_type_id' => $this->getEmployeeRelationshipTypeId());
+    $pumEmployees = civicrm_api3('Relationship', 'Get', $relationshipParams);
+    foreach ($pumEmployees['values'] as $pumEmployee) {
+      $this->setCeoCfoValues($pumEmployee['contact_id_a']);
+    } 
+  }
+  private function setCeoCfoValues($contactId) {
+    $contactData = civicrm_api3('Contact', 'Getsingle', array('id' => $contactId));
+    if (isset($contactData['job_title'])) {
+      switch ($contactData['job_title']) {
+        case 'CEO':
+          $this->pumCeo['contact_id'] = $contactId;
+          $this->pumCeo['display_name'] = $contactData['display_name'];
+          break;
+        case 'CFO':
+          $this->pumCfo['contact_id'] = $contactId;
+          $this->pumCfo['display_name'] = $contactData['display_name'];
+          break;
+      }
+    }
+  }
+  private function getEmployeeRelationshipTypeId() {
+    $params = array('name_a_b' => 'Employee of', 'return' => 'id');
+    try {
+      $relationshipTypeId = civicrm_api3('RelationshipType', 'Getvalue', $params);
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find relationshi type with name_a_b Employee Of, '
+        . 'error from API RelationshipType Getvalue: '.$ex->getMessage());
+    }
+    return $relationshipTypeId;
   }
 }

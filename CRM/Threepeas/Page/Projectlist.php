@@ -32,6 +32,8 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     $type = CRM_Utils_Request::retrieve('type', 'String');
     $customerId = CRM_Utils_Request::retrieve('cid', 'Positive');
     $threepeasConfig = CRM_Threepeas_Config::singleton();
+    $ceo = $threepeasConfig->getCeo();
+    $cfo = $threepeasConfig->getCfo();
     switch ($type) {
       case $threepeasConfig->countryContactType:
         $projects = CRM_Threepeas_BAO_PumProject::getValues(array('country_id' => $customerId));
