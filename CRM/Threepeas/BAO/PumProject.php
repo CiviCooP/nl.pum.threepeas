@@ -487,7 +487,10 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    */
   public static function getSectorCoordinator($customerId) {
     $sectorCoordinatorId = 0;
-    $entityTagParams = array('entity_table' => 'civicrm_contact', 'entity_id' => $customerId);
+    $entityTagParams = array(
+      'entity_table' => 'civicrm_contact', 
+      'entity_id' => $customerId,
+      'options' => array('limit' => 9999));
     $apiEntityTag = civicrm_api3('EntityTag', 'Get', $entityTagParams);
     foreach ($apiEntityTag['values'] as $customerTag) {
       if (self::isSectorTag($customerTag['tag_id']) == TRUE) {

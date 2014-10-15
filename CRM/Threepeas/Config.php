@@ -152,7 +152,10 @@ class CRM_Threepeas_Config {
     $levelChildren = array($sectorTagId);
     while ($gotAllChildren == FALSE) {
       foreach ($levelChildren as $levelChildTagId) {
-        $childParams = array('parent_id' => $levelChildTagId,'is_selectable' => 1);
+        $childParams = array(
+          'parent_id' => $levelChildTagId,
+          'is_selectable' => 1, 
+          'option' => array('limit' => 9999));
         $tagChildren = civicrm_api3('Tag', 'Get', $childParams);
         $gotAllChildren = $this->gotAllSectorChildren($tagChildren['count']);
         if ($tagChildren['count'] > 0) {
@@ -266,12 +269,15 @@ class CRM_Threepeas_Config {
   private function setCaseTypes() {
     $pumCaseTypes = array('Projectintake', 'Advice', 'BLP', 'RemoteCoaching', 'PDV', 'CPA', 'CTM', 'CAPAssessment');
     try {
-      $apiCaseTypes = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $this->caseTypeOptionGroupId));
+      $caseParams = array(
+        'option_group_id' => $this->caseTypeOptionGroupId,
+        'options' => array('limit' => 9999));
+      $apiCaseTypes = civicrm_api3('OptionValue', 'Get', $caseParams);
       foreach ($apiCaseTypes['values'] as $caseTypeId => $caseType) {
         $this->caseTypes[$caseType['value']] = $caseType['label'];
         if (in_array($caseType['label'], $pumCaseTypes)) {
           $this->pumCaseTypes[$caseType['value']] = $caseType['label'];
-          if ($caseType['label'] == 'CPA' || $caseType['label'] == 'CAPAssessment') {
+          if ($caseType['label'] == 'CAPAssessment') {
             $this->countryActionPlanCaseTypeId = $caseType['value'];
           }
         }

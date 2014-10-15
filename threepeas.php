@@ -1146,6 +1146,7 @@ function _threepeasReformCaseSubject($caseId, $subject, $caseTypeId, $customerNa
     }
     $subject = str_replace('{caseId}', $caseId, $subject);
     $threepeasConfig = CRM_Threepeas_Config::singleton();
+    
     $caseType = $threepeasConfig->caseTypes[$caseTypeId];
     $subject = str_replace('{caseType}', $caseType, $subject);
     $query = 'UPDATE civicrm_case SET subject = %1 WHERE id = %2';
