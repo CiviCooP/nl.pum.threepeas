@@ -79,6 +79,13 @@ class CRM_Threepeas_Config {
    * protected sectorTree
    */
   private $sectorTree = array();
+  /*
+   * config variables for CEO and CFO
+   */
+  private $pumCfo = array();
+  private $pumCeo = array();
+  public $ceoRelationshipTypeId = NULL;
+  public $cfoRelationshipTypeId = NULL;
   /**
    * Constructor function
    */
@@ -117,7 +124,14 @@ class CRM_Threepeas_Config {
     $this->openCaseActTypeId = $this->setActivityTypeId('Open Case');
     $this->setActTargetRecordType();
     $this->setSectorTree();
+  	$this->setCeoCfo();  
   }
+  public function getCeo() {
+    return $this->pumCeo;
+  }
+  public function getCfo() {
+    return $this->pumCfo;
+  }  
   public function getSectorTree() {
     return $this->sectorTree;
   }
