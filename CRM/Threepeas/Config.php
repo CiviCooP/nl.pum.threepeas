@@ -264,14 +264,14 @@ class CRM_Threepeas_Config {
     }
   }
   private function setCaseTypes() {
-    $pumCaseTypes = array('Projectintake', 'Advice', 'BLP', 'RemoteCoaching', 'PDV', 'CPA', 'CTM');
+    $pumCaseTypes = array('Projectintake', 'Advice', 'BLP', 'RemoteCoaching', 'PDV', 'CPA', 'CTM', 'CAPAssessment');
     try {
       $apiCaseTypes = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $this->caseTypeOptionGroupId));
       foreach ($apiCaseTypes['values'] as $caseTypeId => $caseType) {
         $this->caseTypes[$caseType['value']] = $caseType['label'];
         if (in_array($caseType['label'], $pumCaseTypes)) {
           $this->pumCaseTypes[$caseType['value']] = $caseType['label'];
-          if ($caseType['label'] == 'CPA') {
+          if ($caseType['label'] == 'CPA' || $caseType['label'] == 'CAPAssessment') {
             $this->countryActionPlanCaseTypeId = $caseType['value'];
           }
         }
