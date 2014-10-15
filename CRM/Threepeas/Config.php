@@ -73,7 +73,13 @@ class CRM_Threepeas_Config {
   /*
    * activity record type for target contacts
    */
-  public $actTargetRecordType = NULL;  /**
+  public $actTargetRecordType = NULL;  
+  /*
+   * config variables for CEO and CFO
+   */
+  public $pumCfo = NULL;
+  public $pumCeo = NULL;
+  /**
    * Constructor function
    */
   function __construct() {
@@ -102,6 +108,7 @@ class CRM_Threepeas_Config {
     $this->setActiveCaseList();
     $this->openCaseActTypeId = $this->setActivityTypeId('Open Case');
     $this->setActTargetRecordType();
+    $this->setCeoCfo();
   }
   private function setDefaultContributionId($contributionId) {
     $this->defaultContributionId = $contributionId;
@@ -364,5 +371,14 @@ class CRM_Threepeas_Config {
       $this->actTargetRecordType = NULL;
       throw new Exception('Could not find an option value with name Activity Targets in group activity_contacts, error from API OptionValue Getvalue : '.$ex->getMessage());
     }
+  }
+  /**
+   * Function to set CEO and CFO for PUM. Based on expectation that job title CEO
+   * and job title CFO for organization PUM Netherlands Senior Experts are there.
+   * Assumption is that PUM is contact_id 1
+   */
+  private function setCeoCfo() {
+    $pumEmployees = civicrm_api3('Relationship', 'Get', array('contact_id_b' => 1));
+    
   }
 }
