@@ -553,29 +553,39 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * @date 3 Sep 2014
    * @param int $caseId
    * @param int $customerId
+   * @param date $caseStartDate
+   * @param int $caseTypeId
    */
-  public static function setDefaultCaseRoles($caseId, $customerId, $caseStartDate) {
+  public static function setDefaultCaseRoles($caseId, $customerId, $caseStartDate, $caseTypeId) {
     if (!empty($caseId) && !empty($customerId)) {
-      $threepeas = CRM_Threepeas_Config::singleton();
+      $threepeasConfig = CRM_Threepeas_Config::singleton();
       $countryCoordinatorId = self::getCountryCoordinator($customerId, 'customer');
       self::setCaseRelation($customerId, $countryCoordinatorId, $caseId, 
-        $threepeas->countryCoordinatorRelationshipTypeId, $caseStartDate);
+        $threepeasConfig->countryCoordinatorRelationshipTypeId, $caseStartDate);
       
       $projectOfficerId = self::getProjectOfficer($customerId, 'customer');
       self::setCaseRelation($customerId, $projectOfficerId, $caseId, 
-        $threepeas->projectOfficerRelationshipTypeId, $caseStartDate);
+        $threepeasConfig->projectOfficerRelationshipTypeId, $caseStartDate);
       
       $representativeId = self::getRepresentative($customerId);
       self::setCaseRelation($customerId, $representativeId, $caseId, 
-        $threepeas->representativeRelationshipTypeId, $caseStartDate);
+        $threepeasConfig->representativeRelationshipTypeId, $caseStartDate);
       
       $anamonId = self::getAnamon($customerId, 'customer');
       self::setCaseRelation($customerId, $anamonId, $caseId, 
-        $threepeas->anamonRelationshipTypeId, $caseStartDate);
+        $threepeasConfig->anamonRelationshipTypeId, $caseStartDate);
       
       $sectorCoordinatorId = self::getSectorCoordinator($customerId);
       self::setCaseRelation($customerId, $sectorCoordinatorId, $caseId, 
-        $threepeas->sectorCoordinatorRelationshipTypeId, $caseStartDate);
+        $threepeasConfig->sectorCoordinatorRelationshipTypeId, $caseStartDate);
+      if ($caseTypeId == $threepeasConfig->countryActionPlanCaseTypeId) {
+        $ceo = $threepeasConfig->getCeo();
+        self::setCaseRelation($customerId, $ceo['contact_id'], $caseId, 
+          $threepeasConfig->ceoRelationshipTypeId, $caseStartDate);
+        $cfo = $threepeasConfig->getCfo();
+        self::setCaseRelation($customerId, $cfo['contact_id'], $caseId, 
+          $threepeasConfig->cfoRelationshipTypeId, $caseStartDate);
+      }
     }
   }
   /**

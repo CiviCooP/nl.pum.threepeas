@@ -870,7 +870,7 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
           $daoActContact = CRM_Core_DAO::executeQuery($actContactQry, $actContactParams);
           if ($daoActContact->fetch()) {
             CRM_Threepeas_BAO_PumProject::setDefaultCaseRoles($objectRef->case_id, 
-              $daoActContact->contact_id, $caseStartDate);
+              $daoActContact->contact_id, $caseStartDate, $typeId);
           }
         }
       }
