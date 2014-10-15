@@ -106,7 +106,6 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
           ),
         'filters' =>  array(
           'sort_name' => array('title' => ts('Donor Name'), 'operator' => 'like'),
-          'id' => array('title' => ts('Contact ID'), 'no_display' => true, 'type' => CRM_Utils_Type::T_INT),
         ),
       ),
       'civicrm_contribution' => array(
@@ -349,6 +348,9 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     $this->_columnHeaders['civicrm_donor_link_entity_id'] = array('title' => ts('Linked Title'), 'type' => 2);
     $this->_columnHeaders['civicrm_contact_id'] = array('title' => ts('Contact ID'), 'type' => 1, 'no_display' => true);
     $this->_columnHeaders['civicrm_contribution_id'] = array('title' => ts('Contribution ID'), 'type' => 1, 'no_display' => true);
+    $this->_columnHeaders['linked_customer'] = array('title' => ts('Linked Customer'), 'type' => 2);
+    $this->_columnHeaders['linked_start_date'] = array('title' => ts('Start Date'), 'type' => 2);
+    $this->_columnHeaders['linked_end_date'] = array('title' => ts('End Date'), 'type' => 2);
   }
   /*
    * Function to modify the display of rows
@@ -361,10 +363,13 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     $previousContribution = NULL;
     foreach ($rows as $rowNum => $row) {
       if (isset($row['civicrm_donor_link_entity']) && !empty($row['civicrm_donor_link_entity'])) {
+        $this->setEntityValues($row);
         $this->setDonorLinkTitle($row);
       }
       if ($row['civicrm_contribution_id'] == $previousContribution) {
         $row['civicrm_contact_sort_name'] = '';
+        $row['civicrm_contact_contact_type'] = '';
+        $row['civicrm_contact_contact_sub_type'] = '';
         $row['civicrm_contribution_financial_type_id'] = '';
         $row['civicrm_contribution_total_amount'] = '';
         $row['civicrm_contribution_receive_date'] = '';
@@ -392,6 +397,49 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
       $displayRows[] = $row;
     }
     $rows = $displayRows;
+  }
+  /**
+   * Fucntion to set Entity values for Programme, Project or Case
+   */
+  private function setEntityValues(&$row) {
+    switch ($row['civicrm_donor_link_entity']) {
+      case 'Case':
+        $caseData = civicrm_api3('Case', 'Getsingle', array('id' => $row['civicrm_donor_link_entity_id']));
+        foreach ($caseData['client_id'] as $clientId) {
+          $row['linked_customer'] = civicrm_api3('Contact', 'Getvalue', array('id' => $clientId, 'return' => 'display_name'));
+          $customerUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$clientId, $this->_absoluteUrl);
+          if (!empty($caseData['start_date'])) {
+            $row['linked_start_date'] = date('d-m-Y', strtotime($caseData['start_date']));
+          }
+          if (!empty($caseData['end_date'])) {
+            $row['linked_end_date'] = date('d-m-Y', strtotime($caseData['end_date']));
+          }
+        }
+        break;
+      case 'Project':
+        $projectData = CRM_Threepeas_BAO_PumProject::getValues(array('id' => $row['civicrm_donor_link_entity_id']));
+        $projectData = $projectData[$row['civicrm_donor_link_entity_id']];
+        if (isset($projectData['customer_id'])) {
+          $contactId = $projectData['customer_id'];
+        } else {
+          if (isset($projectData['country_id'])) {
+            $contactId = $projectData['country_id'];
+          }
+        }
+        $row['linked_customer'] = civicrm_api3('Contact', 'Getvalue', array('id' => $contactId, 'return' => 'display_name'));
+        $customerUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$contactId, $this->_absoluteUrl);
+        if (isset($projectData['start_date']) &&!empty($projectData['start_date'])) {
+          $row['linked_start_date'] = date('d-m-Y', strtotime($projectData['start_date']));
+        }
+        if (isset($projectData['end_date']) &&!empty($projectData['end_date'])) {
+          $row['linked_end_date'] = date('d-m-Y', strtotime($projectData['end_date']));
+        }
+        break;
+    }
+    if (!empty($row['linked_customer'])) {
+      $row['linked_customer_link'] = $customerUrl;
+      $row['linked_customer_hover'] = ts("Click to view customer");          
+    }
   }
   /**
    * Function to add urls to fields that can be clicked
