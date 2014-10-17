@@ -426,8 +426,10 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
             $contactId = $projectData['country_id'];
           }
         }
-        $row['linked_customer'] = civicrm_api3('Contact', 'Getvalue', array('id' => $contactId, 'return' => 'display_name'));
-        $customerUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$contactId, $this->_absoluteUrl);
+        if (!empty($contactId)) {
+          $row['linked_customer'] = civicrm_api3('Contact', 'Getvalue', array('id' => $contactId, 'return' => 'display_name'));
+          $customerUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$contactId, $this->_absoluteUrl);
+        }
         if (isset($projectData['start_date']) &&!empty($projectData['start_date'])) {
           $row['linked_start_date'] = date('d-m-Y', strtotime($projectData['start_date']));
         }
@@ -437,8 +439,10 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
         break;
     }
     if (!empty($row['linked_customer'])) {
-      $row['linked_customer_link'] = $customerUrl;
-      $row['linked_customer_hover'] = ts("Click to view customer");          
+      if (!isset($customerUrl) && !empty($customerUrl)) {
+        $row['linked_customer_link'] = $customerUrl;
+        $row['linked_customer_hover'] = ts("Click to view customer");
+      }
     }
   }
   /**
