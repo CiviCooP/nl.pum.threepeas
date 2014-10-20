@@ -34,6 +34,7 @@ class CRM_Threepeas_Form_Report_SectorCoordinators extends CRM_Report_Form {
   function __construct() {
     $this->setGenderOptionGroupId();
     $this->_add2groupSupported = FALSE;
+    $this->_exposeContactID = FALSE;
     $this->_columns = array(
       'civicrm_contact' =>
       array(
@@ -222,7 +223,14 @@ class CRM_Threepeas_Form_Report_SectorCoordinators extends CRM_Report_Form {
     $sectorTree = $threepeasConfig->getSectorTree();
     $contactTags = CRM_Core_BAO_Tag::getTags();
     foreach ($contactTags as $contactTagId => $contactTag) {
-      if (!in_array($contactTagId, $sectorTree)) {
+      /*
+       * remove if only '..' because that is seen as top level
+       */
+      if (substr($contactTags[$contactTagId], 0, 12) == '&nbsp;&nbsp;' && 
+        substr($contactTags[$contactTagId], 12, 1) != '&') {
+        $contactTags[$contactTagId] = substr($contactTags[$contactTagId], 12);
+      }
+      if (!in_array($contactTagId, $sectorTree) || $contactTag == 'Sector') {
         unset($contactTags[$contactTagId]);
       }
     }
@@ -236,11 +244,12 @@ class CRM_Threepeas_Form_Report_SectorCoordinators extends CRM_Report_Form {
       $this->alterGenderId($row, $rowNum, $rows);
       $this->alterIsActive($row, $rowNum, $rows);
       $this->alterCoordinator($row, $rowNum, $rows);
+      $this->alterSector($row, $rowNum, $rows);
     }
   }
   
   private function alterCoordinator($row, $rowNum, &$rows) {
-    if (array_key_exists('dislay_name', $row)) {
+    if (array_key_exists('display_name', $row)) {
       $url = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.
         $row['coordinator_id'], $this->_absoluteUrl);
       $rows[$rowNum]['display_name_link'] = $url;
@@ -304,6 +313,13 @@ class CRM_Threepeas_Form_Report_SectorCoordinators extends CRM_Report_Form {
       $genderLabel = '';
     }
     return $genderLabel;
+  }
+  private function alterSector($row, $rowNum, &$rows) {
+    if (array_key_exists('sector', $row)) {
+      if (substr($row['sector'], 0, 1) != '&') {
+        $rows[$rowNum]['sector'] = '<strong>'.$rows[$rowNum]['sector'].'</strong>';
+      }
+    }    
   }
 }
 
