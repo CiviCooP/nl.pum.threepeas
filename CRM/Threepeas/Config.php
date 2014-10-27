@@ -155,7 +155,7 @@ class CRM_Threepeas_Config {
         $childParams = array(
           'parent_id' => $levelChildTagId,
           'is_selectable' => 1, 
-          'option' => array('limit' => 9999));
+          'options' => array('limit' => 9999));
         $tagChildren = civicrm_api3('Tag', 'Get', $childParams);
         $gotAllChildren = $this->gotAllSectorChildren($tagChildren['count']);
         if ($tagChildren['count'] > 0) {
