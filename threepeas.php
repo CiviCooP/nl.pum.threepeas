@@ -223,7 +223,7 @@ function threepeas_civicrm_tabs(&$tabs, $contactID) {
    * first check if contact_subtype is country
    */
   if (_threepeasContactIsCountry($contactID) == TRUE) {
-    $activeCountryTabs = array('contact_documents', 'rel', 'case', 'activity');
+    $activeCountryTabs = array('contact_documents', 'rel', 'case', 'activity', 'participant');
     foreach ($tabs as $tabKey => $tab) {
       $projectWeight = $tab['weight']++;
       if (!in_array($tab['id'], $activeCountryTabs)) {
