@@ -53,6 +53,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   function preProcess() {
     if ($this->_action != CRM_Core_Action::ADD) {
       $this->_id = CRM_Utils_Request::retrieve('pid', 'Integer', $this);
+      $this->_projectType = CRM_Threepeas_BAO_PumProject::getProjectType($this->_id);
     }
     /*
      * if action = delete, execute delete immediately
@@ -91,7 +92,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
         $defaults[$name] = $value;
       }
     }
-    if ($this->_action != CRM_Core_Action::ADD) {
+    if ($this->_action == CRM_Core_Action::ADD) {
       $this->correctAddDefaults($defaults);
     }
     if ($this->_action == CRM_Core_Action::VIEW) {
@@ -155,19 +156,21 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->add('text', 'title', ts('Title'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'programme_id', ts('Programme'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'customer_id', ts('Customer or Country'), array('size' => CRM_Utils_Type::HUGE));
-    $this->add('text', 'projectmanager_id', ts('Project Manager'), array('size' => CRM_Utils_Type::HUGE));
-    $this->add('textarea', 'reason', ts('What is the reason for this request for Assistance?'), 
-      array('rows'    => 4, 'readonly'=> 'readonly', 'cols'    => 80), false);
-    $this->add('textarea', 'work_description', ts('Which project activities do you expect the expert to perform?'), 
-      array('rows'    => 4, 'readonly'=> 'readonly', 'cols'    => 80), false);
+    if ($this->_projectType == 'Customer') {
+      $this->add('text', 'projectmanager_id', ts('Project Manager'), array('size' => CRM_Utils_Type::HUGE));
+      $this->add('textarea', 'reason', ts('What is the reason for this request for Assistance?'), 
+        array('rows'    => 4, 'readonly'=> 'readonly', 'cols'    => 80), false);
+      $this->add('textarea', 'work_description', ts('Which project activities do you expect the expert to perform?'), 
+        array('rows'    => 4, 'readonly'=> 'readonly', 'cols'    => 80), false);
+      $this->add('textarea', 'qualifications', ts('Qualifications'), 
+        array('rows'    => 4, 'readonly'=> 'readonly', 'cols' => 80), false);    
+      $this->add('text', 'sector_coordinator', ts('Sector Coordinator'), array('size' => CRM_Utils_Type::HUGE));
+      $this->add('text', 'representative', ts('Representative'), array('size' => CRM_Utils_Type::HUGE));
+    }
     $this->add('textarea', 'expected_results', ts('What are the expected results of the project? '), 
       array('rows'    => 4, 'readonly'=> 'readonly', 'cols'    => 80), false);
-    $this->add('textarea', 'qualifications', ts('Qualifications'), 
-      array('rows'    => 4, 'readonly'=> 'readonly', 'cols' => 80), false);    
-    $this->add('text', 'sector_coordinator', ts('Sector Coordinator'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'country_coordinator', ts('Country Coordinator'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'project_officer', ts('Project Officer'), array('size' => CRM_Utils_Type::HUGE));
-    $this->add('text', 'representative', ts('Representative'), array('size' => CRM_Utils_Type::HUGE));
     $this->addDate('start_date', ts('Start Date'), false);
     $this->addDate('end_date', ts('End Date'), false);
     $this->add('text', 'is_active', ts('Enabled?'));
@@ -175,7 +178,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->setViewDonationLink();
   }
   /**
-   * Function to set Add Elements
+   * Function to set Add Elements (country projects only)
    */
   function setAddElements() {
     $this->add('text', 'title', ts('Title'), array(
@@ -183,11 +186,13 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->add('select', 'programme_id', ts('Programme'), $this->_programmes);
     $this->add('select', 'customer_id', ts('Customer'), $this->_projectCustomers);
     $this->add('select', 'country_id', ts('Country'), $this->_projectCountries);
-    $this->add('select', 'projectmanager_id', ts('Project Manager'), $this->_projectManagers);
-    $this->add('textarea', 'reason', ts('Reason'), array('rows'  => 4, 'cols'  => 80), false);
-    $this->add('textarea', 'work_description', ts('Work description'), array('rows'  => 4,  'cols'  => 80), false);
+    if ($this->_projectType == 'Customer') {
+      $this->add('select', 'projectmanager_id', ts('Project Manager'), $this->_projectManagers);
+      $this->add('textarea', 'reason', ts('Reason'), array('rows'  => 4, 'cols'  => 80), false);
+      $this->add('textarea', 'work_description', ts('Work description'), array('rows'  => 4,  'cols'  => 80), false);
+      $this->add('textarea', 'qualifications', ts('Qualifications'), array('rows'  => 4,  'cols'  => 80), false);
+    }
     $this->add('textarea', 'expected_results', ts('Expected results'), array('rows'  => 4,  'cols'  => 80), false);
-    $this->add('textarea', 'qualifications', ts('Qualifications'), array('rows'  => 4,  'cols'  => 80), false);
     $this->addDate('start_date', ts('Start Date'), false);
     $this->addDate('end_date', ts('End Date'), false);
     $this->add('checkbox', 'is_active', ts('Enabled'));
@@ -203,24 +208,22 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->add('text', 'title', ts('Title'), array(
       'size' => CRM_Utils_Type::HUGE, 'maxlength' =>  255), true);
     $this->add('select', 'programme_id', ts('Programme'), $this->_programmes);
-    /*
-     * set customer/country based on type of project
-     */
-    $this->_projectType = CRM_Threepeas_BAO_PumProject::getProjectType($this->_id);
     if ($this->_projectType === 'Country') {
       $this->add('text', 'country_id', ts('Customer or Country'), array('size' => CRM_Utils_Type::HUGE));
     } else {
       $this->add('text', 'customer_id', ts('Customer or Country'), array('size' => CRM_Utils_Type::HUGE));
     }
-    $this->add('select', 'projectmanager_id', ts('Project Manager'), $this->_projectManagers);
-    $this->add('textarea', 'reason', ts('Reason'), array('rows'  => 4, 'cols'  => 80), false);
-    $this->add('textarea', 'work_description', ts('Work description'), array('rows'  => 4,  'cols'  => 80), false);
-    $this->add('textarea', 'expected_results', ts('Expected results'), array('rows'  => 4,  'cols'  => 80), false);
-    $this->add('textarea', 'qualifications', ts('Qualifications'), array('rows'  => 4,  'cols'  => 80), false);
-    $this->add('text', 'sector_coordinator', ts('Sector Coordinator'), array('size' => CRM_Utils_Type::HUGE));
+    if ($this->_projectType == 'Customer') {
+      $this->add('select', 'projectmanager_id', ts('Project Manager'), $this->_projectManagers);
+      $this->add('textarea', 'reason', ts('Reason'), array('rows'  => 4, 'cols'  => 80), false);
+      $this->add('textarea', 'work_description', ts('Work description'), array('rows'  => 4,  'cols'  => 80), false);
+      $this->add('textarea', 'qualifications', ts('Qualifications'), array('rows'  => 4,  'cols'  => 80), false);
+      $this->add('text', 'sector_coordinator', ts('Sector Coordinator'), array('size' => CRM_Utils_Type::HUGE));
+      $this->add('text', 'representative', ts('Representative'), array('size' => CRM_Utils_Type::HUGE));
+    }
     $this->add('text', 'country_coordinator', ts('Country Coordinator'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'project_officer', ts('Project Officer'), array('size' => CRM_Utils_Type::HUGE));
-    $this->add('text', 'representative', ts('Representative'), array('size' => CRM_Utils_Type::HUGE));
+    $this->add('textarea', 'expected_results', ts('Expected results'), array('rows'  => 4,  'cols'  => 80), false);
     $this->addDate('start_date', ts('Start Date'), false);
     $this->addDate('end_date', ts('End Date'), false);
     $this->add('checkbox', 'is_active', ts('Enabled'));
@@ -456,6 +459,9 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
         $defaults['country_id'] = CRM_Utils_Array::value($defaults['country_id'], $this->_projectCountries);
       }  
     }
+    $new_year = (int) date('Y') + 1;
+    list($defaults['start_date']) = CRM_Utils_Date::setDateDefaults($new_year.'-01-01');
+    list($defaults['end_date']) = CRM_Utils_Date::setDateDefaults($new_year.'-12-31');
   }
   /**
    * Function to correct defaults for Edit action
