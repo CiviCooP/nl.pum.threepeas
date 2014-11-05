@@ -41,8 +41,7 @@ class CRM_Threepeas_Config {
   public $caseTypes = array();
   public $caseStatusOptionGroupId = NULL;
   public $caseStatus = array();
-  public $pumCaseTypes = array();
-  public $countryActionPlanCaseTypeId = NULL;
+  protected $pumCaseTypesAndRoles = array();
   /*
    * project option group id
    */
@@ -90,6 +89,8 @@ class CRM_Threepeas_Config {
    * Constructor function
    */
   function __construct() {
+    $this->setPumCaseTypesAndRoles();
+    
     $this->setDefaultContributionId(4);
     $this->setInactiveContributionStatus();
     $this->setCustomerContactType('Customer');
@@ -267,7 +268,6 @@ class CRM_Threepeas_Config {
     }
   }
   private function setCaseTypes() {
-    $pumCaseTypes = array('Projectintake', 'Advice', 'BLP', 'RemoteCoaching', 'PDV', 'CPA', 'CTM', 'CAPAssessment');
     try {
       $caseParams = array(
         'option_group_id' => $this->caseTypeOptionGroupId,
@@ -275,12 +275,6 @@ class CRM_Threepeas_Config {
       $apiCaseTypes = civicrm_api3('OptionValue', 'Get', $caseParams);
       foreach ($apiCaseTypes['values'] as $caseTypeId => $caseType) {
         $this->caseTypes[$caseType['value']] = $caseType['label'];
-        if (in_array($caseType['label'], $pumCaseTypes)) {
-          $this->pumCaseTypes[$caseType['value']] = $caseType['label'];
-          if ($caseType['label'] == 'CAPAssessment') {
-            $this->countryActionPlanCaseTypeId = $caseType['value'];
-          }
-        }
       }
     } catch (CiviCRM_API3_Exception $ex) {
       $this->caseTypes = array();
@@ -486,5 +480,56 @@ class CRM_Threepeas_Config {
         . 'error from API RelationshipType Getvalue: '.$ex->getMessage());
     }
     return $relationshipTypeId;
+  }
+  private function setPumCaseTypesAndRoles() {
+    $this->pumCaseTypesAndRoles = array(
+      'Projectintake' => array(
+        'sector_coordinator' => 1,
+        'country_coordinator' => 1,
+        'project_officer' => 1,
+        'representative' => 1,
+        'CEO' => 0,
+        'CFO' => 0),
+      'Advice' => array(
+        'sector_coordinator' => 1,
+        'country_coordinator' => 1,
+        'project_officer' => 1,
+        'representative' => 1,
+        'CEO' => 0,
+        'CFO' => 0),
+      'BLP' => array(
+        'sector_coordinator' => 1,
+        'country_coordinator' => 1,
+        'project_officer' => 1,
+        'representative' => 1,
+        'CEO' => 0,
+        'CFO' => 0),
+      'RemoteCoaching' => array(
+        'sector_coordinator' => 1,
+        'country_coordinator' => 1,
+        'project_officer' => 1,
+        'representative' => 1,
+        'CEO' => 0,
+        'CFO' => 0),
+      'PDV' => array(
+        'sector_coordinator' => 1,
+        'country_coordinator' => 1,
+        'project_officer' => 1,
+        'representative' => 1,
+        'CEO' => 0,
+        'CFO' => 0),
+      'CAPAssessment' => array(
+        'sector_coordinator' => 0,
+        'country_coordinator' => 1,
+        'project_officer' => 1,
+        'representative' => 0,
+        'CEO' => 1),
+        'CFO' => 1);
+  }
+  /**
+   * @return array
+   */
+  public function getPumCaseTypesAndRoles() {
+    return $this->pumCaseTypesAndRoles;
   }
 }

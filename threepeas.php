@@ -856,7 +856,7 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
          */
         _threepeasReformOpenCaseSubject($objectRef->case_id, $typeId, $objectId, $objectRef->subject);
         
-        if (isset($threepeasConfig->pumCaseTypes[$typeId])) {
+        if (isset($threepeasConfig->caseTypes[$typeId])) {
           if (empty($daoCase->start_date)) {
             $caseStartDate = date('Ymd');
           } else {
@@ -914,7 +914,7 @@ function _threepeasDeleteContributionEnhancedData($contributionId) {
          * substr because case_type_id is between Core_DAO::VALUE_SEPARATORs
          */
         $typeId = substr($daoCase->case_type_id, 1, 1);
-        if (isset($threepeasConfig->pumCaseTypes[$typeId])) {
+        if (isset($threepeasConfig->caseTypes[$typeId])) {
           if (empty($daoCase->start_date)) {
             $caseStartDate = date('Ymd');
           } else {

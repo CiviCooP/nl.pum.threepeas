@@ -562,6 +562,8 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
   public static function setDefaultCaseRoles($caseId, $customerId, $caseStartDate, $caseTypeId) {
     if (!empty($caseId) && !empty($customerId)) {
       $threepeasConfig = CRM_Threepeas_Config::singleton();
+      $caseType = $threepeasConfig->caseTypes[$caseTypeId];
+      self::setCountryCoordinator();
       $countryCoordinatorId = self::getCountryCoordinator($customerId, 'customer');
       self::setCaseRelation($customerId, $countryCoordinatorId, $caseId, 
         $threepeasConfig->countryCoordinatorRelationshipTypeId, $caseStartDate);
@@ -641,6 +643,35 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       return $pumProject->title;
     } else {
       return '';
+    }
+  }
+  /**
+   * Function to check if a certain case role has to be automatically
+   * assigned to a case when case is created
+   * 
+   * @param string $roleLabel
+   * @param string $caseType
+   * @return boolean
+   */
+  public static function isCaseRoleRequired($roleLabel, $caseType) {
+    if (empty($roleLabel)|| empty($caseType)) {
+      return FALSE;
+    }
+    $threepeasConfig = CRM_Core_Config::singleton();
+    $caseTypesAndRoles = $threepeasConfig->getPumCaseTypesAndRoles();
+    
+    if (!isset($caseTypesAndRoles[$caseType])) {
+      return FALSE;
+    }
+    
+    if (!isset($caseTypesAndRoles[$caseType][$roleLabel])) {
+      return FALSE;
+    }
+    
+    if ($caseTypesAndRoles[$caseType][$roleLabel] == 1) {
+      return TRUE;
+    } else {
+      return FALSE;
     }
   }
 }
