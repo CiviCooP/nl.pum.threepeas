@@ -561,14 +561,19 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    */
   public static function setDefaultCaseRoles($caseId, $customerId, $caseStartDate, $caseTypeId) {
     if (!empty($caseId) && !empty($customerId)) {
+      if (_threepeasContactIsCountry($customerId)) {
+        $type = 'country';
+      } else {
+        $type = 'country';
+      }
       $threepeasConfig = CRM_Threepeas_Config::singleton();
       $caseType = $threepeasConfig->caseTypes[$caseTypeId];
       self::setCountryCoordinator();
-      $countryCoordinatorId = self::getCountryCoordinator($customerId, 'customer');
+      $countryCoordinatorId = self::getCountryCoordinator($customerId, $type);
       self::setCaseRelation($customerId, $countryCoordinatorId, $caseId, 
         $threepeasConfig->countryCoordinatorRelationshipTypeId, $caseStartDate);
       
-      $projectOfficerId = self::getProjectOfficer($customerId, 'customer');
+      $projectOfficerId = self::getProjectOfficer($customerId, $type);
       self::setCaseRelation($customerId, $projectOfficerId, $caseId, 
         $threepeasConfig->projectOfficerRelationshipTypeId, $caseStartDate);
       
@@ -576,7 +581,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       self::setCaseRelation($customerId, $representativeId, $caseId, 
         $threepeasConfig->representativeRelationshipTypeId, $caseStartDate);
       
-      $anamonId = self::getAnamon($customerId, 'customer');
+      $anamonId = self::getAnamon($customerId, $type);
       self::setCaseRelation($customerId, $anamonId, $caseId, 
         $threepeasConfig->anamonRelationshipTypeId, $caseStartDate);
       
