@@ -887,6 +887,34 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
      */
     _threepeasReformCaseSubject($objectId, $objectRef->subject, $objectRef->case_type_id);
   }
+  /*
+   * issue 772 Remove tag if contact type is Country
+   */
+  if ($objectName == 'EntityTag' && $op == 'create') {
+    _threepeasRemoveCountryTag($objectId, $objectRef);
+  }
+}
+/**
+ * Function to delete Tags for Countries
+ */
+function _threepeasRemoveCountryTag($tagId, $objectRef) {
+  foreach ($objectRef as $refElement) {
+    if (!is_array($refElement)) {
+      $entity = $refElement;
+    } else {
+      $entityId = $refElement[0];
+    }
+    if (isset($entity) && $entity == 'civicrm_contact' && 
+      _threepeasContactIsCountry($entityId) == TRUE) {
+      $query = 'DELETE FROM civicrm_entity_tag WHERE entity_table = %1 '
+        . 'AND entity_id = %2 AND tag_id = %3';
+      $params = array(
+        1 => array('civicrm_contact', 'String'),
+        2 => array($entityId, 'Positive'),
+        3 => array($tagId, 'Positive'));
+      CRM_Core_DAO::executeQuery($query, $params);
+    }
+  } 
 }
 /**
  * Function to delete additional data for contribution
