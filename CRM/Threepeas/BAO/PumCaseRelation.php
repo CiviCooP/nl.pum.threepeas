@@ -44,6 +44,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @static
    */
   protected static function get_default_relation($case_role_label, $source_contact_id) {
+    $found_contact_id = 0;
     $case_relation_config = CRM_Threepeas_CaseRelationConfig::singleton();
     $relationship_type_id = $case_relation_config->get_relationship_type_id($case_role_label);
     $relationships = self::get_active_relationships($relationship_type_id, $source_contact_id);
@@ -274,7 +275,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @access protected
    * @static
    */
-  protected static function get_enanced_tag_coordinator($tag_id) {
+  protected static function get_enhanced_tag_coordinator($tag_id) {
     $params = array(
       'is_active' => 1,
       'tag_id' => $tag_id,
