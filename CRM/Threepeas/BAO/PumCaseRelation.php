@@ -261,10 +261,30 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     $contact_tags = self::get_contact_tags($contact_id);
     foreach ($contact_tags as $contact_tag) {
       if (self::is_sector_tag($contact_tag['tag_id']) == TRUE) {
-        $sector_coordinator_id = get_enhanced_tag_coordinator($contact_tag['tag_id']);
+        $sector_coordinator_id = self::get_enhanced_tag_coordinator($contact_tag['tag_id']);
       }
     }
     return $sector_coordinator_id;
+  }
+  /**
+   * Function to get the coordinator for a tag
+   * 
+   * @param int $tag_id
+   * @return int $coordinator_id
+   * @access protected
+   * @static
+   */
+  protected static function get_enanced_tag_coordinator($tag_id) {
+    $params = array(
+      'is_active' => 1,
+      'tag_id' => $tag_id,
+      'return' => 'coordinator_id');
+    try {
+      $coordinator_id = civicrm_api3('TagEnhanced', 'Getvalue', $params);
+    } catch (CiviCRM_API3_Exception $ex) {
+      $coordinator_id = 0;
+    }
+    return $coordinator_id;
   }
   /**
    * Function to determine if tag is a sector tag
