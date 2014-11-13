@@ -81,16 +81,10 @@ class CRM_Threepeas_Config {
   /*
    * config variables for CEO and CFO
    */
-  private $pumCfo = array();
-  private $pumCeo = array();
-  public $ceoRelationshipTypeId = NULL;
-  public $cfoRelationshipTypeId = NULL;
   /**
    * Constructor function
    */
-  function __construct() {
-    $this->setPumCaseTypesAndRoles();
-    
+  function __construct() {    
     $this->setDefaultContributionId(4);
     $this->setInactiveContributionStatus();
     $this->setCustomerContactType('Customer');
@@ -111,13 +105,6 @@ class CRM_Threepeas_Config {
     $this->setCaseTypes();
     
     $this->expertRelationshipTypeId = $this->setRelationshipTypeId('Expert');
-    $this->countryCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Country Coordinator is');
-    $this->projectOfficerRelationshipTypeId = $this->setRelationshipTypeId('Project Officer for');
-    $this->representativeRelationshipTypeId = $this->setRelationshipTypeId('Representative is');
-    $this->sectorCoordinatorRelationshipTypeId = $this->setRelationshipTypeId('Sector Coordinator');
-    $this->anamonRelationshipTypeId = $this->setRelationshipTypeId('Anamon');
-    $this->ceoRelationshipTypeId = $this->setRelationshipTypeId('CEO');
-    $this->cfoRelationshipTypeId = $this->setRelationshipTypeId('CFO');
     
     $this->setActiveProjectList();
     $this->setActiveProgrammeList();
@@ -125,14 +112,7 @@ class CRM_Threepeas_Config {
     $this->openCaseActTypeId = $this->setActivityTypeId('Open Case');
     $this->setActTargetRecordType();
     $this->setSectorTree();
-  	$this->setCeoCfo();  
   }
-  public function getCeo() {
-    return $this->pumCeo;
-  }
-  public function getCfo() {
-    return $this->pumCfo;
-  }  
   public function getSectorTree() {
     return $this->sectorTree;
   }
@@ -440,96 +420,5 @@ class CRM_Threepeas_Config {
       $this->actTargetRecordType = NULL;
       throw new Exception('Could not find an option value with name Activity Targets in group activity_contacts, error from API OptionValue Getvalue : '.$ex->getMessage());
     }
-  }
-  /**
-   * Function to set CEO and CFO for PUM. Based on expectation that job title CEO
-   * and job title CFO for organization PUM Netherlands Senior Experts are there.
-   * Assumption is that PUM is contact_id 1
-   */
-  private function setCeoCfo() {
-    $relationshipParams = array(
-      'contact_id_b' => 1,
-      'is_active' => 1,
-      'relationship_type_id' => $this->getEmployeeRelationshipTypeId());
-    $pumEmployees = civicrm_api3('Relationship', 'Get', $relationshipParams);
-    foreach ($pumEmployees['values'] as $pumEmployee) {
-      $this->setCeoCfoValues($pumEmployee['contact_id_a']);
-    } 
-  }
-  private function setCeoCfoValues($contactId) {
-    $contactData = civicrm_api3('Contact', 'Getsingle', array('id' => $contactId));
-    if (isset($contactData['job_title'])) {
-      switch ($contactData['job_title']) {
-        case 'CEO':
-          $this->pumCeo['contact_id'] = $contactId;
-          $this->pumCeo['display_name'] = $contactData['display_name'];
-          break;
-        case 'CFO':
-          $this->pumCfo['contact_id'] = $contactId;
-          $this->pumCfo['display_name'] = $contactData['display_name'];
-          break;
-      }
-    }
-  }
-  private function getEmployeeRelationshipTypeId() {
-    $params = array('name_a_b' => 'Employee of', 'return' => 'id');
-    try {
-      $relationshipTypeId = civicrm_api3('RelationshipType', 'Getvalue', $params);
-    } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Could not find relationshi type with name_a_b Employee Of, '
-        . 'error from API RelationshipType Getvalue: '.$ex->getMessage());
-    }
-    return $relationshipTypeId;
-  }
-  private function setPumCaseTypesAndRoles() {
-    $this->pumCaseTypesAndRoles = array(
-      'Projectintake' => array(
-        'sector_coordinator' => 1,
-        'country_coordinator' => 1,
-        'project_officer' => 1,
-        'representative' => 1,
-        'CEO' => 0,
-        'CFO' => 0),
-      'Advice' => array(
-        'sector_coordinator' => 1,
-        'country_coordinator' => 1,
-        'project_officer' => 1,
-        'representative' => 1,
-        'CEO' => 0,
-        'CFO' => 0),
-      'BLP' => array(
-        'sector_coordinator' => 1,
-        'country_coordinator' => 1,
-        'project_officer' => 1,
-        'representative' => 1,
-        'CEO' => 0,
-        'CFO' => 0),
-      'RemoteCoaching' => array(
-        'sector_coordinator' => 1,
-        'country_coordinator' => 1,
-        'project_officer' => 1,
-        'representative' => 1,
-        'CEO' => 0,
-        'CFO' => 0),
-      'PDV' => array(
-        'sector_coordinator' => 1,
-        'country_coordinator' => 1,
-        'project_officer' => 1,
-        'representative' => 1,
-        'CEO' => 0,
-        'CFO' => 0),
-      'CAPAssessment' => array(
-        'sector_coordinator' => 0,
-        'country_coordinator' => 1,
-        'project_officer' => 1,
-        'representative' => 0,
-        'CEO' => 1),
-        'CFO' => 1);
-  }
-  /**
-   * @return array
-   */
-  public function getPumCaseTypesAndRoles() {
-    return $this->pumCaseTypesAndRoles;
   }
 }

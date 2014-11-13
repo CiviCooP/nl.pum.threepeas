@@ -869,7 +869,7 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
             2 => array($threepeasConfig->actTargetRecordType, 'Positive'));
           $daoActContact = CRM_Core_DAO::executeQuery($actContactQry, $actContactParams);
           if ($daoActContact->fetch()) {
-            CRM_Threepeas_BAO_PumCaseRelation::createDefaultCaseRoles($objectRef->case_id, 
+            CRM_Threepeas_BAO_PumCaseRelation::create_default_case_roles($objectRef->case_id, 
               $daoActContact->contact_id, $caseStartDate, $typeId);
           }
         }
