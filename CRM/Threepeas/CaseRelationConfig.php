@@ -24,6 +24,10 @@ class CRM_Threepeas_CaseRelationConfig {
   protected $_pum_cfo = NULL;
   protected $_ceo_relationship_type_id = NULL;
   protected $_cfo_relationship_type_id = NULL;
+  /*
+   * activity status completed
+   */
+  protected $_activity_status_completed = NULL;
   /**
    * Function to return singleton object
    * 
@@ -44,6 +48,13 @@ class CRM_Threepeas_CaseRelationConfig {
     $this->set_case_type_relations();
     $this->set_relationship_types();
     $this->set_ceo_cfo();
+    $this->set_activity_status_completed();
+  }
+  /**
+   * Function to get the activity status id of completed
+   */
+  public function get_activity_status_completed() {
+    return $this->_activity_status_completed;
   }
   /**
    * Function to get all case type relationship settings
@@ -79,7 +90,31 @@ class CRM_Threepeas_CaseRelationConfig {
   public function get_pum_cfo() {
     return $this->_pum_cfo;
   }
-  
+  /**
+   * Function to set activity status for completed
+   * 
+   * @throws Exception when option group activity_status not found
+   * @throws Exception when activity status completed not found
+   */
+  protected function set_activity_status_completed() {
+    $params_option_group = array('name' => 'activity_status', 'return' => 'id');
+    try {
+      $option_group_id = civicrm_api3('OptionGroup', 'Getvalue', $params_option_group);
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find option group with name activity_status, '
+        . 'error from API OptionGroup Getvalue: '.$ex->getMessage());
+    }
+    $params_option_value = array(
+      'option_group_id' => $option_group_id,
+      'name' => 'Completed',
+      'return' => 'value');
+    try {
+      $this->_activity_status_completed = civicrm_api3('OptionValue', 'Getvalue', $params_option_value);
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find activity status with name Completed, '
+        . 'error from API OptionValue Getvalue: '.$ex->getMessage());
+    }
+  }
   /**
    * Function to set CEO and CFO for PUM. Based on expectation that job title CEO
    * and job title CFO for organization PUM Netherlands Senior Experts are there.

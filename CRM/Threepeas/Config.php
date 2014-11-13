@@ -77,10 +77,11 @@ class CRM_Threepeas_Config {
   /*
    * protected sectorTree
    */
-  private $sectorTree = array();
+  protected $sectorTree = array();
   /*
-   * config variables for CEO and CFO
+   * protected activity type id for Assessment Project Request by Rep
    */
+  protected $assessmentRepActTypeId = NULL;
   /**
    * Constructor function
    */
@@ -112,10 +113,15 @@ class CRM_Threepeas_Config {
     $this->openCaseActTypeId = $this->setActivityTypeId('Open Case');
     $this->setActTargetRecordType();
     $this->setSectorTree();
+    $this->assessmentRepActTypeId = $this->setActivityTypeId('Assessment Project Request by Rep');
   }
   public function getSectorTree() {
     return $this->sectorTree;
   }
+  public function getAssessmentRepActTypeId() {
+    return $this->assessmentRepActTypeId;
+  }
+
   private function setSectorTree() {
     /*
      * first check if tag 'Sector' exists

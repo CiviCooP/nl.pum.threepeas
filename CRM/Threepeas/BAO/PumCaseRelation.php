@@ -33,6 +33,74 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     }
   }
   /**
+   * Function to set sector coordinator role for case from activity
+   * 
+   * @param obj $object_ref
+   * @throws Exception when $object_ref is not an object
+   * @access public
+   * @static
+   */
+  public static function set_sector_coordinator_from_activity($object_ref) {
+    if (!is_object($object_ref)) {
+      throw new Exception('Function set_sector_coordinator_assessment_rep in '
+        . 'CRM_Threepeas_BAO_PumCaseRelation expects object as param.');
+    }
+    $case_relation_config = CRM_Threepeas_CaseRelationConfig::singleton();
+    if (isset($object_ref->status_id) && $object_ref->status_id = 
+      $case_relation_config->get_activity_status_completed()) {
+      if (isset($object_ref->case_id) && !empty($object_ref->case_id)) {
+        self::set_sector_coordinator_for_case($object_ref->case_id);
+      }
+    }
+  }
+  /**
+   * Function to set sector coordinator for case
+   * 
+   * @param int $case_id
+   * @access protected
+   * @static
+   */
+  protected static function set_sector_coordinator_for_case($case_id) {
+    $client_id = self::get_case_client($case_id);
+    $sector_coordinator_id = self::get_sector_coordinator_id($client_id);
+    $case_start_date = self::get_case_start_date($case_id);
+    self::create_case_relation($case_id, $client_id, $sector_coordinator_id, $case_start_date, 
+      'sector_coordinator');
+  }
+  /**
+   * Function to retrieve client_id of case
+   * 
+   * @param int $case_id
+   * @return int $client_id
+   * @access protected
+   * @static
+   */
+  protected static function get_case_client($case_id) {
+    $params = array(
+      'case_id' => $case_id,
+      'return' => 'client_id');
+    $case_client_ids = civicrm_api3('Case', 'Getvalue', $params);
+    foreach ($case_client_ids as $case_client_id) {
+      $client_id = $case_client_id;
+    }
+    return $client_id;
+  }
+  /**
+   * Function to get start_date fo case
+   * 
+   * @param int $case_id
+   * @return date $case_start_date
+   * @access protected
+   * @static
+   */
+  protected static function get_case_start_date($case_id) {
+    $params = array(
+      'case_id' => $case_id,
+      'return' => 'start_date');
+    $case_start_date = civicrm_api3('Case', 'Getvalue', $params);
+    return $case_start_date;
+  }
+  /**
    * Function to get the relationship for a specific type from a specific contact
    * for example, country coordinator for a customer or country coordinator for a 
    * country
@@ -259,6 +327,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @static
    */
   protected static function get_sector_coordinator_id($contact_id) {
+    $sector_coordinator_id = 0;
     $contact_tags = self::get_contact_tags($contact_id);
     foreach ($contact_tags as $contact_tag) {
       if (self::is_sector_tag($contact_tag['tag_id']) == TRUE) {
