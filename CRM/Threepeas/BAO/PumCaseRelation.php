@@ -54,6 +54,19 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     }
   }
   /**
+   * Function to get coordinator/rep/etc.
+   * 
+   * @param int $contact_id
+   * @param string $case_role_label
+   * @return int $case_role_id
+   * @access public
+   * @static
+   */
+  public static function get_relation_id($contact_id, $case_role_label) {
+    $case_role_id = self::call_case_role_method($case_role_label, $contact_id);
+    return $case_role_id;
+  }
+  /**
    * Function to set sector coordinator for case
    * 
    * @param int $case_id
@@ -495,8 +508,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
       try {
         $country_id = civicrm_api3('Contact', 'Getvalue', $params);
       } catch (CiviCRM_API3_Exception $ex) {
-        throw new Exception('Could not find contact of subtype country with country id '.
-          $contact['country_id'].', error from API Contact Getvalue: '.$ex->getMessage());
+        $country_id = 0;
       }
     }
     return $country_id;

@@ -302,33 +302,6 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
       CRM_Threepeas_BAO_PumCaseProject::add($pumCaseProject);
     } 
   }
-  /*
-   * country project from webform
-   */
-    if ($groupID == $threepeasConfig->capCustomGroupId && $op == 'create') {
-    /*
-     * only add project if case CAP is NOT created from CiviCRM UI
-     */
-    if (isset($GLOBALS['pum_project_ignore']) && $GLOBALS['pum_project_ignore'] == 1) {
-      $GLOBALS['pum_project_ignore'] = 0;
-    } else {
-      $pumProject = _threepeasSetCountryProject($params);
-      /*
-       * retrieve case for country
-       */ 
-      $apiCase = civicrm_api3('Case', 'Getsingle', array('case_id' => $entityID));
-      if (isset($apiCase['client_id'][1])) {
-        $pumProject['country_id'] = $apiCase['client_id'][1];
-      }
-      $pumProject['is_active'] = 1;
-      $createdProject = CRM_Threepeas_BAO_PumProject::add($pumProject);
-      if (isset($createdProject['country_id']) && !empty($createdProject['country_id'])) {
-        _threepeasGenerateProjectTitle($createdProject['id'], $createdProject['country_id']);
-      }
-      $pumCaseProject = array('case_id' => $entityID, 'project_id' => $createdProject['id'], 'is_active' => 1);
-      CRM_Threepeas_BAO_PumCaseProject::add($pumCaseProject);
-    } 
-  }
 }
 /**
  * Function to generate the project title (Issue 90)
@@ -847,6 +820,11 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
     }
     
     if ($objectRef->activity_type_id == $threepeasConfig->openCaseActTypeId) {
+      /*
+       * issue 838 create country project
+       */
+      CRM_Threepeas_BAO_PumProject::create_country_project_for_case($objectRef->case_id);
+      
       $caseQry = 'SELECT case_type_id, start_date FROM civicrm_case WHERE id = %1';
       $caseParams = array(1 => array($objectRef->case_id, 'Positive'));
       $daoCase = CRM_Core_DAO::executeQuery($caseQry, $caseParams);

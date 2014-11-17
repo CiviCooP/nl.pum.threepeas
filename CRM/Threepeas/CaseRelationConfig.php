@@ -321,7 +321,7 @@ class CRM_Threepeas_CaseRelationConfig {
       'cfo' => 'CFO',
       'country_coordinator' => 'Country Coordinator is',
       'grant_coordinator' => 'Grant Coordinator',
-      'project_officer' => 'Project Officer is',
+      'project_officer' => 'Project Officer for',
       'recruitment_team' => 'Recruitment Team Member',
       'representative' => 'Representative is',
       'sector_coordinator' => 'Sector Coordinator'
