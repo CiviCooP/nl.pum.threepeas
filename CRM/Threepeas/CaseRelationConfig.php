@@ -217,8 +217,7 @@ class CRM_Threepeas_CaseRelationConfig {
         'cfo' => 0,
         'recruitment_team' => 0,
         'grant_coordinator' => 0),
-      //'CAPAssessment' => array(
-        'CPA' => array(
+      'CAPAssessment' => array(
         'sector_coordinator' => 0,
         'anamon' => 0,
         'authorised_contact' => 0,

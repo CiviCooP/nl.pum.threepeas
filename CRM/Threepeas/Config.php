@@ -264,7 +264,7 @@ class CRM_Threepeas_Config {
       $apiCaseTypes = civicrm_api3('OptionValue', 'Get', $caseParams);
       foreach ($apiCaseTypes['values'] as $caseTypeId => $caseType) {
         $this->caseTypes[$caseType['value']] = $caseType['label'];
-        if ($caseType['label'] == 'CPA') {
+        if ($caseType['label'] == 'CAPAssessment') {
           $this->cap_case_type_id = $caseType['value'];
         }
       }

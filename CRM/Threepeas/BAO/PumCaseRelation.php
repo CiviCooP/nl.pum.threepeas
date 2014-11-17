@@ -288,13 +288,42 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @static
    */
   protected static function get_country_coordinator_id($client_id) {
-    $country_id = self::get_customer_country($client_id);
+    if (self::is_contact_country($client_id) == FALSE) {
+      $country_id = self::get_customer_country($client_id);
+    } else {
+      $country_id = $client_id;
+    }
     if (!empty($country_id)) {
       $country_coordinator_id = self::get_default_relation('country_coordinator', $country_id);
     } else {
       $country_coordinator_id = 0;
     }
     return $country_coordinator_id;
+  }
+  /**
+   * Function to determine if contact is a country
+   * 
+   * @param int $contact_id
+   * @return boolean
+   * @access protected
+   * @static
+   */
+  protected static function is_contact_country($contact_id) {
+    $params = array(
+      'id' => $contact_id,
+      'return' => 'contact_sub_type'
+    );
+    try {
+      $contact_sub_types = civicrm_api3('Contact', 'Getvalue', $params);
+    } catch (CiviCRM_API3_Exception $ex) {
+      return FALSE;
+    }
+    foreach ($contact_sub_types as $contact_sub_type) {
+      $threepeas_config = CRM_Threepeas_Config::singleton();
+      if ($contact_sub_type == $threepeas_config->countryContactType) {
+        return TRUE;
+      }
+    }
   }
   /**
    * Function to get anamon from country
@@ -493,12 +522,10 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @throws Exception when contact for country not found
    */
   protected static function get_customer_country($customer_id) {
-    $country_id = 0;
     try {
       $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $customer_id));
     } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Could not find contact with id '.$customer_id.
-        ', error from API Contact Getsingle: '.$ex->getMessage());
+      $country_id = 0;
     }
     if (isset($contact['country_id'])) {
       $threepeas_config = CRM_Threepeas_Config::singleton();
