@@ -76,6 +76,14 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
           $displayProject['showCustomer'] = 0;
         }
       }
+      if (isset($project['projectmanager_id']) && !empty($project['projectmanager_id'])) {
+        $displayProject['projectmanager_id'] = $project['projectmanager_id'];
+          $contactParams = array(
+            'id'    =>  $project['projectmanager_id'],
+            'return'=>  'display_name'
+          );
+          $displayProject['projectmanager_name'] = civicrm_api3('Contact', 'Getvalue', $contactParams);
+      }
       
       $displayProject['sector_coordinator_id'] = CRM_Threepeas_BAO_PumCaseRelation::get_relation_id($case_role_id, 'sector_coordinator');
       $contactParams = array(

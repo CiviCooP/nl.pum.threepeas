@@ -16,6 +16,7 @@
           <th class="sorting-disabled" rowspan="1" colspan="1">Title</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Parent Programme</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Project Customer/Country</th>
+          <th class="sorting-disabled" rowspan="1" colspan="1">Project Manager</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Sector Coordinator</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Country Coordinator</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Project Officer</th>
@@ -32,6 +33,7 @@
           <tr id="row1" class={$rowClass}>
             <td hidden="1">{$project.id}</td>
             <td hidden="1">{$project.programme_id}</td>
+            <td hidden="1">{$project.projectmanager_id}</td>
             <td hidden="1">{$project.sector_coordinator_id}</td>
             <td hidden="1">{$project.country_coordinator_id}</td>
             <td hidden="1">{$project.project_officer_id}</td>
@@ -44,6 +46,7 @@
             {else}
               <td>{$project.country_name}</td>
             {/if}
+            <td>{$project.projectmanager_name}</td>
             <td>{$project.sector_coordinator_name}</td>
             <td>{$project.country_coordinator_name}</td>
             <td>{$project.project_officer_name}</td>
