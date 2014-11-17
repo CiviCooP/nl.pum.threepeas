@@ -263,7 +263,7 @@ class CRM_Threepeas_CaseRelationConfig {
         'grant_coordinator' => 1),
       'Projectintake' => array(
         'sector_coordinator' => 1,
-        'authorised_contact' => 0,
+        'authorised_contact' => 1,
         'country_coordinator' => 1,
         'project_officer' => 1,
         'representative' => 1,
