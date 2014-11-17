@@ -79,61 +79,6 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     parent::postProcess();
   }
   /**
-   * Function to set default values
-   * 
-   * @return array $defaults
-   */
-  function setDefaultValues() {
-    $defaults = array();
-    if (isset($this->_id)) {
-      $projectValues = CRM_Threepeas_BAO_PumProject::getValues(array('id' => $this->_id));
-      $this->setDefaultProjectRelations($projectValues[$this->_id], $defaults);
-      foreach ($projectValues[$this->_id] as $name => $value) {
-        $defaults[$name] = $value;
-      }
-    }
-    if ($this->_action == CRM_Core_Action::ADD) {
-      $this->correctAddDefaults($defaults);
-    }
-    if ($this->_action == CRM_Core_Action::VIEW) {
-      $this->correctViewDefaults($defaults);
-    }
-    if ($this->_action == CRM_Core_Action::UPDATE) {
-      $this->correctUpdateDefaults($defaults);
-    }
-    return $defaults;
-  }
-  /**
-   * Function to set defaults for Country Coordinator, Project Officer, 
-   * Represenative and Sector Coordinator
-   */
-  function setDefaultProjectRelations($project, &$defaults) {
-    if (!empty($project['customer_id']) || !empty($project['country_id'])) {
-      if (isset($project['customer_id']) && !empty($project['customer_id'])) {
-        $countryCoordinatorId = CRM_Threepeas_BAO_PumProject::getCountryCoordinator($project['customer_id'], 'customer');
-        $sectorCoordinatorId = CRM_Threepeas_BAO_PumProject::getSectorCoordinator($project['customer_id']);
-        if (!empty($sectorCoordinatorId)) {
-          $defaults['sector_coordinator'] = civicrm_api3('Contact', 'Getvalue', array('id' => $sectorCoordinatorId, 'return' => 'display_name'));
-        }
-        $projectOfficerId = CRM_Threepeas_BAO_PumProject::getProjectOfficer($project['customer_id'], 'customer');
-        $representativeId = CRM_Threepeas_BAO_PumProject::getRepresentative($project['customer_id']);
-      } else {
-        $countryCoordinatorId = CRM_Threepeas_BAO_PumProject::getCountryCoordinator($project['country_id'], 'country');
-        $projectOfficerId = CRM_Threepeas_BAO_PumProject::getProjectOfficer($project['country_id'], 'country');
-        $representativeId = CRM_Threepeas_BAO_PumProject::getRepresentative($project['country_id']);
-      }
-      if (!empty($countryCoordinatorId)) {
-        $defaults['country_coordinator'] = civicrm_api3('Contact', 'Getvalue', array('id' => $countryCoordinatorId, 'return' => 'display_name'));     
-      }
-      if (!empty($projectOfficerId)) {
-        $defaults['project_officer'] = civicrm_api3('Contact', 'Getvalue', array('id' => $projectOfficerId, 'return' => 'display_name'));
-      }
-      if (!empty($representativeId)) {
-        $defaults['representative'] = civicrm_api3('Contact', 'Getvalue', array('id' => $representativeId, 'return' => 'display_name'));
-      }
-    }
-  }
-  /**
    * Function to set form elements based on action
    */
   function setFormElements() {
