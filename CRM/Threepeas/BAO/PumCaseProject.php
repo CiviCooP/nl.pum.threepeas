@@ -134,4 +134,29 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
       }
     }
   }
+  /**
+   * Function to return the client_id of a case
+   * 
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 17 Nov 2014
+   * @param int $case_id
+   * @return int $client_id
+   * @access public
+   * @static
+   */
+  public static function get_case_client_id($case_id) {
+    $params = array(
+      'id' => $case_id,
+      'return' => 'client_id'
+    );
+    try {
+      $case_clients = civicrm_api3('Case', 'Getvalue', $params);
+      foreach ($case_clients as $case_client) {
+        $client_id = $case_client;
+      }
+    } catch (CiviCRM_API3_Exception $ex) {
+      $client_id = 0;
+    }
+    return $client_id;
+  }
 }

@@ -41,7 +41,7 @@ class CRM_Threepeas_Config {
   public $caseTypes = array();
   public $caseStatusOptionGroupId = NULL;
   public $caseStatus = array();
-  protected $project_intake_case_type_id = NULL;
+  protected $cap_case_type_id = NULL;
   /*
    * project option group id
    */
@@ -115,8 +115,8 @@ class CRM_Threepeas_Config {
     $this->setSectorTree();
     $this->assessmentRepActTypeId = $this->setActivityTypeId('Assessment Project Request by Rep');
   }
-  public function get_project_intake_case_type_id() {
-    return $this->project_intake_case_type_id;
+  public function get_cap_case_type_id() {
+    return $this->cap_case_type_id;
   }
   public function getSectorTree() {
     return $this->sectorTree;
@@ -264,8 +264,8 @@ class CRM_Threepeas_Config {
       $apiCaseTypes = civicrm_api3('OptionValue', 'Get', $caseParams);
       foreach ($apiCaseTypes['values'] as $caseTypeId => $caseType) {
         $this->caseTypes[$caseType['value']] = $caseType['label'];
-        if ($caseType['label'] == 'Projectintake') {
-          $this->project_intake_case_type_id = $caseType['value'];
+        if ($caseType['label'] == 'CPA') {
+          $this->cap_case_type_id = $caseType['value'];
         }
       }
     } catch (CiviCRM_API3_Exception $ex) {

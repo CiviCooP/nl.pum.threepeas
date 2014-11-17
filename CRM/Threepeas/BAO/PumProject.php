@@ -382,14 +382,21 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * @static
    */
   public static function create_country_project_for_case($case_id) {
-    if (self::is_projectintake_case($case_id) == TRUE && self::is_country_client($case_id) == TRUE 
-      && self::country_project_exists($case_id) == FALSE) {
-      $project_params = self::set_country_project_values_for_case($case_id);
-      self::add($project_params);
+    if (self::is_cap_case($case_id) == TRUE && self::is_country_client($case_id) == TRUE) {
+      $project_params = array(
+        'is_active' => 1,
+        'country_id' => CRM_Threepeas_BAO_PumCaseProject::get_case_client_id($case_id));
+      $created_project = self::add($project_params);
+      $case_project_params = array(
+        'case_id' => $case_id,
+        'project_id' => $created_project['id'],
+        'is_active' => 1
+      );
+      CRM_Threepeas_BAO_PumCaseProject::add($case_project_params);
     }
   }
   /**
-   * Function to check if case is projectintake
+   * Function to check if case is country action plan
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 13 Nov 2014
@@ -398,28 +405,49 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * @access protected
    * @static
    */
-  protected static function is_projectintake_case($case_id) {
+  protected static function is_cap_case($case_id) {
     $threepeas_config = CRM_Threepeas_Config::singleton();
     $params = array(
       'id' => $case_id, 
       'return' => 'case_type_id');
-    $project_intake_case_type = $threepeas_config->get_project_intake_case_type_id();
+    $cap_case_type = $threepeas_config->get_cap_case_type_id();
     $case_type_id = civicrm_api3('Case', 'Getvalue', $params);
-    if ($case_type_id == $project_intake_case_type) {
+    $type_parts = explode(CRM_Core_DAO::VALUE_SEPARATOR, $case_type_id);
+    if (isset($type_parts[1])) {
+      $case_type_id = $type_parts[1];
+    }
+    if ($case_type_id == $cap_case_type) {
       return TRUE;
     }
     return FALSE;
   }
+  /**
+   * Function to check if the client of a case is a country
+   * 
+   * @param int $case_id
+   * @return boolean
+   * @access protected
+   * @static
+   */
   protected static function is_country_client($case_id) {
-    $params = array(
-      'id'  => ''
-    );
-    return TRUE;
-  }
-  protected static function country_project_exists($case_id) {
-    return TRUE;
-  }
-  protected static function set_country_project_values_for_case($case_id) {
-    
+    $case_client_id = CRM_Threepeas_BAO_PumCaseProject::get_case_client_id($case_id);
+    if (!empty($case_client_id)) {
+      $params = array(
+        'id' => $case_client_id,
+        'return' => 'contact_sub_type'
+      );
+      try {
+        $contact_sub_types = civicrm_api3('Contact', 'Getvalue', $params);
+      } catch (CiviCRM_API3_Exception $ex) {
+        return FALSE;
+      }
+      foreach ($contact_sub_types as $contact_sub_type) {
+        $threepeas_config = CRM_Threepeas_Config::singleton();
+        if ($contact_sub_type == $threepeas_config->countryContactType) {
+          return TRUE;
+        }
+      }
+    }
+    return FALSE;
   }
 }
