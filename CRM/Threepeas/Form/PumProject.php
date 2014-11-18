@@ -55,13 +55,22 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       $this->_id = CRM_Utils_Request::retrieve('pid', 'Integer', $this);
       $this->_projectType = CRM_Threepeas_BAO_PumProject::getProjectType($this->_id);
     }
+    $session = CRM_Core_Session::singleton();
+    $user_context = $session->readUserContext();
     /*
      * if action = delete, execute delete immediately
      */
     if ($this->_action == CRM_Core_Action::DELETE) {
       CRM_Threepeas_BAO_PumProject::deleteById($this->_id);
       $session->setStatus('Project deleted', 'Delete', 'success');
-      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/projectlist'));
+      CRM_Utils_System::redirect($user_context);
+    }
+    /*
+     * if action = disable or enable, execute immediately
+     */
+    if ($this->_action == CRM_Core_Action::DISABLE || $this->_action == CRM_Core_Action::ENABLE) {
+      $this->processAble();
+      CRM_Utils_System::redirect($user_context);
     }
     /*
      * set page title based on action
@@ -500,5 +509,20 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
         $defaults['representative'] = civicrm_api3('Contact', 'Getvalue', array('id' => $representativeId, 'return' => 'display_name'));
       }
     }
+  }
+  /**
+   * Function to process enable/disable project
+   */
+  function processAble() {
+    $session = CRM_Core_Session::singleton();
+    if ($this->_action == CRM_Core_Action::ENABLE) {
+      $session->setStatus('Project enabled', 'Enable', 'success');
+      $params['is_active'] = 1;
+    } else {
+      $session->setStatus('Project disabled', 'Enable', 'success');
+      $params['is_active'] = 0;
+    }
+    $params['id'] = $this->_id;
+    CRM_Threepeas_BAO_PumProject::add($params);
   }
 }
