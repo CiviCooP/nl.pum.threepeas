@@ -52,36 +52,45 @@
               <div class="clear"></div>
             </div>
           {/if}
-          <div class="crm-section">
-            <div class="label">{$form.projectmanager_id.label}</div>
-            <div class="content">{$form.projectmanager_id.value}</div>
-              <div class="clear"></div>            
-          </div>
-          <div class="crm-section">
-            <div class="label">{$form.reason.label}</div>
-            <div class="content">{$form.reason.value}</div>
-            <div class="clear"></div>
-          </div>  
-          <div class="crm-section">
-            <div class="label">{$form.work_description.label}</div>
-            <div class="content">{$form.work_description.value}</div>
-            <div class="clear"></div>
-          </div>  
+          {if !empty($form.customer_id.value)}
+            <div class="crm-section">
+              <div class="label">{$form.projectmanager_id.label}</div>
+              <div class="content">{$form.projectmanager_id.value}</div>
+                <div class="clear"></div>            
+            </div>
+            <div class="crm-section">
+              <div class="label">{$form.reason.label}</div>
+              <div class="content">{$form.reason.value}</div>
+              <div class="clear"></div>
+            </div>  
+            <div class="crm-section">
+              <div class="label">{$form.work_description.label}</div>
+              <div class="content">{$form.work_description.value}</div>
+              <div class="clear"></div>
+            </div>
+          {/if}
           <div class="crm-section">
             <div class="label">{$form.expected_results.label}</div>
             <div class="content">{$form.expected_results.value}</div>
             <div class="clear"></div>
           </div>  
-          <div class="crm-section">
-            <div class="label">{$form.qualifications.label}</div>
-            <div class="content">{$form.qualifications.value}</div>
-            <div class="clear"></div>
-          </div>  
-          <div class="crm-section">
-            <div class="label">{$form.sector_coordinator.label}</div>
-            <div class="content">{$form.sector_coordinator.value}</div>
-            <div class="clear"></div>
-          </div>  
+          {if !empty($form.customer_id.value)}
+            <div class="crm-section">
+              <div class="label">{$form.qualifications.label}</div>
+              <div class="content">{$form.qualifications.value}</div>
+              <div class="clear"></div>
+            </div>  
+            <div class="crm-section">
+              <div class="label">{$form.sector_coordinator.label}</div>
+              <div class="content">{$form.sector_coordinator.value}</div>
+              <div class="clear"></div>
+            </div>
+            <div class="crm-section">
+              <div class="label">{$form.representative.label}</div>
+              <div class="content">{$form.representative.value}</div>
+              <div class="clear"></div>            
+            </div>
+          {/if}    
           <div class="crm-section">
             <div class="label">{$form.country_coordinator.label}</div>
             <div class="content">{$form.country_coordinator.value}</div>
@@ -92,11 +101,6 @@
             <div class="content">{$form.project_officer.value}</div>
             <div class="clear"></div>
           </div>
-            <div class="crm-section">
-            <div class="label">{$form.representative.label}</div>
-            <div class="content">{$form.representative.value}</div>
-            <div class="clear"></div>            
-            </div>
           <div class="crm-section">
             <div class="label">{$form.start_date.label}</div>
             <div class="content">{$form.start_date.value|crmDate}</div>
@@ -146,21 +150,23 @@
               <div class="clear"></div>
           </div>
           {/if}
-          <div class="crm-section">
-            <div class="label">{$form.projectmanager_id.label}</div>
-            <div class="content">{$form.projectmanager_id.html}</div>
-            <div class="clear"></div>
-          </div>            
-          <div class="crm-section">
-            <div class="label">{$form.reason.label}</div>
-            <div class="content">{$form.reason.html}</div>
-            <div class="clear"></div>
-          </div>  
-          <div class="crm-section">
-            <div class="label">{$form.work_description.label}</div>
-            <div class="content">{$form.work_description.html}</div>
-            <div class="clear"></div>
-          </div>  
+          {if !empty($form.customer_id.value)}
+            <div class="crm-section">
+              <div class="label">{$form.projectmanager_id.label}</div>
+              <div class="content">{$form.projectmanager_id.html}</div>
+              <div class="clear"></div>
+            </div>            
+            <div class="crm-section">
+              <div class="label">{$form.reason.label}</div>
+              <div class="content">{$form.reason.html}</div>
+              <div class="clear"></div>
+            </div>  
+            <div class="crm-section">
+              <div class="label">{$form.work_description.label}</div>
+              <div class="content">{$form.work_description.html}</div>
+              <div class="clear"></div>
+            </div>
+          {/if}
           <div class="crm-section">
             <div class="label">{$form.expected_results.label}</div>
             <div class="content">{$form.expected_results.html}</div>
@@ -173,11 +179,18 @@
           </div>
           {* do not show coordinators if action is add *}
           {if $action ne 1}
-            <div class="crm-section">
-              <div class="label">{$form.sector_coordinator.label}</div>
-              <div class="content">{$form.sector_coordinator.value}</div>
-              <div class="clear"></div>
-            </div>  
+          {if !empty($form.customer_id.value)}
+              <div class="crm-section">
+                <div class="label">{$form.sector_coordinator.label}</div>
+                <div class="content">{$form.sector_coordinator.value}</div>
+                <div class="clear"></div>
+              </div>  
+              <div class="crm-section">
+                <div class="label">{$form.representative.label}</div>
+                <div class="content">{$form.representative.value}</div>
+                <div class="clear"></div>
+              </div>
+            {/if}
             <div class="crm-section">
               <div class="label">{$form.country_coordinator.label}</div>
               <div class="content">{$form.country_coordinator.value}</div>
@@ -186,11 +199,6 @@
             <div class="crm-section">
               <div class="label">{$form.project_officer.label}</div>
               <div class="content">{$form.project_officer.value}</div>
-              <div class="clear"></div>
-            </div>
-            <div class="crm-section">
-              <div class="label">{$form.representative.label}</div>
-              <div class="content">{$form.representative.value}</div>
               <div class="clear"></div>
             </div>
           {/if}    
