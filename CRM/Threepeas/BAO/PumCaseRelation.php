@@ -383,6 +383,20 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     return $sector_coordinator_id;
   }
   /**
+   * Function to get recruitment team member from customer
+   * (temp not used)
+   * 
+   * @param int $client_id
+   * @param date $case_start_date
+   * @return int $sector_coordinator_id
+   * @access protected
+   * @static
+   */
+  protected static function get_recruitment_team_id($contact_id) {
+    $recruitment_team_id = 0;
+    return $recruitment_team_id;
+  }
+  /**
    * Function to get the coordinator for a tag
    * 
    * @param int $tag_id
