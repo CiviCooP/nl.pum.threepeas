@@ -16,11 +16,17 @@
           <th class="sorting-disabled" rowspan="1" colspan="1">Title</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Parent Programme</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Project Customer/Country</th>
-          <th class="sorting-disabled" rowspan="1" colspan="1">Project Manager</th>
-          <th class="sorting-disabled" rowspan="1" colspan="1">Sector Coordinator</th>
+          {if $request_type != 'Country'}
+            <th class="sorting-disabled" rowspan="1" colspan="1">Project Manager</th>
+            <th class="sorting-disabled" rowspan="1" colspan="1">Sector Coordinator</th>
+            <th class="sorting-disabled" rowspan="1" colspan="1">Representative</th>
+            <th class="sorting-disabled" rowspan="1" colspan="1">Authorised</th>
+            <th class="sorting-disabled" rowspan="1" colspan="1">Anamon</th>
+          {else}
+            <th class="sorting-disabled" rowspan="1" colspan="5">&nbsp;</th>
+          {/if}
           <th class="sorting-disabled" rowspan="1" colspan="1">Country Coordinator</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Project Officer</th>
-          <th class="sorting-disabled" rowspan="1" colspan="1">Representative</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Start date</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">End date</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Enabled</th>
@@ -32,25 +38,24 @@
         {foreach from=$pumProjects item=project}
           <tr id="row1" class={$rowClass}>
             <td hidden="1">{$project.id}</td>
-            <td hidden="1">{$project.programme_id}</td>
-            <td hidden="1">{$project.projectmanager_id}</td>
-            <td hidden="1">{$project.sector_coordinator_id}</td>
-            <td hidden="1">{$project.country_coordinator_id}</td>
-            <td hidden="1">{$project.project_officer_id}</td>
-            <td hidden="1">{$project.representative_id}</td>
-            <td hidden="1">{$project.customer_id}</td>
             <td>{$project.title}</td>
             <td>{$project.programme_name}</td>
-            {if $project.showCustomer eq 1}
-              <td>{$project.customer_name}</td>
-            {else}
+            {if ($project.country_name)}
               <td>{$project.country_name}</td>
+            {else}
+              <td>{$project.customer_name}</td>
             {/if}
-            <td>{$project.projectmanager_name}</td>
-            <td>{$project.sector_coordinator_name}</td>
-            <td>{$project.country_coordinator_name}</td>
-            <td>{$project.project_officer_name}</td>
-            <td>{$project.representative_name}</td>
+            {if $request_type != 'Country'}
+              <td>{$project.projectmanager_name}</td>
+              <td>{$project.sector_coordinator}</td>
+              <td>{$project.representative}</td>
+              <td>{$project.authorised}</td>
+              <td>{$project.anamon}</td>
+            {else}
+              <td colspan="5">&nbsp;</td>
+            {/if}
+            <td>{$project.country_coordinator}</td>
+            <td>{$project.project_officer}</td>
             <td>{$project.start_date|crmDate}</td>
             <td>{$project.end_date|crmDate}</td>
             <td>{$project.is_active}</td>
