@@ -351,7 +351,11 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @static
    */
   protected static function get_project_officer_id($client_id) {
-    $country_id = self::get_customer_country($client_id);
+    if (self::is_contact_country($client_id) == FALSE) {
+      $country_id = self::get_customer_country($client_id);
+    } else {
+      $country_id = $client_id;
+    }
     if (!empty($country_id)) {
       $project_officer_id = self::get_default_relation('project_officer', $country_id);
     } else {
