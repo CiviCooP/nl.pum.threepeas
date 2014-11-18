@@ -297,24 +297,10 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
       }
       $pumProject['is_active'] = 1;
       $createdProject = CRM_Threepeas_BAO_PumProject::add($pumProject);
-      _threepeasGenerateProjectTitle($createdProject['id'], $createdProject['customer_id']);
       $pumCaseProject = array('case_id' => $entityID, 'project_id' => $createdProject['id'], 'is_active' => 1);
       CRM_Threepeas_BAO_PumCaseProject::add($pumCaseProject);
     } 
   }
-}
-/**
- * Function to generate the project title (Issue 90)
- */
-function _threepeasGenerateProjectTitle($projectId, $customerId) {
-  try {
-    $customerName = civicrm_api3('Contact', 'Getvalue', array('id' => $customerId, 'return' => 'display_name'));
-  } catch (CiviCRM_API3_Exception $ex) {
-    $customerName = '';
-  }
-  $projectTitle = 'Project '.$customerName.'-'.$projectId;
-  $params = array('id' => $projectId, 'title' => $projectTitle);
-  CRM_Threepeas_BAO_PumProject::add($params);
 }
 /**
  * Function to set basic data for pum project

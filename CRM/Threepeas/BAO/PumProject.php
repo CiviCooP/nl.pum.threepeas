@@ -63,6 +63,10 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       }
     }
     $pumProject->save();
+    if (!isset($pumProject->title) || empty($pumProject->title)) {
+      $pumProject->title = self::generate_title($pumProject);
+      $pumProject->save();
+    }
     if (isset($pumProject->title) && !empty($pumProject->title)) {
       self::addProjectOptionValue($pumProject->id, $pumProject->title);
     }
@@ -450,4 +454,28 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     }
     return FALSE;
   }
+  /**
+   * Function to generate project title by default
+   * 
+   * @param obj $pum_project
+   * @return string $title
+   * @access protected
+   * @static
+   */
+  protected static function generate_title($pum_project) {
+    $title = '';
+    if (isset($pum_project->country_id) && !empty($pum_project->country_id)) {
+      $contact_id = $pum_project->country_id;
+    } else {
+      if (isset($pum_project->customer_id) && !empty($pum_project->customer_id)) {
+        $contact_id = $pum_project->customer_id;
+      }
+    }
+    if (isset($contact_id) && !empty($contact_id)) {
+      
+    }
+    $contact_name = civicrm_api3('Contact', 'Getvalue', array('id' => $contact_id, 'return' => 'display_name'));
+    $title = 'Project '.$contact_name.'-'.$pum_project->id;
+    return $title;
+  } 
 }
