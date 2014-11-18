@@ -387,8 +387,13 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    */
   public static function create_country_project_for_case($case_id) {
     if (self::is_cap_case($case_id) == TRUE && self::is_country_client($case_id) == TRUE) {
+      $next_year = date('Y') + 1;
+      $start_date = $next_year.'0101';
+      $end_date = $next_year.'1231';
       $project_params = array(
         'is_active' => 1,
+        'start_date' => $start_date,
+        'end_date' => $end_date,
         'country_id' => CRM_Threepeas_BAO_PumCaseProject::get_case_client_id($case_id));
       $created_project = self::add($project_params);
       $case_project_params = array(
