@@ -395,7 +395,7 @@ function threepeas_civicrm_buildForm($formName, &$form) {
     if ($case_type == $donor_link_config->get_grant_case_type()) {
       $currentContributions = CRM_Threepeas_BAO_PumDonorLink::get_grant_donations($params);
     } else {
-      $currentContributions = CRM_Threepeas_BAO_PumDonorLink::get_non_grant_donations($params);      
+      $currentContributions = CRM_Threepeas_BAO_PumDonorLink::get_donations($params);      
     }
     $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
     foreach ($currentContributions as $currentContribution) {

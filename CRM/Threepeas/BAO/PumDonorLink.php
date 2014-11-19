@@ -231,7 +231,7 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
   return $donorLinkRow;
   }
   /**
-   * Function to get non-grant donations
+   * Function to get donations
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 18 Nov 2014
@@ -240,7 +240,7 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
    * @access public
    * @static
    */
-  public static function get_non_grant_donations($params) {
+  public static function get_donations($params) {
     $donations = self::getValues($params);
     foreach ($donations as $key => $value) {
       if (self::is_grant_donation($value) == TRUE) {
