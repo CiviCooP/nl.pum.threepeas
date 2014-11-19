@@ -221,6 +221,7 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
           $all_contribution_status = $donor_link_config->get_all_contribution_status();
           $donorLinkRow['status'] = $all_contribution_status[$contribution['contribution_status_id']];
           $donorLinkRow['date'] = date('d-M-Y', strtotime($contribution['receive_date']));
+          $donorLinkRow['financial_type'] = $contribution['financial_type'];
           $viewContributionUrl = CRM_Utils_System::url('civicrm/contact/view/contribution', 'reset=1&id='
             .$contribution['contribution_id'].'&cid='.$contribution['contact_id'].'&action=view');
           $donorLinkRow['view_link'] = '<a class="action-item" title="View contribution" href="'.$viewContributionUrl.'">View contribution</a>';
@@ -356,7 +357,7 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
      */
     foreach ($contributions['values'] as $contribution) {
       if (isset($active_contribution_status[$contribution['contribution_status_id']])) {
-        $option_text = $contribution['display_name'].'('.$contribution['financial_type'].')';
+        $option_text = $contribution['display_name'].' (type '.$contribution['financial_type'].')';
         $option_contributions[$contribution['contribution_id']] = $option_text;
       }
     }

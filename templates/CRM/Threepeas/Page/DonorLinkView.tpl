@@ -16,6 +16,7 @@
               <th>{ts}Amount{/ts}</th>
               <th>{ts}Status{/ts}</th>
               <th>{ts}Date{/ts}</th>
+              <th>{ts}Financial Type{/ts}</th>
               <th>&nbsp</th>
               </tr>
           </thead>
@@ -26,6 +27,7 @@
                 <td>{$linkedDonation.amount}</td>
                 <td>{$linkedDonation.status}</td>
                 <td>{$linkedDonation.date}</td>
+                <td>{$linkedDonation.financial_type}</td>
                 <td>{$linkedDonation.view_link}</td>
                 <td>{$linkedDonation.remove_link}</td>
               </tr>
