@@ -375,6 +375,8 @@ function threepeas_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Case_Form_CaseView') {
     _threepeasAddProjectElementCaseView($form);
     $caseId = $form->getVar('_caseID');
+    $case_type = $form->getVar('_caseType');
+    $donor_link_config = CRM_Threepeas_DonorLinkConfig::singleton();
     $form->addButtons(array(
         array('type' => 'cancel',
           'name' => ts("Done"),
@@ -384,12 +386,17 @@ function threepeas_civicrm_buildForm($formName, &$form) {
         array('type' => 'next', 'name' => ts('Save Donation Links')),
       )
     );
-    $contributionsList = _threepeasGetContributionsList();
+    $contributionsList = CRM_Threepeas_BAO_PumDonorLink::get_contributions_list('Case', $case_type);
     $form->add('advmultiselect', 'new_link', '', $contributionsList, false,  
       array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
         'class' => 'advmultiselect',
       ));
     $params = array('entity' => 'Case', 'entity_id' => $caseId, 'donation_entity' => 'Contribution', 'is_active' => 1);
+    if ($case_type == $donor_link_config->get_grant_case_type()) {
+      $currentContributions = CRM_Threepeas_BAO_PumDonorLink::get_grant_donations($params);
+    } else {
+      $currentContributions = CRM_Threepeas_BAO_PumDonorLink::get_non_grant_donations($params);      
+    }
     $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
     foreach ($currentContributions as $currentContribution) {
       $defaults['new_link'][] = $currentContribution['donation_entity_id'];
@@ -417,7 +424,7 @@ function threepeas_civicrm_buildForm($formName, &$form) {
     if ($action != CRM_Core_Action::DELETE) {
       _threepeasSetDefaultCaseSubject($form);
       _threepeasAddProjectElementCase($form);
-      $contributionsList = _threepeasGetContributionsList();
+      $contributionsList = CRM_Threepeas_BAO_PumDonorLink::get_contributions_list('Case', '');
       $form->add('advmultiselect', 'new_link', '', $contributionsList, false,  
         array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
           'class' => 'advmultiselect',
@@ -894,43 +901,6 @@ function _threepeasRemoveCountryTag($tagId, $objectRef) {
 function _threepeasDeleteContributionEnhancedData($contributionId) {
   CRM_Threepeas_BAO_PumContributionProjects::deleteById($contributionId);
   CRM_Threepeas_BAO_PumDonorLink::deleteByDonationEntityId('Contribution', $contributionId);
-  /*
-   * issue 86
-   */
-  if ($objectName =='Activity' && $op == 'create') {
-    $threepeasConfig = CRM_Threepeas_Config::singleton();
-    if ($objectRef->activity_type_id == $threepeasConfig->openCaseActTypeId) {
-      /*
-       * case and later activity contact retrieved from DB and not with API because 
-       * API transaction mucks up the Case transaction causing weird errors like 
-       * can not find xml file for case type
-       */
-      $caseQry = 'SELECT case_type_id, start_date FROM civicrm_case WHERE id = %1';
-      $caseParams = array(1 => array($objectRef->case_id, 'Positive'));
-      $daoCase = CRM_Core_DAO::executeQuery($caseQry, $caseParams);
-      if ($daoCase->fetch()) {
-        /*
-         * substr because case_type_id is between Core_DAO::VALUE_SEPARATORs
-         */
-        $typeId = substr($daoCase->case_type_id, 1, 1);
-        if (isset($threepeasConfig->caseTypes[$typeId])) {
-          if (empty($daoCase->start_date)) {
-            $caseStartDate = date('Ymd');
-          } else {
-            $caseStartDate = date('Ymd', strtotime($daoCase->start_date));
-          }
-          $actContactQry = 'SELECT contact_id FROM civicrm_activity_contact WHERE activity_id = %1 AND record_type_id = %2';
-          $actContactParams = array(
-            1 => array($objectId, 'Positive'),
-            2 => array($threepeasConfig->actTargetRecordType, 'Positive'));
-          $daoActContact = CRM_Core_DAO::executeQuery($actContactQry, $actContactParams);
-          if ($daoActContact->fetch()) {
-            CRM_Threepeas_BAO_PumProject::setDefaultCaseRoles($objectRef->case_id, $daoActContact->contact_id, $caseStartDate);
-          }
-        }
-      }
-    }
-  }
 }
 /**
  * Function to delete projects for a contact
@@ -1034,27 +1004,7 @@ function threepeas_civicrm_alterTemplateFile($formName, &$form, $context, &$tplN
     }
   }
 }
-/**
- * Function to retrieve active contributions for select list
- */
-function _threepeasGetContributionsList() {
-  $optionContributions = array();
-  $threepeasConfig = CRM_Threepeas_Config::singleton();
-  $params = array('is_test' => 0, 'options' => array('limit' => 9999));
-  $contributions = civicrm_api3('Contribution', 'Get', $params);
-  /*
-   * add active contributions to option list
-   */
-  foreach ($contributions['values'] as $contribution) {
-    if (isset($threepeasConfig->activeContributionStatus[$contribution['contribution_status_id']])) {
-      $status = $threepeasConfig->activeContributionStatus[$contribution['contribution_status_id']];
-      $optionText = $contribution['display_name'];
-      $optionContributions[$contribution['contribution_id']] = $optionText;
-    }
-  }
-  asort($optionContributions);
-  return $optionContributions;
-}
+
 /**
  * Function to create links from contribution to cases
  */
@@ -1172,7 +1122,7 @@ function _threepeasReformOpenCaseSubject($caseId, $caseTypeId, $activityId, $sub
     $params = array(1 => array($subject, 'String'), 2 => array($activityId, 'Positive'));
     CRM_Core_DAO::executeQuery($query, $params);
     /*
-     * modify case subject too if req'uired. This to ensure that adding a case without
+     * modify case subject too if required. This to ensure that adding a case without
      * a customer works too.
      */
     _threepeasReformCaseSubject($caseId, $caseData['subject'], $caseTypeId, $contactName);

@@ -210,7 +210,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
    * Function to set add/update elements for donation links
    */
   function setAddUpdateDonationLink() {
-    $contributionsList = _threepeasGetContributionsList();
+    $contributionsList = CRM_Threepeas_BAO_PumDonorLink::get_contributions_list('Programme', '');
     $this->add('advmultiselect', 'new_link', '', $contributionsList, false,  
       array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
         'class' => 'advmultiselect',

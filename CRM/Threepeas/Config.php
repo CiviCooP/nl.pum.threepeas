@@ -11,13 +11,6 @@ class CRM_Threepeas_Config {
    */
   static private $_singleton = NULL;
   /*
-   * properties for sponsor link
-   */
-  public $defaultContributionId = NULL;
-  public $inactiveContributionStatus = array();
-  public $activeContributionStatus = array();
-  public $allContributionStatus = array();
-  /*
    * contact sub_type id for Customer and Country
    */
   public $customerContactType = NULL;
@@ -86,8 +79,6 @@ class CRM_Threepeas_Config {
    * Constructor function
    */
   function __construct() {    
-    $this->setDefaultContributionId(4);
-    $this->setInactiveContributionStatus();
     $this->setCustomerContactType('Customer');
     $this->setCountryContactType('Country');
     $this->setCountryCustomField('civicrm_country_id');
@@ -339,30 +330,6 @@ class CRM_Threepeas_Config {
     }
     $this->activeCaseList[0] = '- select -';
     asort($this->activeCaseList);
-  }
-  /*
-   * Function to set the names of the contribution statuses that are deemed
-   * Inactive and are not to be selected when linking
-   */
-  private function setInactiveContributionStatus() {
-    $inactiveContributionStatus = array('Cancelled', 'Failed', 'Refunded');
-    try {
-      $params = array('name'=> 'contribution_status', 'return' => 'id');
-      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', $params);
-      $optionValues = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $optionGroupId));
-    } catch (CiviCRM_API3_Exception $ex) {
-        $this->inactiveContributionStatus = array();
-        $this->activeContributionStatus = array();
-    }
-    foreach ($optionValues['values'] as $optionValue) {
-      $found = CRM_Utils_Array::key($optionValue['name'], $inactiveContributionStatus);
-      if (!is_null($found)) {
-        $this->inactiveContributionStatus[$optionValue['value']] = $optionValue['name'];
-      } else {
-        $this->activeContributionStatus[$optionValue['value']] = $optionValue['name'];
-      }
-    }
-    $this->allContributionStatus = array_merge($this->activeContributionStatus, $this->inactiveContributionStatus);
   }
   /**
    * Function to get a group ID with the CiviCRM API and store it in property

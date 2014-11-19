@@ -1,5 +1,7 @@
 <div id="donor-link-wrapper" class="crm-accordion-wrapper crm-ajax-accordion crm-DonationApplication-accordion">
-  <div id="donation-application" class="crm-accordion-header">Linked Donations</div>
+  <div id="donation-application" class="crm-accordion-header">
+      Linked Donations
+  </div>
   <div class="crm-accordion-body" style="display: block">
     <div class="messages status no-popup">
       <div class="icon inform-icon"></div>

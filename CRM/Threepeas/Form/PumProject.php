@@ -386,7 +386,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   function setViewDonationLink() {
     $linkedDonations = array();
     $params = array('entity' => 'Project', 'entity_id' => $this->_id, 'is_active' => 1);
-    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::get_non_grant_donations($params);
     foreach ($currentContributions as $currentContribution) {
       $linkedDonations[] = CRM_Threepeas_BAO_PumDonorLink::createViewRow($currentContribution);
     }
@@ -397,7 +397,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * Function to set add/update elements for donation links
    */
   function setAddUpdateDonationLink() {
-    $contributionsList = _threepeasGetContributionsList();
+    $contributionsList = CRM_Threepeas_BAO_PumDonorLink::get_contributions_list('Project', '');
     $this->add('advmultiselect', 'new_link', '', $contributionsList, false,  
       array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
         'class' => 'advmultiselect',
