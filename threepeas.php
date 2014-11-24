@@ -391,6 +391,7 @@ function threepeas_civicrm_buildForm($formName, &$form) {
       array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
         'class' => 'advmultiselect',
       ));
+    $form->add('select', 'fa_donor', 'For FA', $contributionsList);
     $params = array('entity' => 'Case', 'entity_id' => $caseId, 'donation_entity' => 'Contribution', 'is_active' => 1);
     if ($case_type == $donor_link_config->get_grant_case_type()) {
       $currentContributions = CRM_Threepeas_BAO_PumDonorLink::get_grant_donations($params);
@@ -400,6 +401,17 @@ function threepeas_civicrm_buildForm($formName, &$form) {
     $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
     foreach ($currentContributions as $currentContribution) {
       $defaults['new_link'][] = $currentContribution['donation_entity_id'];
+    }
+    $fa_donor_params = array(
+      'entity_id' => $caseId,
+      'entity' => 'Case',
+      'is_fa_donor' => 1);
+    $fa_donation = CRM_Threepeas_BAO_PumDonorLink::getValues($fa_donor_params);
+    foreach ($fa_donation as $donation_values) {
+      $fa_donation_id = $donation_values['donation_entity_id'];
+    }
+    if (!empty($fa_donation_id)) {
+      $defaults['fa_donor'] = $fa_donation_id;
     }
     if (!empty($defaults)) {
       $form->setDefaults($defaults);
@@ -429,6 +441,7 @@ function threepeas_civicrm_buildForm($formName, &$form) {
         array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
           'class' => 'advmultiselect',
         ));
+    $form->add('select', 'fa_donor', 'For FA', $contributionsList);
     }
   }
 }
@@ -1027,6 +1040,11 @@ function _threepeasProcessCaseDonorLink($values) {
           'entity' => 'Case',
           'entity_id' => $caseId,
           'is_active' => 1);
+        if ($newLink == $values['fa_donor']) {
+          $params['is_fa_donor'] = 1;
+        } else {
+          $params['is_fa_donor'] = 0;
+        }
         CRM_Threepeas_BAO_PumDonorLink::add($params);
       }
     }
@@ -1050,8 +1068,13 @@ function _threepeasCaseDonationLinks($values, $caseId) {
       'entity' => 'Case',
       'entity_id' => $caseId,
       'is_active' => 1);
+    if ($newLink == $values['fa_donor']) {
+      $params['is_fa_donor'] = 1;
+    } else {
+      $params['is_fa_donor'] = 0;
+    }
     CRM_Threepeas_BAO_PumDonorLink::add($params);
-  }  
+  }
 }
 /**
  * Function to set a default case subject
@@ -1127,4 +1150,26 @@ function _threepeasReformOpenCaseSubject($caseId, $caseTypeId, $activityId, $sub
      */
     _threepeasReformCaseSubject($caseId, $caseData['subject'], $caseTypeId, $contactName);
   }
+}
+/**
+ * Implementation of hook civicrm_validateForm
+ * issue 937 : add validation for donor fa
+ */
+function threepeas_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
+  if ($formName == 'CRM_Case_Form_CaseView' || $formName == 'CRM_Case_Form_Case') {
+    _threepeas_validate_case_fa_donor($fields, $errors);
+  }
+}
+/**
+ * Function to validate the fa donor (has to be in selected linked donors)
+ * issue 937
+ * 
+ * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+ * @date 24 Nov 2014
+ */
+function _threepeas_validate_case_fa_donor($fields, &$errors) {
+  if (!in_array($fields['fa_donor'], $fields['new_link'])) {
+    $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+  }
+  return;
 }

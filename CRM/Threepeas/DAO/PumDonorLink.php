@@ -59,6 +59,10 @@ class CRM_Threepeas_DAO_PumDonorLink extends CRM_Core_DAO {
           'name' => 'entity_id',
           'type' => CRM_Utils_Type::T_INT,
         ) ,
+        'is_fa_donor' => array(
+          'name' => 'is_fa_donor',
+          'type' => CRM_Utils_Type::T_INT,
+        ),
         'is_active' => array(
           'name' => 'is_active',
           'type' => CRM_Utils_Type::T_BOOLEAN,
@@ -84,6 +88,7 @@ class CRM_Threepeas_DAO_PumDonorLink extends CRM_Core_DAO {
         'donation_entity_id'=> 'donation_entity_id',
         'entity' => 'entity',
         'entity_id' => 'entity_id',
+        'is_fa_donor' => 'is_fa_donor',
         'is_active' => 'is_active'
       );
     }

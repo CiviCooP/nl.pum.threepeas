@@ -23,6 +23,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   protected $_projectManagers = array();
   protected $_programmes = array();
   protected $_projectType = NULL;
+  protected $_linked_donation_entity_ids = array();
   
   /**
    * Function to build the form
@@ -215,6 +216,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->setProjectCustomerList();
     $this->setProjectCountryList();
     $this->setProjectmanagersList();
+    $this->set_linked_donation_entity_ids();
   }
   /**
    * Function to get the list of programmes
@@ -343,6 +345,18 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       $this->addFormRule(array('CRM_Threepeas_Form_PumProject', 'validateTitle'));
     }
     $this->addFormRule(array('CRM_Threepeas_Form_PumProject', 'validateDates'));
+    $this->addFormRule(array('CRM_Threepeas_Form_PumProject', 'validate_fa_donor'));
+  }
+  /**
+   * Function to validate the fa donor
+   */
+  static function validate_fa_donor($fields) {
+    if (!in_array($fields['fa_donor'], $fields['new_link'])) {
+      $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+      return $errors;
+    } else {
+      return TRUE;
+    }
   }
   /**
    * Function to validate title
@@ -402,6 +416,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
         'class' => 'advmultiselect',
       ));
+    $this->add('select', 'fa_donor', 'For FA', $contributionsList);
   }
   /**
    * Function to correct defaults in Add mode
@@ -429,11 +444,33 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     if (isset($defaults['end_date'])) {
       list($defaults['end_date']) = CRM_Utils_Date::setDateDefaults($defaults['end_date']);
     }
-    $params = array('entity' => 'Project', 'entity_id' => $this->_id, 'donation_entity' => 'Contribution', 'is_active' => 1);
-    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
-    foreach ($currentContributions as $currentContribution) {
-      $defaults['new_link'][] = $currentContribution['donation_entity_id'];
+    foreach ($this->_linked_donation_entity_ids as $donation_entity_id) {
+      $defaults['new_link'][] = $donation_entity_id;
     }
+    $fa_donor = $this->set_default_fa_donor($this->_id);
+    if (!empty($fa_donor)) {
+      $defaults['fa_donor'] = $fa_donor;
+    }
+  }
+  /**
+   * Function to set default fa donor
+   * 
+   * @param int $project_id
+   * @return int $fa_donation_id
+   * @access protected
+   * @static
+   */
+  protected function set_default_fa_donor($project_id) {
+    $fa_donation_id = 0;
+    $params = array(
+      'entity_id' => $project_id,
+      'entity' => 'Project',
+      'is_fa_donor' => 1);
+    $fa_donation = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($fa_donation as $donation_values) {
+      $fa_donation_id = $donation_values['donation_entity_id'];
+    }
+    return $fa_donation_id;
   }
   /**
    * Function to save donor links if required
@@ -455,6 +492,11 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
         'entity' => 'Project',
         'entity_id' => $projectId,
         'is_active' => 1);
+      if ($newLink == $values['fa_donor']) {
+        $params['is_fa_donor'] = 1;
+      } else {
+        $params['is_fa_donor'] = 0;
+      }
       CRM_Threepeas_BAO_PumDonorLink::add($params);
     }
   }
@@ -524,5 +566,21 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     }
     $params['id'] = $this->_id;
     CRM_Threepeas_BAO_PumProject::add($params);
+  }
+  /**
+   * Function to set the linked donation entity ids
+   */
+  protected function set_linked_donation_entity_ids() {
+    if (!empty($this->_id)) {
+      $params = array('entity' => 
+        'Project', 
+        'entity_id' => $this->_id, 
+        'donation_entity' => 'Contribution', 
+        'is_active' => 1);
+      $donations = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+      foreach ($donations as $donation) {
+        $this->_linked_donation_entity_ids[] = $donation['donation_entity_id'];
+      }  
+    }
   }
 }

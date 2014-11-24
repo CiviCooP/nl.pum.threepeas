@@ -110,4 +110,17 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
     }
     return TRUE;    
   }
+  /**
+   * Upgrade 2101 - add is_fa_donor field to civicrm_donor_link (issue 937)
+   */
+  public function upgrade_2101() {
+    $this->ctx->log->info('Applying update 2101 (add is_fa_donor to civicrm_donor_link');
+    if (CRM_Core_DAO::checkTableExists('civicrm_donor_link')) {
+      if (!CRM_Core_DAO::checkFieldExists('civicrm_donor_link', 'is_fa_donor')) {
+        CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_donor_link ADD COLUMN '
+          . 'is_fa_donor TINYINT(4) DEFAULT 0 AFTER entity_id');
+      }
+    }
+    return TRUE;    
+  }
 }

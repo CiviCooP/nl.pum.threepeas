@@ -12,9 +12,11 @@
       {if $caseDetails.case_type eq 'Grant'}
         In this section you will see all available grant donations to link to in the left box, and the already linked 
         grant donations in the right box. You can add or remove grant donations by moving them between the boxes.
+        In the third box you select the grant donation to be used by FA.
       {else}
         In this section you will see all available donations to link to in the left box, and the already linked 
-        donations in the right box. You can add or remove donations by moving them between the boxes.
+        donations in the right box. You can add or remove donations by moving them between the boxes. 
+        In the third box you select the donation to be used by FA.
       {/if}
     </div>
     <div class="linked-donations">
@@ -23,7 +25,8 @@
           <tbody>
             <tr class="crm-contribution-form-block-new-donation">
               <td class="label">{$form.new_link.label}</td>
-              <td colspan="7">{$form.new_link.html}</td>
+              <td>{$form.new_link.html}</td>
+              <td>{$form.fa_donor.html}</td>
             </tr>
           </tbody>
         </table>

@@ -222,6 +222,7 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
           $donorLinkRow['status'] = $all_contribution_status[$contribution['contribution_status_id']];
           $donorLinkRow['date'] = date('d-M-Y', strtotime($contribution['receive_date']));
           $donorLinkRow['financial_type'] = $contribution['financial_type'];
+          $donorLinkRow['is_fa_donor'] = self::set_display_tinyint($donorLink['is_fa_donor']);
           $viewContributionUrl = CRM_Utils_System::url('civicrm/contact/view/contribution', 'reset=1&id='
             .$contribution['contribution_id'].'&cid='.$contribution['contact_id'].'&action=view');
           $donorLinkRow['view_link'] = '<a class="action-item" title="View contribution" href="'.$viewContributionUrl.'">View contribution</a>';
@@ -229,6 +230,21 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
       }
     }
   return $donorLinkRow;
+  }
+  /**
+   * Function to return tinyint value 1/0 as Y/N
+   * 
+   * @param int $tiny_int
+   * @return string
+   * @access protected
+   * @static
+   */
+  protected static function set_display_tinyint($tiny_int) {
+    if ($tiny_int == 1) {
+      return 'Y';
+    } else {
+      return 'N';
+    }
   }
   /**
    * Function to get donations
