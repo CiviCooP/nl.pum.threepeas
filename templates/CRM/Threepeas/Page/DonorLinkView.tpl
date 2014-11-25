@@ -5,7 +5,7 @@
   <div class="crm-accordion-body" style="display: block">
     <div class="messages status no-popup">
       <div class="icon inform-icon"></div>
-      This section shows the donations currently linked to this {$linkEntity}
+      This section shows the (grant) donations currently linked to this {$linkEntity}
     </div>
     <div class="linked-donations">
       <div id="linked-donations" class="section-shown crm-contribution-additionalinfo-linked-donations-form-block">

@@ -10,12 +10,12 @@
     <div class="messages status no-popup">
       <div class="icon inform-icon"></div>
       {if $caseDetails.case_type eq 'Grant'}
-        In this section you will see all available grant donations to link to in the left box, and the already linked 
-        grant donations in the right box. You can add or remove grant donations by moving them between the boxes.
+        In the left box you will see all available grant donations. You can add or remove grant donations by moving them between the boxes. 
+        In the second box you select the grant donation(s) to be used for reports (e.g. DGIS & Argidius). 
         In the third box you select the grant donation to be used by FA.
       {else}
-        In this section you will see all available donations to link to in the left box, and the already linked 
-        donations in the right box. You can add or remove donations by moving them between the boxes. 
+        In the left box you will see all available donations. You can add or remove donations by moving them between the boxes. 
+        In the second box you select the donation(s) to be used for reports (e.g. DGIS & Argidius). 
         In the third box you select the donation to be used by FA.
       {/if}
     </div>

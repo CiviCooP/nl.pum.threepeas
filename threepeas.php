@@ -180,32 +180,6 @@ function threepeas_civicrm_navigationMenu( &$params ) {
           'active'     => 1
         ),
         'child' => null
-      ), 
-      '5' => array (
-        'attributes' => array (
-          'label'      => 'List Products',
-          'name'       => 'List Products',
-          'url'        => CRM_Utils_System::url('civicrm/case/search', 'reset=1', true),
-          'operator'   => null,
-          'separator'  => 0,
-          'parentID'   => $maxKey+1,
-          'navID'      => 5,
-          'active'     => 1
-        ),
-        'child' => null
-      ), 
-      '6' => array (
-        'attributes' => array (
-          'label'      => 'Add Product',
-          'name'       => 'Programmes Report',
-          'url'        => CRM_Utils_System::url('civicrm/case/add', 'reset=1&action=add&atype=13&context=standalone'),
-          'operator'   => null,
-          'separator'  => 0,
-          'parentID'   => $maxKey+1,
-          'navID'      => 6,
-          'active'     => 1
-        ),
-        'child' => null                
       )));
 }
 /**
