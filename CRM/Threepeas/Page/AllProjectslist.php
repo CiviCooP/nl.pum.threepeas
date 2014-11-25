@@ -1,23 +1,19 @@
 <?php
 /**
- * Page Projectlist to list all projects (PUM)
+ * Page AllProjectslist to list all projects (PUM)
  * 
  * @author Erik Hommel <erik.hommel@civicoop.org>
- * @date 17 Feb 2014
+ * @date 25 Nov 2014
  * 
  * Copyright (C) 2014 Coöperatieve CiviCooP U.A. <http://www.civicoop.org>
  * Licensed to PUM <http://www.pum.nl> under the Academic Free License version 3.0.
  */
 
 require_once 'CRM/Core/Page.php';
-set_time_limit(240);
 
-class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
-  protected $_request_type = NULL;
-  protected $_request_id = NULL;
+class CRM_Threepeas_Page_AllProjectslist extends CRM_Core_Page {
   protected $_country_type = NULL;
   protected $_customer_type = NULL;
-  protected $_relations = array();
   
   function run() {
     $this->set_page_configuration();
@@ -46,8 +42,6 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     $display_row['start_date'] = $this->set_project_date($dao->start_date);
     $display_row['end_date'] = $this->set_project_date($dao->end_date);
     $display_row['actions'] = $this->set_row_actions($dao);
-        
-    //$this->get_project_relations($display_row['contact_id'], $display_row);   
     return $display_row;
   }
   /**
@@ -82,34 +76,6 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     }
   }
   /**
-   * Function to get the relations for the project
-   * @param type $contact_id
-   * @param type $display_row
-   * @access protected
-   */
-  protected function get_project_relations($contact_id, &$display_row) {
-    foreach ($this->_relations as $relation_label => $is_active) {
-      if ($is_active == 1) {
-        $relation_id = CRM_Threepeas_BAO_PumCaseRelation::get_relation_id($contact_id, $relation_label);
-        $display_row[$relation_label] = $this->get_relation_name($relation_id);
-      }
-    }
-  }
-  /**
-   * Function to get the name of a relation
-   * 
-   * @param type $relation_id
-   * @return string
-   * @access protected
-   */
-  protected function get_relation_name($relation_id) {
-    if (empty($relation_id)) {
-      return '';
-    } else {
-      return $this->get_contact_name($relation_id);
-    }
-  }
-  /**
    * Function to set the value for is_active
    * 
    * @param type $is_active
@@ -123,25 +89,6 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
       return ts('No');
     }
   }    
-  /**
-   * Function to get display name of a contact
-   * 
-   * @param int $contact_id
-   * @return string $name
-   * @access protected
-   */
-  protected function get_contact_name($contact_id) {
-    $name = '';
-    if (!empty($contact_id)) {
-      $query = 'SELECT display_name FROM civicrm_contact WHERE id = %1';
-      $params = array(1 => array($contact_id, 'Positive'));
-      $dao = CRM_Core_DAO::executeQuery($query, $params);
-      if ($dao->fetch()) {
-        $name = $dao->display_name;
-      }
-    } 
-    return $name;
-  }
   /**
    * Function to set the project title to display
    * @param string $title
@@ -203,23 +150,10 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
    * @access protected
    */
   protected function set_page_configuration() {
-    CRM_Utils_System::setTitle(ts('List of Projects'));    
-    $session = CRM_Core_Session::singleton();
-    $snippet = CRM_Utils_Request::retrieve('snippet', 'Positive');
-    if ($snippet != 1) {
-      if (CRM_Core_Permission::check('edit all contacts') || CRM_Core_Permission::check('administer CiviCRM')) {
-        $this->assign('addUrl', CRM_Utils_System::url('civicrm/pumproject', 'action=add', true));
-      }
-      $session->pushUserContext(CRM_Utils_System::url('civicrm/projectlist'));
-    } 
-    $this->_request_type = CRM_Utils_Request::retrieve('type', 'String');
-    $this->assign('request_type', $this->_request_type);
-    $this->_request_id = CRm_Utils_Request::retrieve('cid', 'Positive');
+    CRM_Utils_System::setTitle(ts('List of All Projects'));    
     $threepeas_config = CRM_Threepeas_Config::singleton();
     $this->_country_type = $threepeas_config->countryContactType;
     $this->_customer_type = $threepeas_config->customerContactType;
-    $case_relation_config = CRM_Threepeas_CaseRelationConfig::singleton();
-    $this->_relations = $case_relation_config->get_case_type_relations('Projectintake');
   }
   /**
    * Function to get projects with as much data as possible
@@ -228,23 +162,12 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
    * @access protected
    */
   protected function get_dao_projects() {
-    $params = array();
     $query = 'SELECT a.*, b.title AS programme_title, c.display_name AS projectmanager_name
       FROM civicrm_project a
       LEFT JOIN civicrm_programme b ON a.programme_id = b.id
       LEFT JOIN civicrm_contact c ON a.projectmanager_id = c.id
-      ORDER BY programme_title';
-    switch ($this->_request_type) {
-      case $this->_country_type:
-        $query .= ' WHERE a.country_id = %1';
-        $params = array(1 => array($this->_request_id, 'Positive'));
-        break;
-      case $this->_customer_type:
-        $query .= ' WHERE a.customer_id = %1';
-        $params = array(1 => array($this->_request_id, 'Positive'));
-        break;
-    }
-    return CRM_Core_DAO::executeQuery($query, $params);
+      ORDER BY a.start_date DESC';
+    return CRM_Core_DAO::executeQuery($query);
   }
   /**
    * Returns an array with extra links (filled from a hook)
@@ -260,5 +183,24 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
       return $return;
     }
     return array();
+  }
+  /**
+   * Function to get display name of a contact
+   * 
+   * @param int $contact_id
+   * @return string $name
+   * @access protected
+   */
+  protected function get_contact_name($contact_id) {
+    $name = '';
+    if (!empty($contact_id)) {
+      $query = 'SELECT display_name FROM civicrm_contact WHERE id = %1';
+      $params = array(1 => array($contact_id, 'Positive'));
+      $dao = CRM_Core_DAO::executeQuery($query, $params);
+      if ($dao->fetch()) {
+        $name = $dao->display_name;
+      }
+    } 
+    return $name;
   }
 }

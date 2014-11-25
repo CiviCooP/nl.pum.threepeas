@@ -10,7 +10,6 @@
  */
 
 require_once 'CRM/Core/Page.php';
-set_time_limit(240);
 
 class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
   protected $_request_type = NULL;
