@@ -479,8 +479,12 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     if (isset($contact_id) && !empty($contact_id)) {
       
     }
-    $contact_name = civicrm_api3('Contact', 'Getvalue', array('id' => $contact_id, 'return' => 'display_name'));
-    $title = 'Project '.$contact_name.'-'.$pum_project->id;
+    if (!empty($contact_id)) {
+      $contact_name = civicrm_api3('Contact', 'Getvalue', array('id' => $contact_id, 'return' => 'display_name'));
+      $title = 'Project '.$contact_name.'-'.$pum_project->id;
+    } else {
+      $title = 'Project <onbekend> -'.$pum_project->id;
+    }
     return $title;
   } 
 }
