@@ -18,15 +18,9 @@
           <th class="sorting-disabled" rowspan="1" colspan="1">Project Customer/Country</th>
           {if $request_type != 'Country'}
             <th class="sorting-disabled" rowspan="1" colspan="1">Project Manager</th>
-            <th class="sorting-disabled" rowspan="1" colspan="1">Sector Coordinator</th>
-            <th class="sorting-disabled" rowspan="1" colspan="1">Representative</th>
-            <th class="sorting-disabled" rowspan="1" colspan="1">Authorised</th>
-            <th class="sorting-disabled" rowspan="1" colspan="1">Anamon</th>          
           {else}
             <th class="sorting-disabled" rowspan="1" colspan="5">&nbsp;</th>
           {/if}
-          <th class="sorting-disabled" rowspan="1" colspan="1">Country Coordinator</th>
-          <th class="sorting-disabled" rowspan="1" colspan="1">Project Officer</th>          
           <th class="sorting-disabled" rowspan="1" colspan="1">Start date</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">End date</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Enabled</th>
@@ -47,15 +41,9 @@
             {/if}
             {if $request_type != 'Country'}
               <td>{$project.projectmanager_name}</td>
-              <td>{$project.sector_coordinator}</td>
-              <td>{$project.representative}</td>
-              <td>{$project.authorised}</td>
-              <td>{$project.anamon}</td>           
             {else}
               <td colspan="5">&nbsp;</td>
             {/if}
-            <td>{$project.country_coordinator}</td>
-            <td>{$project.project_officer}</td>            
             <td>{$project.start_date|crmDate}</td>
             <td>{$project.end_date|crmDate}</td>
             <td>{$project.is_active}</td>

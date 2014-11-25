@@ -47,7 +47,7 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     $display_row['end_date'] = $this->set_project_date($dao->end_date);
     $display_row['actions'] = $this->set_row_actions($dao);
         
-    $this->get_project_relations($display_row['contact_id'], $display_row);   
+    //$this->get_project_relations($display_row['contact_id'], $display_row);   
     return $display_row;
   }
   /**
@@ -204,7 +204,14 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
    */
   protected function set_page_configuration() {
     CRM_Utils_System::setTitle(ts('List of Projects'));    
-    $this->assign('addUrl', CRM_Utils_System::url('civicrm/pumproject', 'action=add', true));
+    $session = CRM_Core_Session::singleton();
+    $snippet = CRM_Utils_Request::retrieve('snippet', 'Positive');
+    if ($snippet != 1) {
+      if (CRM_Core_Permission::check('edit all contacts') || CRM_Core_Permission::check('administer CiviCRM')) {
+        $this->assign('addUrl', CRM_Utils_System::url('civicrm/pumproject', 'action=add', true));
+      }
+      $session->pushUserContext(CRM_Utils_System::url('civicrm/projectlist'));
+    } 
     $this->_request_type = CRM_Utils_Request::retrieve('type', 'String');
     $this->assign('request_type', $this->_request_type);
     $this->_request_id = CRm_Utils_Request::retrieve('cid', 'Positive');
@@ -225,7 +232,8 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     $query = 'SELECT a.*, b.title AS programme_title, c.display_name AS projectmanager_name
       FROM civicrm_project a
       LEFT JOIN civicrm_programme b ON a.programme_id = b.id
-      LEFT JOIN civicrm_contact c ON a.projectmanager_id = c.id';
+      LEFT JOIN civicrm_contact c ON a.projectmanager_id = c.id
+      ORDER BY programme_title';
     switch ($this->_request_type) {
       case $this->_country_type:
         $query .= ' WHERE a.country_id = %1';
@@ -236,7 +244,6 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
         $params = array(1 => array($this->_request_id, 'Positive'));
         break;
     }
-    $query .= ' ORDER BY a. start_date DESC';
     return CRM_Core_DAO::executeQuery($query, $params);
   }
   /**

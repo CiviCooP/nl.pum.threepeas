@@ -13,6 +13,12 @@
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
+    <path>civicrm/allprojectslist</path>
+    <page_callback>CRM_Threepeas_Page_AllProjectslist</page_callback>
+    <title>AllProjectslist</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
     <path>civicrm/pumprogramme</path>
     <page_callback>CRM_Threepeas_Form_PumProgramme</page_callback>
     <title>Pumprogramme</title>

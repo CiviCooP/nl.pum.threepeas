@@ -159,7 +159,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
         'attributes' => array (
           'label'      => 'List Projects',
           'name'       => 'List Projects',
-          'url'        => 'civicrm/projectlist',
+          'url'        => 'civicrm/allprojectslist',
           'operator'   => null,
           'separator'  => 0,
           'parentID'   => $maxKey+1,
