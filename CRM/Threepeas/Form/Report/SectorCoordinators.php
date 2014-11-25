@@ -13,7 +13,7 @@
  | Copyright (C) 2014 Coöperatieve CiviCooP U.A.                      |
  | <http://www.civicoop.org>                                          |
  | Licensed to PUM <http://www.pum.nl> and CiviCRM under the          |
- | Academic Free License version 3.0.                                 |
+ | AGPL-3.0                                                           |
  | <http://opensource.org/licenses/AFL-3.0>                           |
  +--------------------------------------------------------------------+
 */

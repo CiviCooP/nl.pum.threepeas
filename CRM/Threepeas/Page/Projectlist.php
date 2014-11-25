@@ -6,7 +6,7 @@
  * @date 17 Feb 2014
  * 
  * Copyright (C) 2014 Coöperatieve CiviCooP U.A. <http://www.civicoop.org>
- * Licensed to PUM <http://www.pum.nl> under the Academic Free License version 3.0.
+ * Licensed to PUM <http://www.pum.nl> under the  AGPL-3.0
  */
 
 require_once 'CRM/Core/Page.php';

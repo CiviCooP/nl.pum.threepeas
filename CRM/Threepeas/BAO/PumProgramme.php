@@ -7,7 +7,7 @@
  * @date 18 Apr 2014
  * 
  * Copyright (C) 2014 Coöperatieve CiviCooP U.A. <http://www.civicoop.org>
- * Licensed to PUM <http://www.pum.nl> and CiviCRM under the Academic Free License version 3.0.
+ * Licensed to PUM <http://www.pum.nl> and CiviCRM under the AGPL-3.0
  */
 class CRM_Threepeas_BAO_PumProgramme extends CRM_Threepeas_DAO_PumProgramme {
 
