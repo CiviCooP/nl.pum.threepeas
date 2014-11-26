@@ -85,10 +85,10 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * 
    * @param int $case_id
    * @return int $client_id
-   * @access protected
+   * @access public
    * @static
    */
-  protected static function get_case_client($case_id) {
+  public static function get_case_client($case_id) {
     $params = array(
       'case_id' => $case_id,
       'return' => 'client_id');
@@ -243,10 +243,10 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @return string $case_type
    * @throws Exception when option group case_type not found
    * @throws Exception when case_type_id not found in option_value
-   * @access protected
+   * @access public
    * @static
    */
-  protected static function get_case_type_label($case_type_id) {
+  public static function get_case_type_label($case_type_id) {
     $params_option_group = array('name' => 'case_type', 'return' => 'id');
     try {
       $option_group_id = civicrm_api3('OptionGroup', 'Getvalue', $params_option_group);

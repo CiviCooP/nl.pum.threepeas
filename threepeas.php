@@ -118,8 +118,8 @@ function threepeas_civicrm_navigationMenu( &$params ) {
   $maxKey = ( max( array_keys($params) ) );
   $params[$maxKey+1] = array (
     'attributes' => array (
-      'label'      => 'Programmes, Projects and Products',
-      'name'       => 'Programmes, Projects and Products',
+      'label'      => 'Programmes and Projects',
+      'name'       => 'Programmes and Projects',
       'url'        => null,
       'permission' => 'edit all contacts',
       'operator'   => null,
@@ -365,7 +365,10 @@ function threepeas_civicrm_buildForm($formName, &$form) {
       array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
         'class' => 'advmultiselect',
       ));
-    $form->add('select', 'fa_donor', 'For FA', $contributionsList);
+    $fa_donation_list = $contributionsList;
+    $fa_donation_list[0] = '- select -';
+    asort($fa_donation_list);
+    $form->add('select', 'fa_donor', 'For FA', $fa_donation_list);
     $params = array('entity' => 'Case', 'entity_id' => $caseId, 'donation_entity' => 'Contribution', 'is_active' => 1);
     if ($case_type == $donor_link_config->get_grant_case_type()) {
       $currentContributions = CRM_Threepeas_BAO_PumDonorLink::get_grant_donations($params);
@@ -386,6 +389,8 @@ function threepeas_civicrm_buildForm($formName, &$form) {
     }
     if (!empty($fa_donation_id)) {
       $defaults['fa_donor'] = $fa_donation_id;
+    } else {
+      $defaults['fa_donor'] = 0;
     }
     if (!empty($defaults)) {
       $form->setDefaults($defaults);
@@ -415,7 +420,10 @@ function threepeas_civicrm_buildForm($formName, &$form) {
         array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
           'class' => 'advmultiselect',
         ));
-    $form->add('select', 'fa_donor', 'For FA', $contributionsList);
+    $fa_donation_list = $contributionsList;
+    $fa_donation_list[0] = '- select -';
+    asort($fa_donation_list);
+    $form->add('select', 'fa_donor', 'For FA', $fa_donation_list);
     }
   }
 }
@@ -1142,8 +1150,12 @@ function threepeas_civicrm_validateForm($formName, &$fields, &$files, &$form, &$
  * @date 24 Nov 2014
  */
 function _threepeas_validate_case_fa_donor($fields, &$errors) {
-  if (!in_array($fields['fa_donor'], $fields['new_link'])) {
-    $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+  if ($fields['fa_donor'] == 0) {
+    $errors['fa_donor'] = ts('You have to select a donation for FA');
+  } else {
+    if (!in_array($fields['fa_donor'], $fields['new_link'])) {
+      $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+    }
   }
   return;
 }

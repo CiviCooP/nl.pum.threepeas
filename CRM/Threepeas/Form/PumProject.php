@@ -351,12 +351,16 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * Function to validate the fa donor
    */
   static function validate_fa_donor($fields) {
-    if (!in_array($fields['fa_donor'], $fields['new_link'])) {
-      $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+    if ($fields['fa_donor'] == 0) {
+      $errors['fa_donor'] = ts('You have to select a donation for FA');
       return $errors;
     } else {
-      return TRUE;
+      if (!in_array($fields['fa_donor'], $fields['new_link'])) {
+        $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+        return $errors;
+      }
     }
+    return TRUE;
   }
   /**
    * Function to validate title
@@ -416,7 +420,10 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
         'class' => 'advmultiselect',
       ));
-    $this->add('select', 'fa_donor', 'For FA', $contributionsList);
+    $fa_donation_list = $contributionsList;
+    $fa_donation_list[0] = '- select -';
+    asort($fa_donation_list);
+    $this->add('select', 'fa_donor', 'For FA', $fa_donation_list);
   }
   /**
    * Function to correct defaults in Add mode
@@ -450,6 +457,8 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $fa_donor = $this->set_default_fa_donor($this->_id);
     if (!empty($fa_donor)) {
       $defaults['fa_donor'] = $fa_donor;
+    } else {
+      $defaults['fa_donor'] = 0;
     }
   }
   /**
