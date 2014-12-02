@@ -111,6 +111,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->add('text', 'title', ts('Title'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'programme_id', ts('Programme'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'customer_id', ts('Customer or Country'), array('size' => CRM_Utils_Type::HUGE));
+    $this->add('text', 'country_id', ts('Customer or Country'), array('size' => CRM_Utils_Type::HUGE));
     if ($this->_projectType == 'Customer') {
       $this->add('text', 'projectmanager_id', ts('Project Manager'), array('size' => CRM_Utils_Type::HUGE));
       $this->add('textarea', 'reason', ts('What is the reason for this request for Assistance?'), 
@@ -301,6 +302,13 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * Function to correct defaults for View action
    */
   function correctViewDefaults(&$defaults) {
+    if (isset($defaults['customer_id'])) {
+      $defaults['customer_id'] = $this->get_contact_name($defaults['customer_id']);
+    } else {
+      if (isset($defaults['country_id'])) {
+        $defaults['country_id'] = $this->get_contact_name($defaults['country_id']);
+      }
+    }
     if (isset($defaults['programme_id']) && !empty($defaults['programme_id'])) {
       $defaults['programme_id'] = CRM_Utils_Array::value($defaults['programme_id'], $this->_programmes);
     } else {
@@ -445,6 +453,13 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * Function to correct defaults for Edit action
    */
   function correctUpdateDefaults(&$defaults) {
+    if (isset($defaults['customer_id'])) {
+      $defaults['customer_id'] = $this->get_contact_name($defaults['customer_id']);
+    } else {
+      if (isset($defaults['country_id'])) {
+        $defaults['country_id'] = $this->get_contact_name($defaults['country_id']);
+      }
+    }
     if (isset($defaults['start_date'])) {
       list($defaults['start_date']) = CRM_Utils_Date::setDateDefaults($defaults['start_date']);
     }
@@ -591,5 +606,23 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
         $this->_linked_donation_entity_ids[] = $donation['donation_entity_id'];
       }  
     }
+  }
+  /**
+   * Function to get contact name
+   * 
+   * @param int $contact_id
+   * @return string $contact_name
+   * @access protected
+   */
+  protected function get_contact_name($contact_id) {
+    $params = array(
+      'id' => $contact_id,
+      'return' => 'display_name');
+    try {
+      $contact_name = civicrm_api3('Contact', 'Getvalue', $params);
+    } catch (CiviCRM_API3_Exception $ex) {
+      $contact_name = '';
+    }
+    return $contact_name;
   }
 }
