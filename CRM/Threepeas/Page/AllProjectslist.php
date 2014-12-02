@@ -154,6 +154,9 @@ class CRM_Threepeas_Page_AllProjectslist extends CRM_Core_Page {
     $threepeas_config = CRM_Threepeas_Config::singleton();
     $this->_country_type = $threepeas_config->countryContactType;
     $this->_customer_type = $threepeas_config->customerContactType;
+    $session = CRM_Core_Session::singleton();
+    $url = CRM_Utils_System::url('civicrm/allprojectslist');
+    $session->pushUserContext($url);
   }
   /**
    * Function to get projects with as much data as possible
