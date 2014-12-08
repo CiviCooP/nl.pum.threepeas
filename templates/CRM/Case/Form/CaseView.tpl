@@ -1070,7 +1070,7 @@ function buildCaseActivities(filterSearch) {
     "sDom"       : '<"crm-datatable-pager-top"lfp>rt<"crm-datatable-pager-bottom"ip>',
     "bServerSide": true,
     "sAjaxSource": sourceUrl,
-    "iDisplayLength": 10,
+    "iDisplayLength": 25,
     "fnDrawCallback": function() { setSelectorClass(); },
     "fnServerData": function ( sSource, aoData, fnCallback ) {
 
