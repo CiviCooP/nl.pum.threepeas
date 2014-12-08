@@ -73,7 +73,11 @@ class CRM_Threepeas_CaseRelationConfig {
    * @access public
    */
   public function get_case_type_relations($case_type) {
-    return $this->_case_type_relations[$case_type];
+    if (isset($this->_case_type_relations[$case_type])) {
+      return $this->_case_type_relations[$case_type];
+    } else {
+      return array();
+    }
   }
   /**
    * Function to get single relationship type id with case role label
