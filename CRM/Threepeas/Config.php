@@ -26,7 +26,6 @@ class CRM_Threepeas_Config {
    * country action plan (used in case CP-AP)
    */
   public $projectCustomGroupId = NULL;
-  public $capCustomGroupId = NULL;
   /*
    * case type and status option group id
    */
@@ -85,7 +84,6 @@ class CRM_Threepeas_Config {
     $this->setCountryCustomTable('pumCountry');
     
     $this->projectCustomGroupId = $this->setCustomGroupId('Projectinformation');    
-    $this->capCustomGroupId = $this->setCustomGroupId('country_action_plan'); 
     
     $this->setCaseOptionGroupId();
     $this->setProjectOptionGroupId();

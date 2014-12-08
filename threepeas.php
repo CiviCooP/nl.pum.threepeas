@@ -311,34 +311,6 @@ function _threepeasSetProject($params) {
   return $result;
 }
 /**
- * Function to set basic data for pum country project
- * 
- * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
- * @date 15 Sep 2014
- * @param array $params
- * @return array $result
- */
-function _threepeasSetCountryProject($params) {
-  $result = array();
-  $usedCustomFields = array('goals');
-  $threepeasConfig = CRM_Threepeas_Config::singleton();
-  $customFields = civicrm_api3('CustomField', 'Get', array('custom_group_id' => $threepeasConfig->capCustomGroupId));
-  foreach ($customFields['values'] as $customFieldId => $customField) {
-    if (in_array($customField['name'], $usedCustomFields)) {
-      foreach ($params as $param) {
-        if ($param['custom_field_id'] == $customFieldId) {
-          switch($customField['name']) {
-            case "goals":
-              $result['goals'] = trim($param['value']);
-              break;
-          }
-        }
-      }
-    }
-  }
-  return $result;
-}
-/**
  * Implementation of hook civicrm_buildForm
  * 
  * add project to CRM_Case_Form_Case and CRM_Case_Form_CaseView
