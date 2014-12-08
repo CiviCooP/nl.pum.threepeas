@@ -123,7 +123,7 @@ class CRM_Threepeas_Config {
     try {
       $sectorTagId = civicrm_api3('Tag', 'Getvalue', array('name' => 'Sector', 'return' => 'id'));
     } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Could not find a Tag called Sector, error from API Tag Getvalue: '.$ex->getMessage());
+      throw new Exception(ts('Could not find a Tag called Sector, error from API Tag Getvalue: ').$ex->getMessage());
     }
     $this->sectorTree[] = $sectorTagId;
     $this->getSectorChildren($sectorTagId);
@@ -213,8 +213,8 @@ class CRM_Threepeas_Config {
       try {
         $customGroupId = civicrm_api3('CustomGroup', 'Getvalue', $customGroupParams);
       } catch (CiviCRM_API3_Exception $ex) {
-        throw new CiviCRM_API3_Exception('Could not find a custom group with name '
-          .$name.', error from API CustomGroup Getvalue: '.$ex->getMessage());
+        throw new Exception(ts('Could not find a custom group with name '
+          .$name.', error from API CustomGroup Getvalue: ').$ex->getMessage());
       }
     }
     return $customGroupId;
@@ -345,7 +345,7 @@ class CRM_Threepeas_Config {
         $this->$propName = civicrm_api3('Group', 'Getvalue', $groupParams);
       } catch (CiviCRM_API3_Exception $ex) {
         throw new Exception(ts('Could not find a group with title '
-          .$title.', error from API Group Getvalue : '.$ex->getMessage()));
+          .$title.', error from API Group Getvalue : ').$ex->getMessage());
       }
     }
     return;
@@ -373,7 +373,7 @@ class CRM_Threepeas_Config {
     try {
       $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => 'activity_type', 'return' => 'id'));
     } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Could not find an option group with name activity_type, error from API OptionGroup Getvalue : '.$ex->getMessage());
+      throw new Exception(ts('Could not find an option group with name activity_type, error from API OptionGroup Getvalue : ').$ex->getMessage());
     }
     $params = array('option_group_id' => $optionGroupId, 'name' => $name, 'return' => 'value');
     try {
@@ -390,14 +390,14 @@ class CRM_Threepeas_Config {
     try {
       $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => 'activity_contacts', 'return' => 'id'));
     } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Could not find an option group with name activity_contacts, error from API OptionGroup Getvalue : '.$ex->getMessage());
+      throw new Exception(ts('Could not find an option group with name activity_contacts, error from API OptionGroup Getvalue : ').$ex->getMessage());
     }
     $params = array('option_group_id' => $optionGroupId, 'name' => 'Activity Targets', 'return' => 'value');
     try {
       $this->actTargetRecordType = civicrm_api3('OptionValue', 'Getvalue', $params);
     } catch (CiviCRM_API3_Exception $ex) {
       $this->actTargetRecordType = NULL;
-      throw new Exception('Could not find an option value with name Activity Targets in group activity_contacts, error from API OptionValue Getvalue : '.$ex->getMessage());
+      throw new Exception(ts('Could not find an option value with name Activity Targets in group activity_contacts, error from API OptionValue Getvalue : ').$ex->getMessage());
     }
   }
 }
