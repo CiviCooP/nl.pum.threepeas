@@ -221,6 +221,17 @@ class CRM_Threepeas_CaseRelationConfig {
         'cfo' => 0,
         'recruitment_team' => 0,
         'grant_coordinator' => 0),
+      'Business' => array(
+        'authorised_contact' => 1,
+        'sector_coordinator' => 1,
+        'country_coordinator' => 1,
+        'project_officer' => 1,
+        'representative' => 1,
+        'ceo' => 0,
+        'anamon' => 0,
+        'cfo' => 0,
+        'recruitment_team' => 0,
+        'grant_coordinator' => 0),
       'CAPAssessment' => array(
         'sector_coordinator' => 0,
         'anamon' => 0,
