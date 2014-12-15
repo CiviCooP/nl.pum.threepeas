@@ -1116,8 +1116,9 @@ function printCaseReport( ) {
 
 </script>
 {/literal}
-
-{include file="CRM/Threepeas/Page/DonorLinkEdit.tpl"}
+{if $donor_link_flag eq 1}
+  {include file="CRM/Threepeas/Page/DonorLinkEdit.tpl"}
+{/if}
 
 <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="bottom"}</div>
 

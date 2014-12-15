@@ -22,6 +22,7 @@ class CRM_Threepeas_DonorLinkConfig {
   protected $_financial_type_ids = array();
   protected $_donation_financial_type = NULL;
   protected $_grant_case_type = NULL;
+  protected $_donation_case_types = NULL;
   /**
    * Function to return singleton object
    * 
@@ -46,7 +47,18 @@ class CRM_Threepeas_DonorLinkConfig {
     $this->_donation_financial_type = 'Donation';
     $this->set_financial_type_id($this->_grant_donation_financial_type);
     $this->set_financial_type_id($this->_donation_financial_type);
+    $this->set_donation_case_types();
   }
+  /**
+   * Function to get case types to exclude from donor link
+   * 
+   * @return array
+   * @access public
+   */
+  public function get_donation_case_types() {
+    return $this->_donation_case_types;
+  }
+  
   /**
    * Function to get grant case type
    * 
@@ -173,5 +185,15 @@ class CRM_Threepeas_DonorLinkConfig {
       $this->_financial_type_ids[$financial_type_name] = $dao_select->id;
       }
     }
+  }
+  /**
+   * Function to set the case types which will show the donation link form
+   * 
+   * @access protected
+   */
+  protected function set_donation_case_types() {
+    $this->_donation_case_types = array(
+      'Advice', 'Business', 'CTM', 'Grant', 'PDV', 'RemoteCoaching', 'Seminar'
+    );
   }
 }

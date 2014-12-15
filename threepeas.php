@@ -322,48 +322,7 @@ function threepeas_civicrm_buildForm($formName, &$form) {
     _threepeasAddProjectElementCaseView($form);
     $caseId = $form->getVar('_caseID');
     $case_type = $form->getVar('_caseType');
-    $donor_link_config = CRM_Threepeas_DonorLinkConfig::singleton();
-    $form->addButtons(array(
-        array('type' => 'cancel',
-          'name' => ts("Done"),
-          'spacing' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-          'isDefault' => TRUE,
-        ),
-        array('type' => 'next', 'name' => ts('Save Donation Links')),
-      )
-    );
-    $contributionsList = CRM_Threepeas_BAO_PumDonorLink::get_contributions_list('Case', $case_type);
-    $form->add('advmultiselect', 'new_link', '', $contributionsList, false,  
-      array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
-        'class' => 'advmultiselect',
-      ));
-    $fa_donation_list = $contributionsList;
-    $fa_donation_list[0] = '- select -';
-    asort($fa_donation_list);
-    $form->add('select', 'fa_donor', 'For FA', $fa_donation_list);
-    $params = array('entity' => 'Case', 'entity_id' => $caseId, 'donation_entity' => 'Contribution', 'is_active' => 1);
-    if ($case_type == $donor_link_config->get_grant_case_type()) {
-      $currentContributions = CRM_Threepeas_BAO_PumDonorLink::get_grant_donations($params);
-    } else {
-      $currentContributions = CRM_Threepeas_BAO_PumDonorLink::get_donations($params);      
-    }
-    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
-    foreach ($currentContributions as $currentContribution) {
-      $defaults['new_link'][] = $currentContribution['donation_entity_id'];
-    }
-    $fa_donor_params = array(
-      'entity_id' => $caseId,
-      'entity' => 'Case',
-      'is_fa_donor' => 1);
-    $fa_donation = CRM_Threepeas_BAO_PumDonorLink::getValues($fa_donor_params);
-    foreach ($fa_donation as $donation_values) {
-      $fa_donation_id = $donation_values['donation_entity_id'];
-    }
-    if (!empty($fa_donation_id)) {
-      $defaults['fa_donor'] = $fa_donation_id;
-    } else {
-      $defaults['fa_donor'] = 0;
-    }
+    _threepeas_add_donor_link_to_case_forms('manage', $caseId, $case_type, $form, $defaults);
     if (!empty($defaults)) {
       $form->setDefaults($defaults);
     }
@@ -387,15 +346,7 @@ function threepeas_civicrm_buildForm($formName, &$form) {
     if ($action != CRM_Core_Action::DELETE) {
       _threepeasSetDefaultCaseSubject($form);
       _threepeasAddProjectElementCase($form);
-      $contributionsList = CRM_Threepeas_BAO_PumDonorLink::get_contributions_list('Case', '');
-      $form->add('advmultiselect', 'new_link', '', $contributionsList, false,  
-        array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
-          'class' => 'advmultiselect',
-        ));
-    $fa_donation_list = $contributionsList;
-    $fa_donation_list[0] = '- select -';
-    asort($fa_donation_list);
-    $form->add('select', 'fa_donor', 'For FA', $fa_donation_list);
+      _threepeas_add_donor_link_to_case_forms('create', 0, '', $form, $defaults);
     }
   }
 }
@@ -1114,7 +1065,7 @@ function threepeas_civicrm_validateForm($formName, &$fields, &$files, &$form, &$
     if (is_null($errors)) {
       $errors = array();
     }
-    _threepeas_validate_case_fa_donor($fields, $errors);
+     _threepeas_validate_case_fa_donor($fields, $errors);
   }
 }
 /**
@@ -1125,12 +1076,86 @@ function threepeas_civicrm_validateForm($formName, &$fields, &$files, &$form, &$
  * @date 24 Nov 2014
  */
 function _threepeas_validate_case_fa_donor($fields, &$errors) {
-  if ($fields['fa_donor'] == 0) {
-    $errors['fa_donor'] = ts('You have to select a donation for FA');
+  if (isset($fields['_qf_CaseView_next']) && $fields['_qf_CaseView_next'] == 'Save Donation Links') {
+    if ($fields['fa_donor'] == 0) {
+      $errors['fa_donor'] = ts('You have to select a donation for FA');
+    } else {
+      if (!in_array($fields['fa_donor'], $fields['new_link'])) {
+        $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+      }
+    }
   } else {
-    if (!in_array($fields['fa_donor'], $fields['new_link'])) {
-      $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+    $donor_link_config = CRM_Threepeas_DonorLinkConfig::singleton();
+    if (isset($fields['case_type_id']) && 
+      in_array($fields['case_type_id'], $donor_link_config->get_donation_case_types())) {
+      if ($fields['fa_donor'] == 0) {
+        $errors['fa_donor'] = ts('You have to select a donation for FA');
+      } else {
+        if (!in_array($fields['fa_donor'], $fields['new_link'])) {
+          $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+        }
+      }
     }
   }
   return;
+}
+/**
+ * Function to add the donation link parts to cases
+ * 
+ * @param string $action
+ * @param int $case_id
+ * @param string $case_type
+ * @param object $form
+ * @param array $defaults
+ */
+function _threepeas_add_donor_link_to_case_forms($action, $case_id, $case_type, &$form, &$defaults) {
+  $donor_link_config = CRM_Threepeas_DonorLinkConfig::singleton();
+  if (in_array($case_type, $donor_link_config->get_donation_case_types())) {
+    $form->assign('donor_link_flag', 1);
+    $contributions_list = CRM_Threepeas_BAO_PumDonorLink::get_contributions_list('Case', $case_type);
+    $form->add('advmultiselect', 'new_link', '', $contributions_list, false,  
+      array('size' => count($contributions_list), 'style' => 'width:auto; min-width:300px;',
+        'class' => 'advmultiselect',
+    ));
+    $fa_donation_list = $contributions_list;
+    $fa_donation_list[0] = '- select -';
+    asort($fa_donation_list);
+    $form->add('select', 'fa_donor', 'For FA', $fa_donation_list);
+    if ($action != ' create') {
+      $form->addButtons(array(
+        array('type' => 'cancel',
+          'name' => ts("Done"),
+          'spacing' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+          'isDefault' => TRUE,
+        ),
+        array('type' => 'next', 'name' => ts('Save Donation Links')),
+        )
+      );
+    }
+    $params = array('entity' => 'Case', 'entity_id' => $case_id, 'donation_entity' => 'Contribution', 'is_active' => 1);
+    if ($case_type == $donor_link_config->get_grant_case_type()) {
+      $currentContributions = CRM_Threepeas_BAO_PumDonorLink::get_grant_donations($params);
+    } else {
+      $currentContributions = CRM_Threepeas_BAO_PumDonorLink::get_donations($params);      
+    }
+    $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($currentContributions as $currentContribution) {
+      $defaults['new_link'][] = $currentContribution['donation_entity_id'];
+    }
+    $fa_donor_params = array(
+      'entity_id' => $case_id,
+      'entity' => 'Case',
+      'is_fa_donor' => 1);
+    $fa_donation = CRM_Threepeas_BAO_PumDonorLink::getValues($fa_donor_params);
+    foreach ($fa_donation as $donation_values) {
+      $fa_donation_id = $donation_values['donation_entity_id'];
+    }
+    if (!empty($fa_donation_id)) {
+      $defaults['fa_donor'] = $fa_donation_id;
+    } else {
+      $defaults['fa_donor'] = 0;
+    }
+  } else {
+    $form->assign('donor_link_flag', 0);
+  }
 }
