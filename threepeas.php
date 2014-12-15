@@ -1111,6 +1111,9 @@ function _threepeasReformOpenCaseSubject($caseId, $caseTypeId, $activityId, $sub
  */
 function threepeas_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
   if ($formName == 'CRM_Case_Form_CaseView' || $formName == 'CRM_Case_Form_Case') {
+    if (is_null($errors)) {
+      $errors = array();
+    }
     _threepeas_validate_case_fa_donor($fields, $errors);
   }
 }
