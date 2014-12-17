@@ -123,4 +123,17 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
     }
     return TRUE;    
   }
+  /**
+   * Upgrade 2201 - add projectplan field to civicrm_project (issue 916)
+   */
+  public function upgrade_2201() {
+    $this->ctx->log->info('Applying update 2201 (add projectplan to civicrm_project');
+    if (CRM_Core_DAO::checkTableExists('civicrm_project')) {
+      if (!CRM_Core_DAO::checkFieldExists('civicrm_project', 'projectplan')) {
+        CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_project ADD COLUMN '
+          . 'projectplan TEXT AFTER expected_results');
+      }
+    }
+    return TRUE;    
+  }
 }

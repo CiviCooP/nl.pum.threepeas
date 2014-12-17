@@ -123,8 +123,9 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       $this->add('text', 'sector_coordinator', ts('Sector Coordinator'), array('size' => CRM_Utils_Type::HUGE));
       $this->add('text', 'representative', ts('Representative'), array('size' => CRM_Utils_Type::HUGE));
     }
-    $this->add('textarea', 'expected_results', ts('What are the expected results of the project? '), 
+    $this->add('textarea', 'expected_results', ts('What are the expected results of the project?'), 
       array('rows'    => 4, 'readonly'=> 'readonly', 'cols'    => 80), false);
+    $this->add('textarea', 'projectplan', ts('Projectplan (activities to be performed with customer)'), array('rows' => 4, 'readonly'=> 'readonly', 'cols' => 80), false);
     $this->add('text', 'country_coordinator', ts('Country Coordinator'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'project_officer', ts('Project Officer'), array('size' => CRM_Utils_Type::HUGE));
     $this->addDate('start_date', ts('Start Date'), false);
@@ -149,6 +150,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       $this->add('textarea', 'qualifications', ts('Qualifications'), array('rows'  => 4,  'cols'  => 80), false);
     }
     $this->add('textarea', 'expected_results', ts('Expected results'), array('rows'  => 4,  'cols'  => 80), false);
+    $this->add('textarea', 'projectplan', ts('Projectplan (activities to be performed with customer)'), array('rows'  => 4,  'cols'  => 80), false);
     $this->addDate('start_date', ts('Start Date'), false);
     $this->addDate('end_date', ts('End Date'), false);
     $this->add('checkbox', 'is_active', ts('Enabled'));
@@ -180,6 +182,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->add('text', 'country_coordinator', ts('Country Coordinator'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'project_officer', ts('Project Officer'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('textarea', 'expected_results', ts('Expected results'), array('rows'  => 4,  'cols'  => 80), false);
+    $this->add('textarea', 'projectplan', ts('Projectplan (activities to be performed with customer)'), array('rows'  => 4,  'cols'  => 80), false);
     $this->addDate('start_date', ts('Start Date'), false);
     $this->addDate('end_date', ts('End Date'), false);
     $this->add('checkbox', 'is_active', ts('Enabled'));

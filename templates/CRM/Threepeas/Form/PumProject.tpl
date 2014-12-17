@@ -39,12 +39,14 @@
             <div class="content">{$form.programme_id.value}</div>
             <div class="clear"></div>
           </div>
+          {* customer project *}
           {if !empty($form.customer_id.value)}  
             <div class="crm-section">
               <div class="label">{$form.customer_id.label}</div>
               <div class="content">{$form.customer_id.value}</div>
               <div class="clear"></div>
             </div>
+          {* country project *}    
           {else}
             <div class="crm-section">
               <div class="label">{$form.country_id.label}</div>
@@ -52,6 +54,7 @@
               <div class="clear"></div>
             </div>
           {/if}
+          {* only for customer project *}
           {if !empty($form.customer_id.value)}
             <div class="crm-section">
               <div class="label">{$form.projectmanager_id.label}</div>
@@ -74,6 +77,7 @@
             <div class="content">{$form.expected_results.value}</div>
             <div class="clear"></div>
           </div>  
+          {* only for customer project *}
           {if !empty($form.customer_id.value)}
             <div class="crm-section">
               <div class="label">{$form.qualifications.label}</div>
@@ -150,6 +154,7 @@
               <div class="clear"></div>
           </div>
           {/if}
+          {* customer project only *}
           {if !empty($form.customer_id.value)}
             <div class="crm-section">
               <div class="label">{$form.projectmanager_id.label}</div>
@@ -169,7 +174,7 @@
           {/if}
           <div class="crm-section">
             <div class="label">{$form.expected_results.label}</div>
-            <div class="content">{$form.expected_results.html}</div>
+            <div class="content">{$form.expected_results.value}</div>
             <div class="clear"></div>
           </div>  
           <div class="crm-section">
@@ -179,7 +184,8 @@
           </div>
           {* do not show coordinators if action is add *}
           {if $action ne 1}
-          {if !empty($form.customer_id.value)}
+            {* only customer project *}
+            {if !empty($form.customer_id.value)}
               <div class="crm-section">
                 <div class="label">{$form.sector_coordinator.label}</div>
                 <div class="content">{$form.sector_coordinator.value}</div>
@@ -201,7 +207,7 @@
               <div class="content">{$form.project_officer.value}</div>
               <div class="clear"></div>
             </div>
-          {/if}    
+          {/if}
           <div class="crm-section">
             <div class="label">{$form.start_date.label}</div>
             <div class="content">{include file="CRM/common/jcalendar.tpl" elementName=start_date}</div>
@@ -220,6 +226,30 @@
         {/if}
       </tbody>
     </table>
+    <div id="project-wrapper" class="crm-accordion-wrapper crm-ajax-accordion crm-project-accordion">
+      <div id="project-application" class="crm-accordion-header">
+        Project plan
+      </div>
+      <div class="crm-accordion-body" style="display: block">
+        <div class="messages status no-popup">
+          <div class="icon inform-icon"></div>
+          Please fill out which activities you see necessary to achieve the projectgoal. Name the type of Main Activities, the planning of the project and corresponding budget. 
+          Advice / Spring 2015 / 700,--.BLP / Autumn 2015 / 700,-- etc.
+        </div>
+        <div class="projectplan">
+          <div id="projectplan-line" class="section-shown crm-contribution-additionalinfo-projectplan-form-block">
+            <table id="projectplan-table" class="form-layout-compressed">
+              <tbody>
+                <tr class="crm-contribution-form-block-projectplan">
+                  <td class="label">{$form.projectplan.label}</td>
+                  <td>{$form.projectplan.html}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
     {if $action eq 4 or $permission ne 6}   
       {include file="CRM/Threepeas/Page/DonorLinkView.tpl"}
     {else}

@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `civicrm_project` (
   `work_description` text,
   `qualifications` text,
   `expected_results` text,
+  `projectplan` text,
   `customer_id` int(11) DEFAULT NULL,
   `country_id` int(11) DEFAULT NULL,
   `projectmanager_id` int(11) DEFAULT NULL,

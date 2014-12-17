@@ -69,6 +69,10 @@ class CRM_Threepeas_DAO_PumProject extends CRM_Core_DAO {
           'name' => 'expected_results',
           'type' => CRM_Utils_Type::T_TEXT
         ) ,
+        'projectplan' => array(
+          'name' => 'projectplan',
+          'type' => CRM_Utils_Type::T_TEXT
+        ),
         'customer_id' => array(
           'name' => 'customer_id',
           'type' => CRM_Utils_Type::T_INT
@@ -115,6 +119,7 @@ class CRM_Threepeas_DAO_PumProject extends CRM_Core_DAO {
         'reason'                =>  'reason',
         'qualifications'        =>  'qualifications',
         'expected_results'      =>  'expected_results',
+        'projectplan'           =>  'projectplan',
         'customer_id'           =>  'customer_id',
         'country_id'            =>  'country_id',
         'projectmanager_id'     =>  'projectmanager_id',
