@@ -36,6 +36,7 @@ class CRM_Threepeas_Page_AllProjectslist extends CRM_Core_Page {
     $display_row = array();
     $display_row['id'] = $dao->id;
     $display_row['title'] = $this->get_project_title($dao->title);
+    $display_row['programme_name'] = CRM_Threepeas_BAO_PumProgramme::getProgrammeTitleWithId($dao->programme_id);
     $this->process_project_type($dao->customer_id, $dao->country_id, $display_row);
     $display_row['projectmanager_name'] = $dao->projectmanager_name;
     $display_row['is_active'] = $this->set_is_active($dao->is_active);

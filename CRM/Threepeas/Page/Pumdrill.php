@@ -47,8 +47,8 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
       } else {
         $drillRows = $this->_buildProjectRows($projectId, $project[$projectId]['customer_id']);
       }
-      $this->assign('drillData', $drillRows);            
     }
+    $this->assign('drillData', $drillRows);            
     CRM_Utils_System::setTitle(ts("Drill Down"));
     parent::run();
   }
