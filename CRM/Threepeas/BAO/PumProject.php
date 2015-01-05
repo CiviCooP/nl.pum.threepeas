@@ -217,27 +217,30 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
   private static function getCaseResultLine($caseId) {
     $resultLine = array();
     $threepeasConfig = CRM_Threepeas_Config::singleton();
-    $case = civicrm_api3('Case', 'Getsingle', array('id' => $caseId, 'is_deleted' => 0));
-    foreach ($case['client_id'] as $caseClient) {
-      $caseClientId = $caseClient;
-    }
-    $resultLine['case_id'] = $case['id'];
-    $resultLine['subject'] = $case['subject'];
-    $resultLine['start_date'] = $case['start_date'];
-    $resultLine['end_date'] = $case['end_date'];
-    $resultLine['client_id'] = $caseClientId;
-    $resultLine['expert_id'] = self::getCaseRoleContactId($caseId, $threepeasConfig->expertRelationshipTypeId);
-    $optionParams['option_group_id'] = $threepeasConfig->caseTypeOptionGroupId;
-    $optionParams['value'] = $case['case_type_id'];
-    $optionParams['return'] = 'value';
     try {
-      $resultLine['case_type'] = civicrm_api3('OptionValue', 'Getvalue', $optionParams);
-    } catch (CiviCRM_API3_Exception $e) {
-      $resultLine['case_type'] = 'onbekend';
+      $case = civicrm_api3('Case', 'Getsingle', array('id' => $caseId, 'is_deleted' => 0));
+      foreach ($case['client_id'] as $caseClient) {
+        $caseClientId = $caseClient;
+      }
+      $resultLine['case_id'] = $case['id'];
+      $resultLine['subject'] = $case['subject'];
+      $resultLine['start_date'] = $case['start_date'];
+      $resultLine['end_date'] = $case['end_date'];
+      $resultLine['client_id'] = $caseClientId;
+      $resultLine['expert_id'] = self::getCaseRoleContactId($caseId, $threepeasConfig->expertRelationshipTypeId);
+      $optionParams['option_group_id'] = $threepeasConfig->caseTypeOptionGroupId;
+      $optionParams['value'] = $case['case_type_id'];
+      $optionParams['return'] = 'value';
+      try {
+        $resultLine['case_type'] = civicrm_api3('OptionValue', 'Getvalue', $optionParams);
+      } catch (CiviCRM_API3_Exception $e) {
+        $resultLine['case_type'] = 'onbekend';
+      }
+      $optionParams['option_group_id'] = $threepeasConfig->caseStatusOptionGroupId;
+      $optionParams['value'] = $case['status_id'];
+      $resultLine['case_status'] = civicrm_api3('OptionValue', 'Getvalue', $optionParams);
+    } catch (CiviCRM_API3_Exception $ex) {
     }
-    $optionParams['option_group_id'] = $threepeasConfig->caseStatusOptionGroupId;
-    $optionParams['value'] = $case['status_id'];
-    $resultLine['case_status'] = civicrm_api3('OptionValue', 'Getvalue', $optionParams);
     return $resultLine;
   }
   /**

@@ -14,6 +14,8 @@ require_once 'CRM/Core/Page.php';
 class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
   function run() {
     CRM_Utils_System::setTitle(ts('List of Programmes'));
+    $session = CRM_Core_Session::singleton();
+    $session->pushUserContext(CRM_Utils_System::url('civicrm/programmelist', '', true));
     
     $programmes = CRM_Threepeas_BAO_PumProgramme::getValues(array());
     $displayProgrammes = array();

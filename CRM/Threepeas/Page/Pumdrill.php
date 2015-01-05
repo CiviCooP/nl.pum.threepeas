@@ -15,16 +15,15 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
   function run() {
     $entity = CRM_Utils_Request::retrieve('pumEntity', 'String', $this);
     $this->assign('entity', $entity);
-        
+    $session = CRM_Core_Session::singleton();
+    $doneUrl = $session->readUserContext();
+    $this->assign('doneUrl', $doneUrl);
     if ($entity == "programme") {
       $programmeId = CRM_Utils_Request::retrieve('pid', 'Positive', $this);
       $programme = CRM_Threepeas_BAO_PumProgramme::getValues(array('id' => $programmeId));
       $pageTitle = "Programme ".$programme[$programmeId]['title'];
       $this->assign('pageTitle', $pageTitle);
       $drillRows = $this->_buildProgrammeRows($programmeId);
-      $this->assign("drillData", $drillRows);
-      $doneUrl = CRM_Utils_System::url('civicrm/programmelist');
-      $this->assign('doneUrl', $doneUrl);
             
     } else {
         
@@ -48,10 +47,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
       } else {
         $drillRows = $this->_buildProjectRows($projectId, $project[$projectId]['customer_id']);
       }
-      $this->assign('drillData', $drillRows);
-      $doneUrl = CRM_Utils_System::url('civicrm/projectlist');
-      $this->assign('doneUrl', $doneUrl);
-            
+      $this->assign('drillData', $drillRows);            
     }
     CRM_Utils_System::setTitle(ts("Drill Down"));
     parent::run();

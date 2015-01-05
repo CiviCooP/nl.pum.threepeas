@@ -41,10 +41,10 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
    */
   function preProcess() {
     /*
-     * set user context to return to pumprogramme list
+     * get user context to return to pumprogramme list
      */
     $session = CRM_Core_Session::singleton();
-    $session->pushUserContext(CRM_Utils_System::url('civicrm/programmelist'));
+    $user_context = $session->readUserContext();
     if ($this->_action != CRM_Core_Action::ADD) {
       $this->_id = CRM_Utils_Request::retrieve('pid', 'Integer', $this);
     }
@@ -54,14 +54,14 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     if ($this->_action == CRM_Core_Action::DELETE) {
       CRM_Threepeas_BAO_PumProgramme::deleteById($this->_id);
       $session->setStatus('Programme deleted', 'Delete', 'success');
-      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/programmelist'));
+      CRM_Utils_System::redirect($user_context);
     }
     /*
      * if action = disable or enable, execute immediately
      */
     if ($this->_action == CRM_Core_Action::DISABLE || $this->_action == CRM_Core_Action::ENABLE) {
       $this->processAble();
-      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/programmelist'));
+      CRM_Utils_System::redirect($user_context);
     }
     /*
      * set page title based on action
@@ -76,7 +76,6 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->saveProgramme($values);
     $session = CRM_Core_Session::singleton();
     $session->setStatus('Programme Saved', 'Saved', 'success');
-    $session->pushUserContext(CRM_Utils_System::url('civicrm/programmelist', '', true));
     parent::postProcess();
   }
   /**
