@@ -358,11 +358,12 @@ function threepeas_civicrm_postProcess($form_name, &$form) {
    * manage case donation links
    */
   if ($form_name == 'CRM_Case_Form_CaseView') {
-    $contact_id = $form->getVar('_contactID');
     $case_id = _threepeas_retrieve_case_id_from_url($form->_submitValues['entryURL']);
+    $contact_id = CRM_Threepeas_BAO_PumCaseRelation::get_case_client($case_id);
     $values = $form->exportValues();
     _threepeasCaseDonationLinks($values, $case_id);
-    $url = CRM_Utils_System::url('civicrm/contact/view/case', 'reset=1&id='.$case_id.'&cid='.$contact_id.'&action=view&context=case', true);
+    $url = CRM_Utils_System::url('civicrm/contact/view/case', 'reset=1&id='.$case_id
+      .'&cid='.$contact_id.'&action=view&context=case', true);
    CRM_Utils_System::redirect($url);
   }
   /*
