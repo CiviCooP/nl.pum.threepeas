@@ -353,16 +353,17 @@ function threepeas_civicrm_buildForm($formName, &$form) {
 /**
  * Implementation of hook civicrm_postProcess
  */
-function threepeas_civicrm_postProcess($formName, &$form) {
+function threepeas_civicrm_postProcess($form_name, &$form) {
   /*
    * manage case donation links
    */
-  if ($formName == 'CRM_Case_Form_CaseView') {
+  if ($form_name == 'CRM_Case_Form_CaseView') {
+    $contact_id = $form->getVar('_contactID');
+    $case_id = _threepeas_retrieve_case_id_from_url($form->_submitValues['entryURL']);
     $values = $form->exportValues();
-    $caseId = $form->getVar('_caseID');
-    _threepeasCaseDonationLinks($values, $caseId);
-    $session = CRM_Core_Session::singleton();
-    CRM_Utils_System::redirect($session->readUserContext());
+    _threepeasCaseDonationLinks($values, $case_id);
+    $url = CRM_Utils_System::url('civicrm/contact/view/case', 'reset=1&id='.$case_id.'&cid='.$contact_id.'&action=view&context=case', true);
+   CRM_Utils_System::redirect($url);
   }
   /*
    * manage data in civicrm_case_project
@@ -1131,7 +1132,9 @@ function _threepeas_add_donor_link_to_case_view($case_id, $case_type, &$form, &$
     foreach ($fa_donation as $donation_values) {
       $fa_donation_id = $donation_values['donation_entity_id'];
     }
-    $defaults['fa_donor'] = _threepeas_set_fa_default($fa_donation_id);
+    if (isset($fa_donation_id)) {
+      $defaults['fa_donor'] = _threepeas_set_fa_default($fa_donation_id);
+    }
   } else {
     $form->assign('donor_link_flag', 0);
   }
@@ -1231,4 +1234,20 @@ function _threepeas_add_donor_link_to_case(&$form) {
   asort($fa_donation_list);
   $form->add('select', 'fa_donor', 'For FA', $fa_donation_list);  
 }
-
+/**
+ * Function to retrieve the case Id from url (required for issue 1071)
+ * 
+ * @param string $url
+ * @return int $case_id
+ */
+function _threepeas_retrieve_case_id_from_url($url) {
+  $case_id = 0;
+  $query_str = parse_url($url, PHP_URL_QUERY);
+  parse_str($query_str, $url_params);
+  foreach ($url_params as $key => $value) {
+    if ($key == 'id' || $key == 'amp;id') {
+      $case_id = $value;
+    }
+  }
+  return $case_id;
+}
