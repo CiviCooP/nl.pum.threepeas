@@ -369,7 +369,7 @@ function threepeas_civicrm_postProcess($form_name, &$form) {
   /*
    * manage data in civicrm_case_project
    */
-  if ($formName == 'CRM_Case_Form_Case') {
+  if ($form_name == 'CRM_Case_Form_Case') {
     $action = $form->getVar('_action');
     switch ($action) {
       case CRM_Core_Action::ADD:
@@ -386,7 +386,7 @@ function threepeas_civicrm_postProcess($form_name, &$form) {
   /*
    * manage data in civicrm_donor_link
    */
-  if ($formName == 'CRM_Contribute_Form_Contribution') {
+  if ($form_name == 'CRM_Contribute_Form_Contribution') {
     $exportValues = $form->exportValues();
     $action = $form->getVar('_action');
     $contributionId = $form->getVar('_id');
