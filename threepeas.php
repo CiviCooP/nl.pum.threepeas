@@ -56,6 +56,12 @@ function threepeas_civicrm_enable() {
   $countryApiExtension = CRM_Core_BAO_Extension::retrieve($extensionParams, $extensionDefaults);
   if (!empty($countryApiExtension) && $countryApiExtension->is_active == 1) {
     /*
+     * create country custom group if required
+     */
+    $country_custom_group = CRM_Threepeas_CountryCustomGroup::singleton();
+    $country_custom_group->create_country_custom_group();
+
+    /*
      * retrieve option group for pum_project
      */
     _threepeasGenerateProjectList();
