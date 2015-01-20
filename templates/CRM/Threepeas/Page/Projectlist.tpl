@@ -49,7 +49,7 @@
               <td>{$project.projectmanager_name}</td>
               <td>{$project.sector_coordinator}</td>
               <td>{$project.representative}</td>
-              <td>{$project.authorised}</td>
+              <td>{$project.authorised_contact}</td>
               <td>{$project.anamon}</td>           
             {else}
               <td colspan="5">&nbsp;</td>

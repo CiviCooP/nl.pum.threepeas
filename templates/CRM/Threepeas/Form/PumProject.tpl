@@ -94,6 +94,11 @@
               <div class="content">{$form.representative.value}</div>
               <div class="clear"></div>            
             </div>
+            <div class="crm-section">
+              <div class="label">{$form.authorised.label}</div>
+              <div class="content">{$form.authorised.value}</div>
+              <div class="clear"></div>            
+            </div>
           {/if}    
           <div class="crm-section">
             <div class="label">{$form.country_coordinator.label}</div>
@@ -196,6 +201,11 @@
                 <div class="content">{$form.representative.value}</div>
                 <div class="clear"></div>
               </div>
+            <div class="crm-section">
+              <div class="label">{$form.authorised.label}</div>
+              <div class="content">{$form.authorised.value}</div>
+              <div class="clear"></div>            
+            </div>
             {/if}
             <div class="crm-section">
               <div class="label">{$form.country_coordinator.label}</div>
