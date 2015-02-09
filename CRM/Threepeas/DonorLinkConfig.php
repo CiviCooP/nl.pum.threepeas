@@ -193,7 +193,7 @@ class CRM_Threepeas_DonorLinkConfig {
    */
   protected function set_donation_case_types() {
     $this->_donation_case_types = array(
-      'Advice', 'Business', 'CTM', 'Grant', 'PDV', 'RemoteCoaching', 'Seminar'
+      'Advice', 'Business', 'CTM', 'Grant', 'PDV', 'RemoteCoaching', 'Seminar', 'TravelCase'
     );
   }
 }
