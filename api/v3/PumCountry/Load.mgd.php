@@ -17,6 +17,7 @@ return array (
       'api_entity' => 'PumCountry',
       'api_action' => 'Load',
       'parameters' => '',
+      'is_active' => 0
     ),
   ),
 );

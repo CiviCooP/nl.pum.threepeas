@@ -16,6 +16,7 @@ return array (
       'class_name' => 'CRM_Threepeas_Form_Report_SectorCoordinators',
       'report_url' => 'sectorcoordinatorslist',
       'component' => '',
+      'is_active' => 1
     ),
   ),
 );

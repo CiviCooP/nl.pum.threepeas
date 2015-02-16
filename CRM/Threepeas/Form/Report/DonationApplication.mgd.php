@@ -16,6 +16,7 @@ return array (
       'class_name' => 'CRM_Threepeas_Form_Report_DonationApplication',
       'report_url' => 'donationapplication',
       'component' => '',
+      'is_active' => 1
     ),
   ),
 );

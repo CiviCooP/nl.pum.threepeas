@@ -16,6 +16,7 @@ return array (
       'class_name' => 'CRM_Threepeas_Form_Report_AllProjectsReport',
       'report_url' => 'allprojectsreport',
       'component' => '',
+      'is_active' => 1,
     ),
   ),
 );
