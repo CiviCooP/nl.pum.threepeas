@@ -48,6 +48,7 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
    * @param array $params 
    * @return array $result
    * @access public
+   * @throws Exception when params empty
    * @static
    */
   public static function add($params) {
@@ -217,12 +218,12 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
           $donorLinkRow['contribution_id'] = $contribution['contribution_id'];
           $donorLinkRow['contact'] = '<a class="action-item" title="View contact" href="'.$contactUrl.'">'.$contribution['display_name'].'</a>';
           $donorLinkRow['amount'] = CRM_Utils_Money::format($contribution['total_amount']);
-          $donor_link_config = CRM_Threepeas_DonorLinkConfig::singleton();
-          $all_contribution_status = $donor_link_config->get_all_contribution_status();
+          $donorLinkConfig = CRM_Threepeas_DonorLinkConfig::singleton();
+          $all_contribution_status = $donorLinkConfig->getAllContributionStatus();
           $donorLinkRow['status'] = $all_contribution_status[$contribution['contribution_status_id']];
           $donorLinkRow['date'] = date('d-M-Y', strtotime($contribution['receive_date']));
           $donorLinkRow['financial_type'] = $contribution['financial_type'];
-          $donorLinkRow['is_fa_donor'] = self::set_display_tinyint($donorLink['is_fa_donor']);
+          $donorLinkRow['is_fa_donor'] = self::setDisplayTinyint($donorLink['is_fa_donor']);
           $viewContributionUrl = CRM_Utils_System::url('civicrm/contact/view/contribution', 'reset=1&id='
             .$contribution['contribution_id'].'&cid='.$contribution['contact_id'].'&action=view');
           $donorLinkRow['view_link'] = '<a class="action-item" title="View contribution" href="'.$viewContributionUrl.'">View contribution</a>';
@@ -239,7 +240,7 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
    * @access protected
    * @static
    */
-  protected static function set_display_tinyint($tiny_int) {
+  protected static function setDisplayTinyint($tiny_int) {
     if ($tiny_int == 1) {
       return 'Y';
     } else {
@@ -256,10 +257,10 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
    * @access public
    * @static
    */
-  public static function get_donations($params) {
+  public static function getDonations($params) {
     $donations = self::getValues($params);
     foreach ($donations as $key => $value) {
-      if (self::is_grant_donation($value) == TRUE) {
+      if (self::isGrantDonation($value) == TRUE) {
         unset($donations[$key]);
       }
     }
@@ -275,10 +276,10 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
    * @access public
    * @static
    */
-  public static function get_grant_donations($params) {
+  public static function getGrantDonations($params) {
     $donations = self::getValues($params);
     foreach ($donations as $key => $value) {
-      if (self::is_grant_donation($value) == FALSE) {
+      if (self::isGrantDonation($value) == FALSE) {
         unset($donations[$key]);
       }
     }
@@ -294,14 +295,14 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
    * @access protected
    * @static
    */
-  protected static function is_grant_donation($value) {
-    $donor_link_config = CRM_Threepeas_DonorLinkConfig::singleton();
+  protected static function isGrantDonation($value) {
+    $donorLinkConfig = CRM_Threepeas_DonorLinkConfig::singleton();
     if ($value['donation_entity'] == 'Contribution') {
       $params = array(
         'id' => $value['donation_entity_id'],
         'return' => 'financial_type');
-      $contribution_financial_type = civicrm_api3('Contribution', 'Getvalue', $params);
-      if ($contribution_financial_type == $donor_link_config->get_grant_donation_financial_type()) {
+      $contributionFinancialType = civicrm_api3('Contribution', 'Getvalue', $params);
+      if ($contributionFinancialType == $donorLinkConfig->getGrantDonationFinancialType()) {
         return TRUE;
       }
     }
@@ -317,18 +318,18 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 19 Nov 2014
    * @param string $context
-   * @param int $case_type
+   * @param int $caseType
    * @return type
    * @access protected
    * @static
    */
-  protected static function set_contribution_list_params($context, $case_type) {
+  protected static function setContributionListParams($context, $caseType) {
     $params = array('is_test' => 0, 'options' => array('limit' => 9999));
-    $donor_link_config = CRM_Threepeas_DonorLinkConfig::singleton();
+    $donorLinkConfig = CRM_Threepeas_DonorLinkConfig::singleton();
     if ($context == 'Case') {
-      self::set_financial_type_param($case_type, $params);
+      self::setFinancialTypeParam($caseType, $params);
     } else {
-      $params['financial_type_id'] = $donor_link_config->get_donation_financial_type_id();
+      $params['financial_type_id'] = $donorLinkConfig->getDonationFinancialTypeId();
     } 
     return $params;
   }
@@ -337,18 +338,18 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 19 Nov 2014
-   * @param string $case_type
+   * @param string $caseType
    * @param array $params
    * @access protected
    * @static
    */
-  protected static function set_financial_type_param($case_type, &$params) {
-    $donor_link_config = CRM_Threepeas_DonorLinkConfig::singleton();
+  protected static function setFinancialTypeParam($caseType, &$params) {
+    $donorLinkConfig = CRM_Threepeas_DonorLinkConfig::singleton();
     if (!empty($case_type)) {
       if ($case_type == 'Grant') {
-        $params['financial_type_id'] = $donor_link_config->get_grant_donation_financial_type_id();        
+        $params['financial_type_id'] = $donorLinkConfig->getGrantDonationFinancialTypeId();
       } else {
-        $params['financial_type_id'] = $donor_link_config->get_donation_financial_type_id();                
+        $params['financial_type_id'] = $donorLinkConfig->getDonationFinancialTypeId();
       }
     }
   }
@@ -358,26 +359,27 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 19 Nov 2014
    * @param string $context
-   * @param string $case_type
+   * @param string $caseType
+   * @return array $optionContributions
    * @access public
    * @static
    */
-  public static function get_contributions_list($context, $case_type) {
-    $option_contributions = array();
-    $donor_link_config = CRM_Threepeas_DonorLinkConfig::singleton();
-    $active_contribution_status = $donor_link_config->get_active_contribution_status();
-    $params = self::set_contribution_list_params($context, $case_type);
+  public static function getContributionsList($context, $caseType) {
+    $optionContributions = array();
+    $donorLinkConfig = CRM_Threepeas_DonorLinkConfig::singleton();
+    $activeContributionStatus = $donorLinkConfig->getActiveContributionStatus();
+    $params = self::setContributionListParams($context, $caseType);
     $contributions = civicrm_api3('Contribution', 'Get', $params);
     /*
      * add required contributions to option list
      */
     foreach ($contributions['values'] as $contribution) {
-      if (isset($active_contribution_status[$contribution['contribution_status_id']])) {
-        $option_text = $contribution['display_name'].' (type '.$contribution['financial_type'].')';
-        $option_contributions[$contribution['contribution_id']] = $option_text;
+      if (isset($activeContributionStatus[$contribution['contribution_status_id']])) {
+        $optionText = $contribution['display_name'].' (type '.$contribution['financial_type'].')';
+        $optionContributions[$contribution['contribution_id']] = $optionText;
       }
     }
-    asort($option_contributions);
-    return $option_contributions;
+    asort($optionContributions);
+    return $optionContributions;
   }
 }

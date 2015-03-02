@@ -14,8 +14,6 @@ class CRM_Threepeas_BAO_PumContributionProjects extends CRM_Threepeas_DAO_PumCon
   /**
    * Function to get values
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 19 Aug 2014
    * @param array $params name/value pairs with field names/values
    * @return array $result found rows with data
    * @access public
@@ -43,10 +41,9 @@ class CRM_Threepeas_BAO_PumContributionProjects extends CRM_Threepeas_DAO_PumCon
   /**
    * Function to add or update number of projects
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 19 Aug 2014
-   * @param array $params 
+   * @param array $params
    * @return array $result
+   * @throws Exception when params are empty
    * @access public
    * @static
    */
@@ -71,8 +68,7 @@ class CRM_Threepeas_BAO_PumContributionProjects extends CRM_Threepeas_DAO_PumCon
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 19 Aug 2014
-   * @param string $donationEntity
-   * @param int $donationEntityId
+   * @param string $contributionId
    */
   public static function deleteById($contributionId) {
     if (!empty($contributionId)) {

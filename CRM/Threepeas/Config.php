@@ -33,7 +33,7 @@ class CRM_Threepeas_Config {
   public $caseTypes = array();
   public $caseStatusOptionGroupId = NULL;
   public $caseStatus = array();
-  protected $cap_case_type_id = NULL;
+  protected $capCaseTypeId = NULL;
   /*
    * project option group id
    */
@@ -104,8 +104,8 @@ class CRM_Threepeas_Config {
     $this->setSectorTree();
     $this->assessmentRepActTypeId = $this->setActivityTypeId('Assessment Project Request by Rep');
   }
-  public function get_cap_case_type_id() {
-    return $this->cap_case_type_id;
+  public function getCapCaseTypeId() {
+    return $this->capCaseTypeId;
   }
   public function getSectorTree() {
     return $this->sectorTree;
@@ -158,9 +158,6 @@ class CRM_Threepeas_Config {
       return FALSE;
     }
   }
-  private function setDefaultContributionId($contributionId) {
-    $this->defaultContributionId = $contributionId;
-  }
   private function setCustomerContactType($customerContactType) {
     $this->customerContactType = $customerContactType;
   }
@@ -198,13 +195,12 @@ class CRM_Threepeas_Config {
     }
     return self::$_singleton;
   }
-/**
-* Functio to set the custom group id
-*
-* @param type $name
-* @return type
-* @throws CiviCRM_API3_Exception
-*/
+  /** Functio to set the custom group id
+  *
+  * @param string $name
+  * @return int $customGroupId
+  * @throws Exception when error from API
+  */
   private function setCustomGroupId($name) {
     if (!empty($name)) {
       $customGroupParams = array('name' => $name, 'return' => 'id');
@@ -254,7 +250,7 @@ class CRM_Threepeas_Config {
       foreach ($apiCaseTypes['values'] as $caseTypeId => $caseType) {
         $this->caseTypes[$caseType['value']] = $caseType['label'];
         if ($caseType['label'] == 'CAPAssessment') {
-          $this->cap_case_type_id = $caseType['value'];
+          $this->capCaseTypeId = $caseType['value'];
         }
       }
     } catch (CiviCRM_API3_Exception $ex) {
@@ -275,6 +271,8 @@ class CRM_Threepeas_Config {
    * Function to get a relationship type ID with the CiviCRM API and store it in property
    * 
    * @param string $name name of the group of whic the id is to be set
+   * @return int $relationshipTypeId
+   * @throws Exception when error from API
    * @access private
    */
   private function setRelationshipTypeId($name) {
@@ -333,6 +331,7 @@ class CRM_Threepeas_Config {
    * Function to get a group ID with the CiviCRM API and store it in property
    *
    * @param string $title name of the group of whic the id is to be set
+   * @throws Exception when error from API
    * @access private
    */
   private function setGroupId($title) {
@@ -346,7 +345,6 @@ class CRM_Threepeas_Config {
           .$title.', error from API Group Getvalue : ').$ex->getMessage());
       }
     }
-    return;
   }
   /**
    * Function to set the property that is required
@@ -384,18 +382,19 @@ class CRM_Threepeas_Config {
   /**
    * Function to retrieve the record type for activity targets
    */
-  private function setActTargetRecordType() {
+  private function setActTargetRecordType()
+  {
     try {
       $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => 'activity_contacts', 'return' => 'id'));
     } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception(ts('Could not find an option group with name activity_contacts, error from API OptionGroup Getvalue : ').$ex->getMessage());
+      throw new Exception(ts('Could not find an option group with name activity_contacts, error from API OptionGroup Getvalue : ') . $ex->getMessage());
     }
     $params = array('option_group_id' => $optionGroupId, 'name' => 'Activity Targets', 'return' => 'value');
     try {
       $this->actTargetRecordType = civicrm_api3('OptionValue', 'Getvalue', $params);
     } catch (CiviCRM_API3_Exception $ex) {
       $this->actTargetRecordType = NULL;
-      throw new Exception(ts('Could not find an option value with name Activity Targets in group activity_contacts, error from API OptionValue Getvalue : ').$ex->getMessage());
+      throw new Exception(ts('Could not find an option value with name Activity Targets in group activity_contacts, error from API OptionValue Getvalue : ') . $ex->getMessage());
     }
   }
 }

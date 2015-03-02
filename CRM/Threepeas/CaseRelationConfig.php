@@ -12,22 +12,23 @@ class CRM_Threepeas_CaseRelationConfig {
    */
   static private $_singleton = NULL;
   
-  protected $_case_type_relations = NULL;
+  protected $caseTypeRelations = NULL;
   /*
    * relationship_type_ids
    */
-  protected $_relationship_types = NULL;
+  protected $relationshipTypes = NULL;
   /*
    * ceo and cfo contact_id
    */
-  protected $_pum_ceo = NULL;
-  protected $_pum_cfo = NULL;
-  protected $_ceo_relationship_type_id = NULL;
-  protected $_cfo_relationship_type_id = NULL;
+  protected $pumCeo = NULL;
+  protected $pumCfo = NULL;
+  protected $ceoRelationshipTypeId = NULL;
+  protected $cfoRelationshipTypeId = NULL;
   /*
    * activity status completed
    */
-  protected $_activity_status_completed = NULL;
+  protected $activityStatusCompleted = NULL;
+
   /**
    * Function to return singleton object
    * 
@@ -41,164 +42,196 @@ class CRM_Threepeas_CaseRelationConfig {
     }
     return self::$_singleton;
   }
+
   /**
    * Constructor function
    */
   function __construct() {
-    $this->set_case_type_relations();
-    $this->set_relationship_types();
-    $this->set_ceo_cfo();
-    $this->set_activity_status_completed();
+    $this->setCaseTypeRelations();
+    $this->setRelationshipTypes();
+    $this->setCeoCfo();
+    $this->setActivityStatusCompleted();
   }
+
   /**
    * Function to get the activity status id of completed
+   *
+   * @return int
+   * @access public
    */
-  public function get_activity_status_completed() {
-    return $this->_activity_status_completed;
+  public function getActivityStatusCompleted() {
+    return $this->activityStatusCompleted;
   }
+
   /**
    * Function to get all case type relationship settings
    * 
    * @return array
    * @access public
    */
-  public function get_all_case_type_relations() {
-    return $this->_case_type_relations;
+  public function getAllCaseTypeRelations() {
+    return $this->caseTypeRelations;
   }
+
   /**
    * Function to get case type relationship settings for one case type
    * 
-   * @param string $case_type
+   * @param string $caseType
    * @return array
    * @access public
    */
-  public function get_case_type_relations($case_type) {
-    if (isset($this->_case_type_relations[$case_type])) {
-      return $this->_case_type_relations[$case_type];
+  public function getCaseTypeRelations($caseType) {
+    if (isset($this->caseTypeRelations[$caseType])) {
+      return $this->caseTypeRelations[$caseType];
     } else {
       return array();
     }
   }
+
   /**
    * Function to get single relationship type id with case role label
-   * 
+   *
+   * @param string $caseRoleLabel
    * @return integer
    * @access public
    */
-  public function get_relationship_type_id($case_role_label) {
-    return $this->get_single_relationship_type_id($case_role_label);
+  public function getRelationshipTypeId($caseRoleLabel) {
+    return $this->getSingleRelationshipTypeId($caseRoleLabel);
   }
-  public function get_pum_ceo() {
-    return $this->_pum_ceo;
+
+  /**
+   * Funtion to get CEO
+   *
+   * @return array
+   * @access public
+   */
+  public function getPumCeo() {
+    return $this->pumCeo;
   }
-  public function get_pum_cfo() {
-    return $this->_pum_cfo;
+
+  /**
+   * Funtion to get CFO
+   *
+   * @return array
+   * @access public
+   */
+  public function getPumCfo() {
+    return $this->pumCfo;
   }
+
   /**
    * Function to set activity status for completed
    * 
    * @throws Exception when option group activity_status not found
    * @throws Exception when activity status completed not found
+   * @access protected
    */
-  protected function set_activity_status_completed() {
-    $params_option_group = array('name' => 'activity_status', 'return' => 'id');
+  protected function setActivityStatusCompleted() {
+    $paramsOptionGroup = array('name' => 'activity_status', 'return' => 'id');
     try {
-      $option_group_id = civicrm_api3('OptionGroup', 'Getvalue', $params_option_group);
+      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', $paramsOptionGroup);
     } catch (CiviCRM_API3_Exception $ex) {
       throw new Exception('Could not find option group with name activity_status, '
         . 'error from API OptionGroup Getvalue: '.$ex->getMessage());
     }
-    $params_option_value = array(
-      'option_group_id' => $option_group_id,
+    $paramsOptionValue = array(
+      'option_group_id' => $optionGroupId,
       'name' => 'Completed',
       'return' => 'value');
     try {
-      $this->_activity_status_completed = civicrm_api3('OptionValue', 'Getvalue', $params_option_value);
+      $this->activityStatusCompleted = civicrm_api3('OptionValue', 'Getvalue', $paramsOptionValue);
     } catch (CiviCRM_API3_Exception $ex) {
       throw new Exception('Could not find activity status with name Completed, '
         . 'error from API OptionValue Getvalue: '.$ex->getMessage());
     }
   }
+
   /**
    * Function to set CEO and CFO for PUM. Based on expectation that job title CEO
    * and job title CFO for organization PUM Netherlands Senior Experts are there.
    * Assumption is that PUM is contact_id 1
+   *
+   * $access protected
    */
-  protected function set_ceo_cfo() {
-    $relationship_params = array(
+  protected function setCeoCfo() {
+    $relationshipParams = array(
       'contact_id_b' => 1,
       'is_active' => 1,
-      'relationship_type_id' => $this->get_employee_relationship_type_id(),
+      'relationship_type_id' => $this->getEmployeeRelationshipTypeId(),
       'options' => array('limit' => 99999));
-    $pum_employees = civicrm_api3('Relationship', 'Get', $relationship_params);
-    foreach ($pum_employees['values'] as $pum_employee) {
-      $this->set_ceo_cfo_values($pum_employee['contact_id_a']);
+    $pumEmployees = civicrm_api3('Relationship', 'Get', $relationshipParams);
+    foreach ($pumEmployees['values'] as $pumEmployee) {
+      $this->setCeoCfoValues($pumEmployee['contact_id_a']);
     }
   }
+
   /**
    * Function to set ceo and cfo values
    * 
-   * @param int $contact_id
+   * @param int $contactId
+   * @access protected
    */
-  protected function set_ceo_cfo_values($contact_id) {
-    $contact_data = civicrm_api3('Contact', 'Getsingle', array('id' => $contact_id));
-    if (isset($contact_data['job_title'])) {
-      switch ($contact_data['job_title']) {
+  protected function setCeoCfoValues($contactId) {
+    $contactData = civicrm_api3('Contact', 'Getsingle', array('id' => $contactId));
+    if (isset($contactData['job_title'])) {
+      switch ($contactData['job_title']) {
         case 'CEO':
-          $this->_pum_ceo['contact_id'] = $contact_id;
-          $this->_pum_ceo['display_name'] = $contact_data['display_name'];
+          $this->pumCeo['contact_id'] = $contactId;
+          $this->pumCeo['display_name'] = $contactData['display_name'];
           break;
         case 'CFO':
-          $this->_pum_cfo['contact_id'] = $contact_id;
-          $this->_pum_cfo['display_name'] = $contact_data['display_name'];
+          $this->pumCfo['contact_id'] = $contactId;
+          $this->pumCfo['display_name'] = $contactData['display_name'];
           break;
       }
     }
   }
+
   /**
    * Function to get the Employee Relationship Type Id
    * 
-   * @return int $relationship_type_id
+   * @return int $relationshipTypeId
    * @throws Exception
+   * @access protected
    */
-  protected function get_employee_relationship_type_id() {
+  protected function getEmployeeRelationshipTypeId() {
     $params = array('name_a_b' => 'Employee of', 'return' => 'id');
     try {
-      $relationship_type_id = civicrm_api3('RelationshipType', 'Getvalue', $params);
+      $relationshipTypeId = civicrm_api3('RelationshipType', 'Getvalue', $params);
     } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Could not find relationshi type with name_a_b Employee Of, '
+      throw new Exception('Could not find relationship type with name_a_b Employee Of, '
         . 'error from API RelationshipType Getvalue: '.$ex->getMessage());
     }
-    return $relationship_type_id;
+    return $relationshipTypeId;
   }
   /**
    * Function to get relationship_type_id with civicrm_api3
    * 
-   * @param string $case_role_label
-   * @return integer $relationship_type_id
+   * @param string $caseRoleLabel
+   * @return integer $relationshipTypeId
    * @throws Exception when no relationship type id with name_a_b found
    * @access protected
    */
-  protected function get_single_relationship_type_id($case_role_label) {
+  protected function getSingleRelationshipTypeId($caseRoleLabel) {
     $params = array(
-      'name_a_b' => $this->_relationship_types[$case_role_label],
+      'name_a_b' => $this->relationshipTypes[$caseRoleLabel],
       'return' => 'id');
     try {
-      $relationship_type_id = civicrm_api3('RelationshipType', 'Getvalue', $params);
+      $relationshipTypeId = civicrm_api3('RelationshipType', 'Getvalue', $params);
     } catch (CiviCRM_API3_Exception $ex) {
       throw new Exception('No RelationshipType found with name_a_b '.
-        $this->_relationship_type_ids[$case_role_label].
+        $this->relationshipTypes[$caseRoleLabel].
         ', error from API RelationshipType Getvalue: '.$ex->getMessage());
     }
-    return $relationship_type_id;
+    return $relationshipTypeId;
   }
   /**
    * Function to set all case type relationship settings
    * 
    * @access protected
    */
-  protected function set_case_type_relations() {
-    $this->_case_type_relations = array(
+  protected function setCaseTypeRelations() {
+    $this->caseTypeRelations = array(
       'Advice' => array(
         'authorised_contact' => 1,
         'sector_coordinator' => 1,
@@ -327,8 +360,8 @@ class CRM_Threepeas_CaseRelationConfig {
    * 
    * @access protected
    */
-  protected function set_relationship_types() {
-    $this->_relationship_types = array(
+  protected function setRelationshipTypes() {
+    $this->relationshipTypes = array(
       'anamon' => 'Anamon',
       'authorised_contact' => 'Has authorised',
       'ceo' => 'CEO',

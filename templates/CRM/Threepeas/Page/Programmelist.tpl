@@ -2,11 +2,13 @@
   <div id="help">
     The existing Programmes are listed below. You can add, edit, drill down or delete them from this screen. 
   </div>
-  <div class="action-link">
-    <a class="button new-option" href="{$addUrl}">
-      <span><div class="icon add-icon"></div>New Programme</span>
-    </a>
-  </div>
+  {if !empty($addUrl)}
+    <div class="action-link">
+      <a class="button new-option" href="{$addUrl}">
+        <span><div class="icon add-icon"></div>New Programme</span>
+      </a>
+    </div>
+  {/if}
   <div id="programme-wrapper" class="dataTables_wrapper">
     <table id="programme-table" class="display">
       <thead>
@@ -49,9 +51,11 @@
       </tbody>
     </table>    
   </div>
-  <div class="action-link">
-    <a class="button new-option" href="{$addUrl}">
-      <span><div class="icon add-icon"></div>New Programme</span>
-    </a>
-  </div>
+  {if !empty($addUrl)}
+    <div class="action-link">
+      <a class="button new-option" href="{$addUrl}">
+        <span><div class="icon add-icon"></div>New Programme</span>
+      </a>
+    </div>
+  {/if}
 </div>

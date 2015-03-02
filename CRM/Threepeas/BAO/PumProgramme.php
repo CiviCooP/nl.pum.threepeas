@@ -47,6 +47,7 @@ class CRM_Threepeas_BAO_PumProgramme extends CRM_Threepeas_DAO_PumProgramme {
    * @date 18 Apr 2014
    * @param array $params 
    * @return array $result
+   * @throws Exception when params empty
    * @access public
    * @static
    */
@@ -74,6 +75,7 @@ class CRM_Threepeas_BAO_PumProgramme extends CRM_Threepeas_DAO_PumProgramme {
    * @date 16 Apr 2014
    * @param int $pumProgrammeId 
    * @return boolean
+   * @throws Exception when programmaId is empty
    * @access public
    * @static
    */

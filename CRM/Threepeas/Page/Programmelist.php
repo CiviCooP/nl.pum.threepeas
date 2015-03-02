@@ -15,11 +15,15 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
   function run() {
     CRM_Utils_System::setTitle(ts('List of Programmes'));
     $session = CRM_Core_Session::singleton();
-    $session->pushUserContext(CRM_Utils_System::url('civicrm/programmelist', '', true));
+    $session->pushUserContext(CRM_Utils_System::url('civicrm/programmelist', 'reset=1', true));
     
     $programmes = CRM_Threepeas_BAO_PumProgramme::getValues(array());
     $displayProgrammes = array();
-    
+    if (CRM_Core_Permission::check('edit all contacts') || CRM_Core_Permission::check('administer CiviCRM')) {
+      $addUrl = CRM_Utils_System::url('civicrm/pumprogramme', 'action=add');
+      $this->assign('addUrl', $addUrl);
+    }
+
     foreach ($programmes as $programme) {
       $displayProgramme = array();
       $displayProgramme['id'] = $programme['id'];
@@ -62,7 +66,7 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
       $enableUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=enable&pid={$programme['id']}");
       $pageActions = array();
       $pageActions[] = '<a class="action-item" title="View programme details" href="'.$viewUrl.'">View</a>';
-      
+
       if (CRM_Core_Permission::check('edit all contacts') || CRM_Core_Permission::check('administer CiviCRM')) {
         $pageActions[] = '<a class="action-item" title="Edit programme" href="'.$editUrl.'">Edit</a>';
         if ($programme['is_active'] == 1) {
@@ -73,8 +77,6 @@ class CRM_Threepeas_Page_Programmelist extends CRM_Core_Page {
         if (CRM_Threepeas_BAO_PumProgramme::checkCanBeDeleted($programme['id'])){
           $pageActions[] = '<a class="action-item" title="Delete programme" href="'.$delUrl.'">Delete</a>';
         }
-        $addUrl = CRM_Utils_System::url('civicrm/pumprogramme', "action=add");
-        $this->assign('addUrl', $addUrl);
       }
       $pageActions[] = '<a class="action-item" title="Drill down programme" href="'.$drillUrl.'">Drill Down</a>';
       $displayProgramme['actions'] = $pageActions;

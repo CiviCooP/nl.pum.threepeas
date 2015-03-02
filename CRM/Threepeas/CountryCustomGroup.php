@@ -9,12 +9,12 @@ class CRM_Threepeas_CountryCustomGroup {
   
   static private $_singleton = NULL;
   
-  protected $_country_custom_group_id = NULL;
-  protected $_country_custom_group_table = NULL;
-  protected $_country_custom_field_id = NULL;
-  protected $_country_custom_field_column_name = NULL;
-  protected $_country_custom_group_name = NULL;
-  protected $_country_custom_field_name = NULL;
+  protected $countryCustomGroupId = NULL;
+  protected $countryCustomGroupTable = NULL;
+  protected $countryCustomFieldId = NULL;
+  protected $countryCustomFieldColumnName = NULL;
+  protected $countryCustomGroupName = NULL;
+  protected $countryCustomFieldName = NULL;
   
   /**
    * Function to return singleton object
@@ -33,45 +33,45 @@ class CRM_Threepeas_CountryCustomGroup {
    * Constructor function
    */
   function __construct() {
-    $this->_country_custom_group_name = 'pumCountry';
-    $this->_country_custom_field_name = 'civicrm_country_id';
-    $this->set_custom_group_data();
+    $this->countryCustomGroupName = 'pumCountry';
+    $this->countryCustomFieldName = 'civicrm_country_id';
+    $this->setCustomGroupData();
   }
   /**
-   * Function to get the _country_custom_group_id
+   * Function to get the country custom group id
    * 
    * @return int
    * @access public
    */
-  public function get_country_custom_group_id() {
-    return $this->_country_custom_group_id;
+  public function getCountryCustomGroupId() {
+    return $this->countryCustomGroupId;
   }
   /**
-   * Function to get the _country_custom_group_table
+   * Function to get the country custom group table
    * 
    * @return string
    * @access public
    */
-  public function get_country_custom_group_table() {
-    return $this->_country_custom_group_table;
+  public function getCountryCustomGroupTable() {
+    return $this->countryCustomGroupTable;
   }
   /**
-   * Function to get the _country_custom_field_id
+   * Function to get the country custom field id
    * 
    * @return iny
    * @access public
    */
-  public function get_country_custom_field_id() {
-    return $this->_country_custom_field_id;
+  public function getCountryCustomFieldId() {
+    return $this->countryCustomFieldId;
   }
   /**
-   * Function to get the _country_custom_field_column_name
+   * Function to get the country custom field column name
    * 
    * @return string
    * @access public
    */
-  public function get_country_custom_field_column_name() {
-    return $this->_country_custom_field_column_name;
+  public function getCountryCustomFieldColumnName() {
+    return $this->countryCustomFieldColumnName;
   }
   /**
    * Function to create the custom group for country
@@ -79,20 +79,20 @@ class CRM_Threepeas_CountryCustomGroup {
    * @access public
    * @throws Exception when API CustomGroup Create fails
    */
-  public function create_country_custom_group() {
-    if ($this->check_country_custom_group_exists() == FALSE) {
-      $params = $this->set_country_custom_group_params();
+  public function createCountryCustomGroup() {
+    if ($this->checkCountryCustomGroupExists() == FALSE) {
+      $params = $this->setCountryCustomGroupParams();
       try {
-        $custom_group = civicrm_api3('CustomGroup', 'Create', $params);
+        $customGroup = civicrm_api3('CustomGroup', 'Create', $params);
       } catch (CiviCRM_API3_Exception $ex) {
         throw new Exception('Could not create PUM specific custom group with name '
-          .$this->_country_custom_group_name.', error from API CustomGroup Create: '
+          .$this->countryCustomGroupName.', error from API CustomGroup Create: '
           .$ex->getMessage());
       }
-      $this->_country_custom_group_id = $custom_group['id'];
-      $this->_country_custom_group_table = $custom_group['values']
-        [$this->_country_custom_group_id]['table_name'];
-      $this->create_country_custom_field();
+      $this->countryCustomGroupId = $customGroup['id'];
+      $this->countryCustomGroupTable = $customGroup['values']
+        [$this->countryCustomGroupId]['table_name'];
+      $this->createCountryCustomField();
     }
   }
   /**
@@ -101,11 +101,11 @@ class CRM_Threepeas_CountryCustomGroup {
    * @return boolean
    * @access protected
    */
-  protected function check_country_custom_group_exists() {
-    $params = array('name' => $this->_country_custom_group_name);
+  protected function checkCountryCustomGroupExists() {
+    $params = array('name' => $this->countryCustomGroupName);
     try {
-      $custom_group_count = civicrm_api3('CustomGroup', 'Getcount', $params);
-      if ($custom_group_count > 0) {
+      $customGroupCount = civicrm_api3('CustomGroup', 'Getcount', $params);
+      if ($customGroupCount > 0) {
         return TRUE;
       }
     } catch (CiviCRM_API3_Exception $ex) {
@@ -118,20 +118,20 @@ class CRM_Threepeas_CountryCustomGroup {
    * @access protected 
    * @throws Exception when custom field create API throws error
    */
-  protected function create_country_custom_field() {
-    if ($this->check_country_custom_field_exists() == FALSE) {
-      $params = $this->set_country_custom_field_params();
+  protected function createCountryCustomField() {
+    if ($this->checkCountryCustomFieldExists() == FALSE) {
+      $params = $this->setCountryCustomFieldParams();
       try {
-        $custom_field = civicrm_api3('CustomField', 'Create', $params);
+        $customField = civicrm_api3('CustomField', 'Create', $params);
       } catch (CiviCRM_API3_Exception $ex) {
         throw new Exception('Could not create PUM specific custom field '
-          .$this->_country_custom_field_name.' in custom group '
-          .$this->_country_custom_group_name.', error from API CustomField Create: '.
+          .$this->countryCustomFieldName.' in custom group '
+          .$this->countryCustomGroupName.', error from API CustomField Create: '.
           $ex->getMessage());
       }
-      $this->_country_custom_field_id = $custom_field['id'];
-      $this->_country_custom_field_column_name = $custom_field['values']
-        [$this->_country_custom_field_id]['column_name'];
+      $this->countryCustomFieldId = $customField['id'];
+      $this->countryCustomFieldColumnName = $customField['values']
+        [$this->countryCustomFieldId]['column_name'];
     }
   }
   /**
@@ -140,13 +140,13 @@ class CRM_Threepeas_CountryCustomGroup {
    * @return boolean
    * @access protected
    */
-  protected function check_country_custom_field_exists() {
+  protected function checkCountryCustomFieldExists() {
     $params = array(
-      'name' => $this->_country_custom_field_name,
-      'custom_group_id' => $this->_country_custom_group_id);
+      'name' => $this->countryCustomFieldName,
+      'custom_group_id' => $this->countryCustomGroupId);
     try {
-      $custom_field_count = civicrm_api3('CustomField', 'Getcount', $params);
-      if ($custom_field_count > 0) {
+      $customFieldCount = civicrm_api3('CustomField', 'Getcount', $params);
+      if ($customFieldCount > 0) {
         return TRUE;
       }
     } catch (CiviCRM_API3_Exception $ex) {
@@ -159,9 +159,9 @@ class CRM_Threepeas_CountryCustomGroup {
    * @return array $params
    * @access protected
    */
-  protected function set_country_custom_field_params() {
+  protected function setCountryCustomFieldParams() {
     $params = array(
-      'name' => $this->_country_custom_field_name,
+      'name' => $this->countryCustomFieldName,
       'label' => 'CountryID',
       'data_type' => 'String',
       'html_type' => 'Text',
@@ -170,8 +170,8 @@ class CRM_Threepeas_CountryCustomGroup {
       'weight' =>1,
       'is_active' => 1,
       'is_view' => 1,
-      'column_name' => $this->_country_custom_field_name,
-      'custom_group_id' => $this->_country_custom_group_id
+      'column_name' => $this->countryCustomFieldName,
+      'custom_group_id' => $this->countryCustomGroupId
     );
     return $params;
   }
@@ -181,9 +181,9 @@ class CRM_Threepeas_CountryCustomGroup {
    * @return array $params
    * @access protected
    */
-  protected function set_country_custom_group_params() {
+  protected function setCountryCustomGroupParams() {
     $params = array(
-      'name' => $this->_country_custom_group_name,
+      'name' => $this->countryCustomGroupName,
       'title' => 'Country data',
       'extends' => 'Organization',
       'extends_entity_column_value_option_group' => 'contact_type',
@@ -203,26 +203,26 @@ class CRM_Threepeas_CountryCustomGroup {
    * 
    * @access protected
    */
-  protected function set_custom_group_data() {
-    $group_params = array('name' => $this->_country_custom_group_name);
+  protected function setCustomGroupData() {
+    $groupParams = array('name' => $this->countryCustomGroupName);
     try {
-      $custom_group = civicrm_api3('CustomGroup', 'Getsingle', $group_params);
-      $this->_country_custom_group_id = $custom_group['id'];
-      $this->_country_custom_group_table = $custom_group['table_name'];
-     $field_params = array(
-       'name' => $this->_country_custom_field_name,
-       'custom_group_id' => $this->_country_custom_group_id);
+      $customGroup = civicrm_api3('CustomGroup', 'Getsingle', $groupParams);
+      $this->countryCustomGroupId = $customGroup['id'];
+      $this->countryCustomGroupTable = $customGroup['table_name'];
+     $fieldParams = array(
+       'name' => $this->countryCustomFieldName,
+       'custom_group_id' => $this->countryCustomGroupId);
      try {
-       $custom_field = civicrm_api3('CustomField', 'Getsingle', $field_params);
-       $this->_country_custom_field_id = $custom_field['id'];
-       $this->_country_custom_field_column_name = $custom_field['column_name'];
+       $customField = civicrm_api3('CustomField', 'Getsingle', $fieldParams);
+       $this->countryCustomFieldId = $customField['id'];
+       $this->countryCustomFieldColumnName = $customField['column_name'];
      } catch (CiviCRM_API3_Exception $ex) {
-       $this->_country_custom_field_id = null;
-       $this->_country_custom_field_column_name = null;
+       $this->countryCustomFieldId = null;
+       $this->countryCustomFieldColumnName = null;
      }
     } catch (CiviCRM_API3_Exception $ex) {
-      $this->_country_custom_group_id = null;
-      $this->_country_custom_group_table = null;
+      $this->countryCustomGroupId = null;
+      $this->countryCustomGroupTable = null;
     }
   }
 }

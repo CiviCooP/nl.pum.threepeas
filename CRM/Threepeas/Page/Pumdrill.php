@@ -23,7 +23,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
       $programme = CRM_Threepeas_BAO_PumProgramme::getValues(array('id' => $programmeId));
       $pageTitle = "Programme ".$programme[$programmeId]['title'];
       $this->assign('pageTitle', $pageTitle);
-      $drillRows = $this->_buildProgrammeRows($programmeId);
+      $drillRows = $this->buildProgrammeRows($programmeId);
             
     } else {
         
@@ -43,9 +43,9 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
       );
       $this->assign('productLabel', $productLabel);
       if (!isset($project[$projectId]['customer_id']) && isset($project[$projectId]['country_id'])) {
-        $drillRows = $this->_buildProjectRows($projectId, $project[$projectId]['country_id']);
+        $drillRows = $this->buildProjectRows($projectId, $project[$projectId]['country_id']);
       } else {
-        $drillRows = $this->_buildProjectRows($projectId, $project[$projectId]['customer_id']);
+        $drillRows = $this->buildProjectRows($projectId, $project[$projectId]['customer_id']);
       }
     }
     $this->assign('drillData', $drillRows);            
@@ -61,7 +61,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
    * @return array $rows
    * @access private
    */
-  private function _buildProgrammeRows($programmeId) {
+  private function buildProgrammeRows($programmeId) {
     $threepeasConfig = CRM_Threepeas_Config::singleton();
     $rows = array();
     if (empty($programmeId) || !is_numeric($programmeId)) {
@@ -78,10 +78,10 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
         $row = array();
         $row['project_id'] = $project['id'];
         if (!empty($project['customer_id'])) {
-          $row['project_officer_id'] = CRM_Threepeas_BAO_PumCaseRelation::get_relation_id($project['customer_id'], 'project_officer');
+          $row['project_officer_id'] = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($project['customer_id'], 'project_officer');
         } else {
           if (!empty($project['country_id'])) {
-          $row['project_officer_id'] = CRM_Threepeas_BAO_PumCaseRelation::get_relation_id($project['country_id'], 'project_officer');
+          $row['project_officer_id'] = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($project['country_id'], 'project_officer');
           }
         }
         if (isset($row['project_officer_id'])) {
@@ -121,7 +121,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
           if ($firstRow) {
             $row['project_id'] = $project['id'];
             if (!empty($project['customer_id'])) {
-              $row['project_officer_id'] = CRM_Threepeas_BAO_PumCaseRelation::get_relation_id($project['customer_id'], 'project_officer');
+              $row['project_officer_id'] = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($project['customer_id'], 'project_officer');
             }
             $contactParams = array(
               'id'    =>  $row['project_officer_id'],
@@ -176,7 +176,7 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
    * @return array $drillRows
    * @access private
    */
-  private function _buildProjectRows($projectId, $customerId) {
+  private function buildProjectRows($projectId, $customerId) {
     $threepeasConfig = CRM_Threepeas_Config::singleton();
     if (!empty($customerId)) {
       $caseUrl = CRM_Utils_System::url('civicrm/case/add', 'reset=1&action=add&cid='.$customerId.'&context=case&pid='.$projectId, true);

@@ -14,8 +14,6 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
   /**
    * Function to get values
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 19 May 2014
    * @param array $params name/value pairs with field names/values
    * @return array $result found rows with data
    * @access public
@@ -43,10 +41,9 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
   /**
    * Function to add or update pumCaseProject
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 19 May 2014
-   * @param array $params 
+   * @param array $params
    * @return array $result
+   * @throws Exception when params empty
    * @access public
    * @static
    */
@@ -69,8 +66,6 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
   /**
    * Function to disable PumCaseProject by ProjectID
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 20 May 2014
    * @param type $projectId
    */
   public static function disableByProjectId($projectId) {
@@ -86,8 +81,6 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
   /**
    * Function to delete PumCaseProject by ProjectID
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 20 May 2014
    * @param type $projectId
    */
   public static function deleteByProjectId($projectId) {
@@ -103,9 +96,9 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
   /**
    * Function to enable PumCaseProject by ProjectID
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 23 June 2014
    * @param type $projectId
+   * @access public
+   * @static
    */
   public static function enableByProjectId($projectId) {
     if (!empty($projectId)) {
@@ -120,9 +113,9 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
   /**
    * Function to disable PumCaseProject by CaseID
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 3 Jun 2014
    * @param type $caseId
+   * @access public
+   * @static
    */
   public static function disableByCaseId($caseId) {
     if (!empty($caseId)) {
@@ -133,30 +126,5 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
         self::add(array('id' => $pumCaseProject->id, 'is_active' => 0));
       }
     }
-  }
-  /**
-   * Function to return the client_id of a case
-   * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 17 Nov 2014
-   * @param int $case_id
-   * @return int $client_id
-   * @access public
-   * @static
-   */
-  public static function get_case_client_id($case_id) {
-    $params = array(
-      'id' => $case_id,
-      'return' => 'client_id'
-    );
-    try {
-      $case_clients = civicrm_api3('Case', 'Getvalue', $params);
-      foreach ($case_clients as $case_client) {
-        $client_id = $case_client;
-      }
-    } catch (CiviCRM_API3_Exception $ex) {
-      $client_id = 0;
-    }
-    return $client_id;
   }
 }

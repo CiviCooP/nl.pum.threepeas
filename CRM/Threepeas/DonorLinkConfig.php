@@ -14,15 +14,24 @@ class CRM_Threepeas_DonorLinkConfig {
   /*
    * properties for sponsor link
    */
-  protected $_default_contribution_id = NULL;
-  protected $_inactive_contribution_status = array();
-  protected $_active_contribution_status = array();
-  protected $_all_contribution_status = array();
-  protected $_grant_donation_financial_type = NULL;
-  protected $_financial_type_ids = array();
-  protected $_donation_financial_type = NULL;
-  protected $_grant_case_type = NULL;
-  protected $_donation_case_types = NULL;
+  protected $defaultContributionId = NULL;
+  protected $inactiveContributionStatus = array();
+  protected $activeContributionStatus = array();
+  protected $allContributionStatus = array();
+  protected $grantDonationFinancialType = NULL;
+  protected $financialTypeIds = array();
+  protected $donationFinancialType = NULL;
+  protected $grantCaseType = NULL;
+  protected $donationCaseTypes = NULL;
+  /*
+   * properties for custom field donation applicable (issue 1566)
+   */
+  protected $applicableCustomFieldId = NULL;
+  protected $applicableCustomGroupName = NULL;
+  protected $applicableCustomGroupId = NULL;
+  protected $applicableCustomFieldName = NULL;
+  protected $applicableCustomGroupTable = NULL;
+  protected $applicableCustomFieldColumn = NULL;
   /**
    * Function to return singleton object
    * 
@@ -40,42 +49,104 @@ class CRM_Threepeas_DonorLinkConfig {
    * Constructor function
    */
   function __construct() {
-    $this->_default_contribution_id = 4;
-    $this->_grant_case_type = 'Grant';
-    $this->set_contribution_status();
-    $this->_grant_donation_financial_type = 'Grant Donation';
-    $this->_donation_financial_type = 'Donation';
-    $this->set_financial_type_id($this->_grant_donation_financial_type);
-    $this->set_financial_type_id($this->_donation_financial_type);
-    $this->set_donation_case_types();
+    $this->defaultContributionId = 4;
+    $this->grantCaseType = 'Grant';
+    $this->setContributionStatus();
+    $this->grantDonationFinancialType = 'Grant Donation';
+    $this->donationFinancialType = 'Donation';
+    $this->setFinancialTypeId($this->grantDonationFinancialType);
+    $this->setFinancialTypeId($this->donationFinancialType);
+    $this->setDonationCaseTypes();
+    $this->setApplicableCustomGroup();
   }
+
   /**
    * Function to get case types to exclude from donor link
    * 
    * @return array
    * @access public
    */
-  public function get_donation_case_types() {
-    return $this->_donation_case_types;
+  public function getDonationCaseTypes() {
+    return $this->donationCaseTypes;
   }
-  
+
+  /**
+   * Function to get custom group name for contribution custom group
+   *
+   * @return string
+   * @access public
+   */
+  public function getApplicableCustomGroupName() {
+    return $this->applicableCustomGroupName;
+  }
+
+  /**
+   * Function to get custom group id for contribution custom group
+   *
+   * @return int
+   * @access public
+   */
+  public function getApplicableCustomGroupId() {
+    return $this->applicableCustomGroupId;
+  }
+
+  /**
+   * Function to get custom field name for applicable contribution
+   *
+   * @return string
+   * @access public
+   */
+  public function getApplicableCustomFieldName() {
+    $this->applicableCustomFieldName;
+  }
+
+  /**
+   * Function to get custom field id for applicable contribution
+   * @return int
+   * @access public
+   */
+  public function getApplicableCustomFieldId() {
+    $this->applicableCustomFieldId;
+  }
+
+  /**
+   * Function to get custom group table name for contribution custom group
+   *
+   * @return string
+   * @access public
+   */
+  public function getApplicableCustomGroupTable() {
+    $this->applicableCustomGroupTable;
+  }
+
+  /**
+   * Function to get custom field column name for applicable contribution
+   *
+   * @return string
+   * @access public
+   */
+  public function getApplicableCustomFieldColumn() {
+    $this->applicableCustomFieldColumn;
+  }
+
   /**
    * Function to get grant case type
    * 
    * @return string
    * @access public
    */
-  public function get_grant_case_type() {
-    return $this->_grant_case_type;
+  public function getGrantCaseType() {
+    return $this->grantCaseType;
   }
+
   /**
    * Function to get default contribution_id
    * 
    * @return int
    * @access public
    */
-  public function get_default_contribution_id() {
-    return $this->_default_contribution_id;
+  public function getDefaultContributionId() {
+    return $this->defaultContributionId;
   }
   /**
    * Function to get inactive contribution statusses
@@ -83,8 +154,8 @@ class CRM_Threepeas_DonorLinkConfig {
    * @return array
    * @access public
    */
-  public function get_inactive_contribution_status() {
-    return $this->_inactive_contribution_status;
+  public function getInactiveContributionStatus() {
+    return $this->inactiveContributionStatus;
   }
   /**
    * Function to get active contribution statusses
@@ -92,8 +163,8 @@ class CRM_Threepeas_DonorLinkConfig {
    * @return array
    * @access public
    */
-  public function get_active_contribution_status() {
-    return $this->_active_contribution_status;
+  public function getActiveContributionStatus() {
+    return $this->activeContributionStatus;
   }
   /**
    * Function to get all contribution statusses
@@ -101,99 +172,135 @@ class CRM_Threepeas_DonorLinkConfig {
    * @return array
    * @access public
    */
-  public function get_all_contribution_status() {
-    return $this->_all_contribution_status;
+  public function getAllContributionStatus() {
+    return $this->allContributionStatus;
   }
   /**
    * Function to get the grant donation financial type
    * @return string
    * @access public
    */
-  public function get_grant_donation_financial_type() {
-    return $this->_grant_donation_financial_type;
+  public function getGrantDonationFinancialType() {
+    return $this->grantDonationFinancialType;
   }
   /**
    * Function to get the donation financial type
    * @return string
    * @access public
    */
-  public function get_donation_financial_type() {
-    return $this->_donation_financial_type;
+  public function getDonationFinancialType() {
+    return $this->donationFinancialType;
   }
   /**
    * Function to get the grant donation financial type id
    * @return int
    * @access public
    */
-  public function get_grant_donation_financial_type_id() {
-    return $this->_financial_type_ids[$this->_grant_donation_financial_type];
+  public function getGrantDonationFinancialTypeId() {
+    return $this->financialTypeIds[$this->grantDonationFinancialType];
   }
+
   /**
    * Function to get the donation financial type id
    * @return int
    * @access public
    */
-  public function get_donation_financial_type_id() {
-    return $this->_financial_type_ids[$this->_donation_financial_type];
+  public function getDonationFinancialTypeId() {
+    return $this->financialTypeIds[$this->donationFinancialType];
   }
+
   /**
    * Function to set contribution statusses
    * 
    * @access protected
    */
-  protected function set_contribution_status() {
-    $inactive_contribution_status = array('Cancelled', 'Failed', 'Refunded');
+  protected function setContributionStatus() {
+    $inactiveContributionStatus = array('Cancelled', 'Failed', 'Refunded');
     try {
       $params = array('name'=> 'contribution_status', 'return' => 'id');
-      $option_group_id = civicrm_api3('OptionGroup', 'Getvalue', $params);
-      $option_values = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $option_group_id));
+      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', $params);
+      $optionValues = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $optionGroupId));
     } catch (CiviCRM_API3_Exception $ex) {
-        $this->_inactive_contribution_status = array();
-        $this->_active_contribution_status = array();
+        $this->inactiveContributionStatus = array();
+        $this->activeContributionStatus = array();
     }
-    foreach ($option_values['values'] as $option_value) {
-      if (in_array($option_value['name'], $inactive_contribution_status)) {
-        $this->_inactive_contribution_status[$option_value['value']] = $option_value['name'];
+    foreach ($optionValues['values'] as $optionValue) {
+      if (in_array($optionValue['name'], $inactiveContributionStatus)) {
+        $this->inactiveContributionStatus[$optionValue['value']] = $optionValue['name'];
       } else {
-        $this->_active_contribution_status[$option_value['value']] = $option_value['name'];
+        $this->activeContributionStatus[$optionValue['value']] = $optionValue['name'];
       }
     }
-    $this->_all_contribution_status = array_merge($this->_active_contribution_status, 
-      $this->_inactive_contribution_status);
+    $this->allContributionStatus = array_merge($this->activeContributionStatus,
+      $this->inactiveContributionStatus);
   }
+
   /**
    * Function to set the financial_type_id for incoming name and create it
    * if it does not exist
+   *
+   * @param string $financialTypeName
    */
-  protected function set_financial_type_id($financial_type_name) {
-    $query_select = 'SELECT id FROM civicrm_financial_type WHERE name = %1';
-    $params_select = array(1 => array($financial_type_name, 'String'));
-    $dao_select = CRM_Core_DAO::executeQuery($query_select, $params_select);
-    if ($dao_select->fetch()) {
-      $this->_financial_type_ids[$financial_type_name] = $dao_select->id;
+  protected function setFinancialTypeId($financialTypeName) {
+    $querySelect = 'SELECT id FROM civicrm_financial_type WHERE name = %1';
+    $paramsSelect = array(1 => array($financialTypeName, 'String'));
+    $daoSelect = CRM_Core_DAO::executeQuery($querySelect, $paramsSelect);
+    if ($daoSelect->fetch()) {
+      $this->financialTypeIds[$financialTypeName] = $daoSelect->id;
     } else {
-      $query_add = 'INSERT INTO civicrm_financial_type (name, description, is_active, is_reserved) '
+      $queryAdd = 'INSERT INTO civicrm_financial_type (name, description, is_active, is_reserved) '
         . 'VALUES(%1, %1, %2, %2)';
-      $params_add = array(
-        1 => array($financial_type_name, 'String'),
+      $paramsAdd = array(
+        1 => array($financialTypeName, 'String'),
         2 => array(1, 'Positive'));
-      CRM_Core_DAO::executeQuery($query_add, $params_add);
-      $query_select = 'SELECT id FROM civicrm_financial_type WHERE name = %1';
-      $params_select = array(1 => array($financial_type_name, 'String'));
-      $dao_select = CRM_Core_DAO::executeQuery($query_select, $params_select);
-      if ($dao_select->fetch()) {
-      $this->_financial_type_ids[$financial_type_name] = $dao_select->id;
+      CRM_Core_DAO::executeQuery($queryAdd, $paramsAdd);
+      $querySelect = 'SELECT id FROM civicrm_financial_type WHERE name = %1';
+      $paramsSelect = array(1 => array($financialTypeName, 'String'));
+      $daoSelect = CRM_Core_DAO::executeQuery($querySelect, $paramsSelect);
+      if ($daoSelect->fetch()) {
+      $this->financialTypeIds[$financialTypeName] = $daoSelect->id;
       }
     }
   }
+
   /**
    * Function to set the case types which will show the donation link form
    * 
    * @access protected
    */
-  protected function set_donation_case_types() {
-    $this->_donation_case_types = array(
+  protected function setDonationCaseTypes() {
+    $this->donationCaseTypes = array(
       'Advice', 'Business', 'CTM', 'Grant', 'PDV', 'RemoteCoaching', 'Seminar', 'TravelCase'
     );
+  }
+
+  /**
+   * Function to create custom group and custom field for donation applicable (issue 1566)
+   *
+   * @access protected
+   */
+  protected function setApplicableCustomGroup() {
+
+    $this->applicableCustomGroupName = 'pum_donation_group';
+    $customGroup = CRM_Threepeas_Utils::getCustomGroup($this->applicableCustomGroupName);
+    if (empty($customGroup)) {
+      $this->applicableCustomGroupTable = 'civicrm_value_pum_donation';
+      $this->applicableCustomGroupId = CRM_Threepeas_Utils::createCustomGroup($this->applicableCustomGroupName,
+        $this->applicableCustomGroupTable, 'Contribution');
+    } else {
+      $this->applicableCustomGroupId = $customGroup['id'];
+      $this->applicableCustomGroupTable = $customGroup['table_name'];
+    }
+
+    $this->applicableCustomFieldName = 'pum_donation_applicable';
+    $customField = CRM_Threepeas_Utils::getCustomField($this->applicableCustomGroupId, $this->applicableCustomFieldName);
+    if (empty($customField)) {
+      $this->applicableCustomFieldColumn = 'donation_applicable';
+      $this->applicableCustomFieldId = CRM_Threepeas_Utils::createCustomField($this->applicableCustomGroupId,
+        $this->applicableCustomFieldName, $this->applicableCustomFieldColumn, 'Boolean', 'Radio', 0);
+    } else {
+      $this->applicableCustomFieldId = $customField['id'];
+      $this->applicableCustomFieldColumn = $customField['column_name'];
+    }
   }
 }

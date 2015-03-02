@@ -47,6 +47,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * @date 16 Apr 2014
    * @param array $params 
    * @return array $result
+   * @throws Exception when params empty
    * @access public
    * @static
    */
@@ -79,7 +80,8 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * 
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 16 Apr 2014
-   * @param int $pumProjectId 
+   * @param int $pumProjectId
+   * @throws Exception when projectId empty
    * @return boolean
    * @access public
    * @static
@@ -264,8 +266,6 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * Function to add a created project to the Option Group for projects
    * if it does not exist already
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 19 May 2014
    * @param int $projectId
    * @param string $projectTitle
    * @access private
@@ -291,7 +291,6 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
   /**
    * Function to delete a created project to the Option Group for projects
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 19 May 2014
    * @param int $projectId
    * @access private
@@ -311,8 +310,6 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
   /**
    * Function to delete all projects and case projects for contact (customer/country)
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 23 Jun 2014
    * @param int $contactId
    * @param string $type
    * @access public
@@ -338,8 +335,6 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
   /**
    * Function to return the type of project (Country or Customer)
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 9 Jul 2014
    * @param int $pumProjectId
    * @return string $projectType
    * @access public
@@ -360,8 +355,6 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
   /**
    * Function to get project title only with id
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 7 Oct 2014
    * @param int $pumProjectId
    * @return string $pumProject->title
    * @access public
@@ -382,53 +375,49 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
   /**
    * Function to create a country project for a case if not exists
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 13 Nov 2014
-   * @param type $case_id
+   * @param int $caseId
    * @access public
    * @static
    */
-  public static function create_country_project_for_case($case_id) {
-    if (self::is_cap_case($case_id) == TRUE && self::is_country_client($case_id) == TRUE) {
-      $next_year = date('Y') + 1;
-      $start_date = $next_year.'0101';
-      $end_date = $next_year.'1231';
-      $project_params = array(
+  public static function createCountryProjectForCase($caseId) {
+    if (self::isCapCase($caseId) == TRUE && self::isCountryClient($caseId) == TRUE) {
+      $nextYear = date('Y') + 1;
+      $startDate = $nextYear.'0101';
+      $endDate = $nextYear.'1231';
+      $projectParams = array(
         'is_active' => 1,
-        'start_date' => $start_date,
-        'end_date' => $end_date,
-        'country_id' => CRM_Threepeas_BAO_PumCaseProject::get_case_client_id($case_id));
-      $created_project = self::add($project_params);
-      $case_project_params = array(
-        'case_id' => $case_id,
-        'project_id' => $created_project['id'],
+        'start_date' => $startDate,
+        'end_date' => $endDate,
+        'country_id' => CRM_Threepeas_Utils::getCaseClientId($caseId));
+      $createdProject = self::add($projectParams);
+      $caseProjectParams = array(
+        'case_id' => $caseId,
+        'project_id' => $createdProject['id'],
         'is_active' => 1
       );
-      CRM_Threepeas_BAO_PumCaseProject::add($case_project_params);
+      CRM_Threepeas_BAO_PumCaseProject::add($caseProjectParams);
     }
   }
   /**
    * Function to check if case is country action plan
    * 
-   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
-   * @date 13 Nov 2014
-   * @param int $case_id
+   * @param int $caseId
    * @return boolean
    * @access protected
    * @static
    */
-  protected static function is_cap_case($case_id) {
-    $threepeas_config = CRM_Threepeas_Config::singleton();
+  protected static function isCapCase($caseId) {
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
     $params = array(
-      'id' => $case_id, 
+      'id' => $caseId,
       'return' => 'case_type_id');
-    $cap_case_type = $threepeas_config->get_cap_case_type_id();
-    $case_type_id = civicrm_api3('Case', 'Getvalue', $params);
-    $type_parts = explode(CRM_Core_DAO::VALUE_SEPARATOR, $case_type_id);
-    if (isset($type_parts[1])) {
-      $case_type_id = $type_parts[1];
+    $capCaseType = $threepeasConfig->getCapCaseTypeId();
+    $caseTypeId = civicrm_api3('Case', 'Getvalue', $params);
+    $typeParts = explode(CRM_Core_DAO::VALUE_SEPARATOR, $caseTypeId);
+    if (isset($typeParts[1])) {
+      $caseTypeId = $typeParts[1];
     }
-    if ($case_type_id == $cap_case_type) {
+    if ($caseTypeId == $capCaseType) {
       return TRUE;
     }
     return FALSE;
@@ -436,57 +425,43 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
   /**
    * Function to check if the client of a case is a country
    * 
-   * @param int $case_id
+   * @param int $caseId
    * @return boolean
    * @access protected
    * @static
    */
-  protected static function is_country_client($case_id) {
-    $case_client_id = CRM_Threepeas_BAO_PumCaseProject::get_case_client_id($case_id);
-    if (!empty($case_client_id)) {
-      $params = array(
-        'id' => $case_client_id,
-        'return' => 'contact_sub_type'
-      );
-      try {
-        $contact_sub_types = civicrm_api3('Contact', 'Getvalue', $params);
-      } catch (CiviCRM_API3_Exception $ex) {
-        return FALSE;
-      }
-      foreach ($contact_sub_types as $contact_sub_type) {
-        $threepeas_config = CRM_Threepeas_Config::singleton();
-        if ($contact_sub_type == $threepeas_config->countryContactType) {
-          return TRUE;
-        }
-      }
+  protected static function isCountryClient($caseId) {
+    $caseClientId = CRM_Threepeas_Utils::getCaseClientId($caseId);
+    if (!empty($caseClientId)) {
+      return CRM_Threepeas_Utils::contactIsCountry($caseClientId);
+    } else {
+      return FALSE;
     }
-    return FALSE;
   }
   /**
    * Function to generate project title by default
    * 
-   * @param obj $pum_project
+   * @param obj $pumProject
    * @return string $title
    * @access protected
    * @static
    */
-  protected static function generate_title($pum_project) {
-    $title = '';
-    if (isset($pum_project->country_id) && !empty($pum_project->country_id)) {
-      $contact_id = $pum_project->country_id;
+  protected static function generateTitle($pumProject) {
+    if (isset($pumProject->country_id) && !empty($pumProject->country_id)) {
+      $contactId = $pumProject->country_id;
     } else {
-      if (isset($pum_project->customer_id) && !empty($pum_project->customer_id)) {
-        $contact_id = $pum_project->customer_id;
+      if (isset($pumProject->customer_id) && !empty($pumProject->customer_id)) {
+        $contactId = $pumProject->customer_id;
       }
     }
-    if (isset($contact_id) && !empty($contact_id)) {
+    if (isset($contactId) && !empty($contactId)) {
       
     }
-    if (!empty($contact_id)) {
-      $contact_name = civicrm_api3('Contact', 'Getvalue', array('id' => $contact_id, 'return' => 'display_name'));
-      $title = 'Project '.$contact_name.'-'.$pum_project->id;
+    if (!empty($contactId)) {
+      $contactName = civicrm_api3('Contact', 'Getvalue', array('id' => $contactId, 'return' => 'display_name'));
+      $title = 'Project '.$contactName.'-'.$pumProject->id;
     } else {
-      $title = 'Project <onbekend> -'.$pum_project->id;
+      $title = 'Project <onbekend> -'.$pumProject->id;
     }
     return $title;
   } 

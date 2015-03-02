@@ -18,8 +18,8 @@ require_once 'CRM/Core/Form.php';
  */
 class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   
-  protected $_programmeManagers = array();
-  protected $_linked_donation_entity_ids = array();
+  protected $programmeManagers = array();
+  protected $linkedDonationEntityIds = array();
   
   /**
    * Function to build the form
@@ -40,11 +40,8 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
    * Function for processing before building the form
    */
   function preProcess() {
-    /*
-     * get user context to return to pumprogramme list
-     */
     $session = CRM_Core_Session::singleton();
-    $user_context = $session->readUserContext();
+    $userContext = $session->readUserContext();
     if ($this->_action != CRM_Core_Action::ADD) {
       $this->_id = CRM_Utils_Request::retrieve('pid', 'Integer', $this);
     }
@@ -54,14 +51,14 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     if ($this->_action == CRM_Core_Action::DELETE) {
       CRM_Threepeas_BAO_PumProgramme::deleteById($this->_id);
       $session->setStatus('Programme deleted', 'Delete', 'success');
-      CRM_Utils_System::redirect($user_context);
+      CRM_Utils_System::redirect($userContext);
     }
     /*
      * if action = disable or enable, execute immediately
      */
     if ($this->_action == CRM_Core_Action::DISABLE || $this->_action == CRM_Core_Action::ENABLE) {
       $this->processAble();
-      CRM_Utils_System::redirect($user_context);
+      CRM_Utils_System::redirect($userContext);
     }
     /*
      * set page title based on action
@@ -190,7 +187,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->add('textarea', 'description', ts('Description'), array(
       'rows'  => 4,
       'cols'  => 80), false);
-    $this->add('select', 'manager_id', ts('Programme Manager'), $this->_programmeManagers, true);
+    $this->add('select', 'manager_id', ts('Programme Manager'), $this->programmeManagers, true);
     $this->add('text', 'budget', ts('Budget'));
     $this->add('textarea', 'goals', ts('Goals'), array(
       'rows'  => 4,
@@ -210,15 +207,15 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
    * Function to set add/update elements for donation links
    */
   function setAddUpdateDonationLink() {
-    $contributionsList = CRM_Threepeas_BAO_PumDonorLink::get_contributions_list('Programme', '');
+    $contributionsList = CRM_Threepeas_BAO_PumDonorLink::getContributionsList('Programme', '');
     $this->add('advmultiselect', 'new_link', '', $contributionsList, false,  
       array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
         'class' => 'advmultiselect',
       ));
-    $fa_donation_list = $contributionsList;
-    $fa_donation_list[0] = '- select -';
-    asort($fa_donation_list);
-    $this->add('select', 'fa_donor', 'For FA', $fa_donation_list);
+    $faDonationList = $contributionsList;
+    $faDonationList[0] = '- select -';
+    asort($faDonationList);
+    $this->add('select', 'fa_donor', 'For FA', $faDonationList);
     }
   /**
    * Function to set page title
@@ -251,7 +248,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     $this->add('textarea', 'description', ts('Description'), array(
       'rows'  => 4,
       'cols'  => 80), false);
-    $this->add('select', 'manager_id', ts('Programme Manager'), $this->_programmeManagers, true);
+    $this->add('select', 'manager_id', ts('Programme Manager'), $this->programmeManagers, true);
     $this->add('text', 'budget', ts('Budget'));
     $this->add('textarea', 'goals', ts('Goals'), array(
       'rows'  => 4,
@@ -277,11 +274,11 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
      */
     $programmeManagers = civicrm_api3('Contact', 'Get', array('group' => $threepeasConfig->programmeManagersGroupId));
     foreach ($programmeManagers['values'] as $managerId => $programmeManager) {
-      $this->_programmeManagers[$managerId] = $programmeManager['sort_name'];
+      $this->programmeManagers[$managerId] = $programmeManager['sort_name'];
     }
-    $this->_programmeManagers[0] = '- select -';
-    asort($this->_programmeManagers);
-    $this->set_linked_donation_entity_ids();
+    $this->programmeManagers[0] = '- select -';
+    asort($this->programmeManagers);
+    $this->setLinkedDonationEntityIds();
   }
   /**
    * Function to save the programme
@@ -308,6 +305,9 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   }
   /**
    * Function to save donor links if required
+   *
+   * @param int $programmeId
+   * @param array $values
    */
   function saveDonorLink($programmeId, $values) {
     /*
@@ -336,10 +336,12 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   }
   /**
    * Function to correct defaults for View action
+   *
+   * @param array $defaults
    */
   function correctViewDefaults(&$defaults) {
     if (isset($defaults['manager_id']) && !empty($defaults['manager_id'])) {
-      $defaults['manager_id'] = CRM_Utils_Array::value($defaults['manager_id'], $this->_programmeManagers);
+      $defaults['manager_id'] = CRM_Utils_Array::value($defaults['manager_id'], $this->programmeManagers);
     }
     if (!isset($defaults['start_date'])) {
       $defaults['start_date'] = '';
@@ -351,6 +353,8 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   }
   /**
    * Function to correct defaults for Edit action
+   *
+   * @param array $defaults
    */
   function correctUpdateDefaults(&$defaults) {
     if (isset($defaults['start_date'])) {
@@ -367,7 +371,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     foreach ($currentContributions as $currentContribution) {
       $defaults['new_link'][] = $currentContribution['donation_entity_id'];
     }
-    $fa_donor = $this->set_default_fa_donor($this->_id);
+    $fa_donor = $this->setDefaultFaDonor($this->_id);
     if (!empty($fa_donor)) {
       $defaults['fa_donor'] = $fa_donor;
     } else {
@@ -380,12 +384,14 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   function addRules() {
     $ruleParams = array('action' => $this->_action);
     $this->addFormRule(array('CRM_Threepeas_Form_PumProgramme', 'formRule'), $ruleParams);
-    $this->addFormRule(array('CRM_Threepeas_Form_PumProgramme', 'validate_fa_donor'));
+    $this->addFormRule(array('CRM_Threepeas_Form_PumProgramme', 'validateFaDonor'));
   }
   /**
    * Function that executes validation
    * 
    * @param array $fields - form values
+   * @param array $files
+   * @param array $ruleParams
    * @return TRUE or array $errors
    */
   static function formRule($fields, $files, $ruleParams) {
@@ -420,7 +426,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   /**
    * Function to set the linked donation entity ids
    */
-  protected function set_linked_donation_entity_ids() {
+  protected function setLinkedDonationEntityIds() {
     if (!empty($this->_id)) {
       $params = array(
         'entity' => 'Programme', 
@@ -429,14 +435,17 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
         'is_active' => 1);
       $donations = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
       foreach ($donations as $donation) {
-        $this->_linked_donation_entity_ids[] = $donation['donation_entity_id'];
+        $this->linkedDonationEntityIds[] = $donation['donation_entity_id'];
       }  
     }
   }
   /**
    * Function to validate the fa donor
+   *
+   * @param array $fields
+   * @return boolean
    */
-  static function validate_fa_donor($fields) {
+  static function validateFaDonor($fields) {
     if ($fields['fa_donor'] == 0) {
       $errors['fa_donor'] = ts('You have to select a donation for FA');
       return $errors;
@@ -451,21 +460,21 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   /**
    * Function to set default fa donor
    * 
-   * @param int $programme_id
-   * @return int $fa_donation_id
+   * @param int $programmeId
+   * @return int $faDonationId
    * @access protected
    * @static
    */
-  protected function set_default_fa_donor($programme_id) {
-    $fa_donation_id = 0;
+  protected function setDefaultFaDonor($programmeId) {
+    $faDonationId = 0;
     $params = array(
-      'entity_id' => $programme_id,
+      'entity_id' => $programmeId,
       'entity' => 'Programme',
       'is_fa_donor' => 1);
-    $fa_donation = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
-    foreach ($fa_donation as $donation_values) {
-      $fa_donation_id = $donation_values['donation_entity_id'];
+    $faDonation = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($faDonation as $donationValues) {
+      $faDonationId = $donationValues['donation_entity_id'];
     }
-    return $fa_donation_id;
+    return $faDonationId;
   }
 }

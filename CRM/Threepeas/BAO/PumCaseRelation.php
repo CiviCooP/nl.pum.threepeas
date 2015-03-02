@@ -13,142 +13,124 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   /**
    * Function to set the default relations for a case
    * 
-   * @param int $case_id
-   * @param int $client_id
-   * @param date $case_start_date
-   * @param int $case_type_id
+   * @param int $caseId
+   * @param int $clientId
+   * @param date $caseStartDate
+   * @param int $caseTypeId
    * @throws Exception when function not found
    * @access public
    * @static
    */
-  public static function create_default_case_roles($case_id, $client_id, $case_start_date, $case_type_id) {
-    $case_relation_config = CRM_Threepeas_CaseRelationConfig::singleton();
-    $case_type = self::get_case_type_label($case_type_id);
-    $case_roles = $case_relation_config->get_case_type_relations($case_type);
-    foreach ($case_roles as $case_role_label => $case_role_active) {
-      if ($case_role_active == 1) {
-        $case_role_id = self::call_case_role_method($case_role_label, $client_id);
-        self::create_case_relation($case_id, $client_id, $case_role_id, $case_start_date, $case_role_label);
+  public static function createDefaultCaseRoles($caseId, $clientId, $caseStartDate, $caseTypeId) {
+    $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
+    $caseType = self::getCaseTypeLabel($caseTypeId);
+    $caseRoles = $caseRelationConfig->getCaseTypeRelations($caseType);
+    foreach ($caseRoles as $caseRoleLabel => $caseRoleActive) {
+      if ($caseRoleActive == 1) {
+        $caseRoleId = self::callCaseRoleMethod($caseRoleLabel, $clientId);
+        self::createCaseRelation($caseId, $clientId, $caseRoleId, $caseStartDate, $caseRoleLabel);
       }
     }
   }
   /**
    * Function to set sector coordinator role for case from activity
    * 
-   * @param obj $object_ref
-   * @throws Exception when $object_ref is not an object
+   * @param obj $objectRef
+   * @throws Exception when $objectRef is not an object
    * @access public
    * @static
    */
-  public static function set_sector_coordinator_from_activity($object_ref) {
-    if (!is_object($object_ref)) {
+  public static function setSectorCoordinatorFromActivity($objectRef) {
+    if (!is_object($objectRef)) {
       throw new Exception('Function set_sector_coordinator_assessment_rep in '
         . 'CRM_Threepeas_BAO_PumCaseRelation expects object as param.');
     }
-    $case_relation_config = CRM_Threepeas_CaseRelationConfig::singleton();
-    if (isset($object_ref->status_id) && $object_ref->status_id = 
-      $case_relation_config->get_activity_status_completed()) {
-      if (isset($object_ref->case_id) && !empty($object_ref->case_id)) {
-        self::set_sector_coordinator_for_case($object_ref->case_id);
+    $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
+    if (isset($objectRef->status_id) && $objectRef->status_id =
+      $caseRelationConfig->getActivityStatusCompleted()) {
+      if (isset($objectRef->case_id) && !empty($objectRef->case_id)) {
+        self::setSectorCoordinatorForCase($objectRef->case_id);
       }
     }
   }
   /**
    * Function to get coordinator/rep/etc.
    * 
-   * @param int $contact_id
-   * @param string $case_role_label
-   * @return int $case_role_id
+   * @param int $contactId
+   * @param string $caseRoleLabel
+   * @return int $caseRoleId
    * @access public
    * @static
    */
-  public static function get_relation_id($contact_id, $case_role_label) {
-    $case_role_id = self::call_case_role_method($case_role_label, $contact_id);
-    return $case_role_id;
+  public static function getRelationId($contactId, $caseRoleLabel) {
+    $caseRoleId = self::callCaseRoleMethod($caseRoleLabel, $contactId);
+    return $caseRoleId;
   }
   /**
    * Function to set sector coordinator for case
    * 
-   * @param int $case_id
+   * @param int $caseId
    * @access protected
    * @static
    */
-  protected static function set_sector_coordinator_for_case($case_id) {
-    $client_id = self::get_case_client($case_id);
-    $sector_coordinator_id = self::get_sector_coordinator_id($client_id);
-    $case_start_date = self::get_case_start_date($case_id);
-    self::create_case_relation($case_id, $client_id, $sector_coordinator_id, $case_start_date, 
+  protected static function setSectorCoordinatorForCase($caseId) {
+    $clientId = CRM_Threepeas_Utils::getCaseClientId($caseId);
+    $sectorCoordinatorId = self::get_sector_coordinator_id($clientId);
+    $caseStartDate = self::getCaseStartDate($caseId);
+    self::createCaseRelation($caseId, $clientId, $sectorCoordinatorId, $caseStartDate,
       'sector_coordinator');
-  }
-  /**
-   * Function to retrieve client_id of case
-   * 
-   * @param int $case_id
-   * @return int $client_id
-   * @access public
-   * @static
-   */
-  public static function get_case_client($case_id) {
-    $params = array(
-      'case_id' => $case_id,
-      'return' => 'client_id');
-    $case_client_ids = civicrm_api3('Case', 'Getvalue', $params);
-    foreach ($case_client_ids as $case_client_id) {
-      $client_id = $case_client_id;
-    }
-    return $client_id;
   }
   /**
    * Function to get start_date fo case
    * 
-   * @param int $case_id
-   * @return date $case_start_date
+   * @param int $caseId
+   * @return date $caseStartDate
    * @access protected
    * @static
    */
-  protected static function get_case_start_date($case_id) {
+  protected static function getCaseStartDate($caseId) {
     $params = array(
-      'case_id' => $case_id,
+      'case_id' => $caseId,
       'return' => 'start_date');
-    $case_start_date = civicrm_api3('Case', 'Getvalue', $params);
-    return $case_start_date;
+    $caseStartDate = civicrm_api3('Case', 'Getvalue', $params);
+    return $caseStartDate;
   }
   /**
    * Function to get the relationship for a specific type from a specific contact
    * for example, country coordinator for a customer or country coordinator for a 
    * country
    * 
-   * @param string $case_role_label
-   * @param int $source_contact_id
-   * @return int $found_contact_id
+   * @param string $caseRoleLabel
+   * @param int $sourceContactId
+   * @return int $foundContactId
    * @access protected
    * @static
    */
-  protected static function get_default_relation($case_role_label, $source_contact_id) {
-    $found_contact_id = 0;
-    $case_relation_config = CRM_Threepeas_CaseRelationConfig::singleton();
-    $relationship_type_id = $case_relation_config->get_relationship_type_id($case_role_label);
-    $relationships = self::get_active_relationships($relationship_type_id, $source_contact_id);
+  protected static function getDefaultRelation($caseRoleLabel, $sourceContactId) {
+    $foundContactId = 0;
+    $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
+    $relationshipTypeId = $caseRelationConfig->getRelationshipTypeId($caseRoleLabel);
+    $relationships = self::getActiveRelationships($relationshipTypeId, $sourceContactId);
     foreach ($relationships as $relationship) {
       if (!isset($relationship['case_id'])) {
-        $found_contact_id = $relationship['contact_id_b'];
+        $foundContactId = $relationship['contact_id_b'];
         break;
       }
     }
-    return $found_contact_id;
+    return $foundContactId;
   }
   /**
    * Function to get active relationships
    * 
-   * @param int $relationship_type_id
-   * @param int $source_contact_id
+   * @param int $relationshipTypeId
+   * @param int $sourceContactId
    * @return array $relationships['values']
    */
-  protected static function get_active_relationships($relationship_type_id, $source_contact_id) {
+  protected static function getActiveRelationships($relationshipTypeId, $sourceContactId) {
     $params = array(
       'is_active' => 1,
-      'relationship_type_id' => $relationship_type_id,
-      'contact_id_a' => $source_contact_id,
+      'relationship_type_id' => $relationshipTypeId,
+      'contact_id_a' => $sourceContactId,
       'options' => array('sort' => 'start_date DESC', 'limit' => 99999));
     try {
       $relationships = civicrm_api3('Relationship','Get', $params);
@@ -160,21 +142,21 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   /**
    * Function to create a relation
    * 
-   * @param int $case_id
-   * @param int $contact_id_a
-   * @param int $contact_id_b
-   * @param string $start_date
-   * @param string $case_role_label
+   * @param int $caseId
+   * @param int $contactIdA
+   * @param int $contactIdB
+   * @param string $startDate
+   * @param string $caseRoleLabel
    * @access protected
    * @static
    */
-  protected static function create_case_relation($case_id, $contact_id_a, $contact_id_b, 
-    $start_date, $case_role_label) {
-    if (!empty($contact_id_a) && !empty($contact_id_b)) {
-      $params = self::set_case_relation_params($case_id, $contact_id_a, $contact_id_b, 
-        $start_date, $case_role_label);
-      if (self::case_relation_exists($params) == FALSE) {
-        self::create_relationship_record($params);
+  protected static function createCaseRelation($caseId, $contactIdA, $contactIdB,
+    $startDate, $caseRoleLabel) {
+    if (!empty($contactIdA) && !empty($contactIdB)) {
+      $params = self::setCaseRelationParams($caseId, $contactIdA, $contactIdB,
+        $startDate, $caseRoleLabel);
+      if (self::caseRelationExists($params) == FALSE) {
+        self::createRelationshipRecord($params);
       }
     }
   }
@@ -184,13 +166,13 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @param array $params
    * @return boolean
    */
-  protected static function case_relation_exists($params) {
+  protected static function caseRelationExists($params) {
     try {
-      $case_relation_count = civicrm_api3('Relationship', 'Getcount', $params);
+      $caseRelationCount = civicrm_api3('Relationship', 'Getcount', $params);
     } catch (CiviCRM_API3_Exception $ex) {
       return FALSE;
     }
-    if ($case_relation_count == 0) {
+    if ($caseRelationCount == 0) {
       return FALSE;
     } else {
       return TRUE;
@@ -202,7 +184,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @param array $params
    * @throws Exception when error in create
    */
-  protected static function create_relationship_record($params) {
+  protected static function createRelationshipRecord($params) {
     try {
       civicrm_api3('Relationship', 'Create', $params);
     } catch (CiviCRM_API3_Exception $ex) {
@@ -215,222 +197,200 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   /**
    * Function to set parameters for case relation create
    * 
-   * @param int $case_id
-   * @param int $contact_id_a
-   * @param int $contact_id_b
-   * @param date $start_date
-   * @param label $case_role_label
+   * @param int $caseId
+   * @param int $contactIdA
+   * @param int $contactIdB
+   * @param date $startDate
+   * @param label $caseRoleLabel
    * @return array
    */
-  protected static function set_case_relation_params($case_id, $contact_id_a, $contact_id_b, 
-    $start_date, $case_role_label) {
-    $case_relation_config = CRM_Threepeas_CaseRelationConfig::singleton();
-    $relationship_type_id = $case_relation_config->get_relationship_type_id($case_role_label);
+  protected static function setCaseRelationParams($caseId, $contactIdA, $contactIdB,
+    $startDate, $caseRoleLabel) {
+    $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
+    $relationshipTypeId = $caseRelationConfig->getRelationshipTypeId($caseRoleLabel);
     $params = array(
-      'contact_id_a' => $contact_id_a,
-      'contact_id_b' => $contact_id_b,
-      'case_id' => $case_id,
-      'relationship_type_id' => $relationship_type_id);
-    if (!empty($start_date)) {
-      $params['start_date'] = date('Ymd', strtotime($start_date));
+      'contact_id_a' => $contactIdA,
+      'contact_id_b' => $contactIdB,
+      'case_id' => $caseId,
+      'relationship_type_id' => $relationshipTypeId);
+    if (!empty($startDate)) {
+      $params['start_date'] = date('Ymd', strtotime($startDate));
     }
     return $params;
   }
   /**
    * Function to retrieve case_type label for case_type_id
    * 
-   * @param int $case_type_id
-   * @return string $case_type
+   * @param int $caseTypeId
+   * @return string $caseType
    * @throws Exception when option group case_type not found
    * @throws Exception when case_type_id not found in option_value
    * @access public
    * @static
    */
-  public static function get_case_type_label($case_type_id) {
-    $params_option_group = array('name' => 'case_type', 'return' => 'id');
+  public static function getCaseTypeLabel($caseTypeId) {
+    $paramsOptionGroup = array('name' => 'case_type', 'return' => 'id');
     try {
-      $option_group_id = civicrm_api3('OptionGroup', 'Getvalue', $params_option_group);
+      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', $paramsOptionGroup);
     } catch (CiviCRM_API3_Exception $ex) {
       throw new Exception('Could not find an option group with name case_type, error '
         . 'from API OptionGroup Getvalue: '.$ex->getMessage());
     }
-    $params_option_value = array(
-      'option_group_id' => $option_group_id,
-      'value' => $case_type_id,
+    $paramsOptionValue = array(
+      'option_group_id' => $optionGroupId,
+      'value' => $caseTypeId,
       'return' => 'label');
     try {
-      $case_type = civicrm_api3('OptionValue', 'Getvalue', $params_option_value);
+      $caseType = civicrm_api3('OptionValue', 'Getvalue', $paramsOptionValue);
     } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Could not find an option value for case_type_id '.$case_type_id.
+      throw new Exception('Could not find an option value for case_type_id '.$caseTypeId.
         ', error from API OptionValue Getvalue: '.$ex->getMessage());
     }
-    return $case_type;
+    return $caseType;
   }
   /**
    * Function to merge function name and call processing function
    * 
-   * @param type $case_role_label
+   * @param type $caseRoleLabel
    * @throws Exception when function not found in class
    */
-  protected static function call_case_role_method($case_role_label,$client_id) {
-    $method_name = 'get_'.$case_role_label.'_id';
-    if (method_exists('CRM_Threepeas_BAO_PumCaseRelation', $method_name)) {
-      return self::$method_name($client_id);
+  protected static function callCaseRoleMethod($caseRoleLabel,$clientId) {
+    $explodedLabels = explode('_', $caseRoleLabel);
+    foreach ($explodedLabels as $key => $label) {
+      $explodedLabels[$key] = ucfirst($label);
+    }
+    $roleLabel = implode($explodedLabels);
+    $methodName = 'get'.$roleLabel.'Id';
+    if (method_exists('CRM_Threepeas_BAO_PumCaseRelation', $methodName)) {
+      return self::$methodName($clientId);
     } else {
-      throw new Exception('Could not find method '.$method_name.' in class CRM_Threepeas_BAO_PumCaseRelation');
+      throw new Exception('Could not find method '.$methodName.' in class CRM_Threepeas_BAO_PumCaseRelation');
     }
   }
   /**
    * Function to get country coordinator from country
-   * @param int $client_id
-   * @return int $country_coordinator_id
+   * @param int $clientId
+   * @return int $countryCoordinatorId
    * @access protected
    * @static
    */
-  protected static function get_country_coordinator_id($client_id) {
-    if (self::is_contact_country($client_id) == FALSE) {
-      $country_id = self::get_customer_country($client_id);
+  protected static function getCountryCoordinatorId($clientId) {
+    if (CRM_Threepeas_Utils::contactIsCountry($clientId) == FALSE) {
+      $countryId = self::getCustomerCountry($clientId);
     } else {
-      $country_id = $client_id;
+      $countryId = $clientId;
     }
-    if (!empty($country_id)) {
-      $country_coordinator_id = self::get_default_relation('country_coordinator', $country_id);
+    if (!empty($countryId)) {
+      $countryCoordinatorId = self::getDefaultRelation('country_coordinator', $countryId);
     } else {
-      $country_coordinator_id = 0;
+      $countryCoordinatorId = 0;
     }
-    return $country_coordinator_id;
-  }
-  /**
-   * Function to determine if contact is a country
-   * 
-   * @param int $contact_id
-   * @return boolean
-   * @access protected
-   * @static
-   */
-  protected static function is_contact_country($contact_id) {
-    $params = array(
-      'id' => $contact_id,
-      'return' => 'contact_sub_type'
-    );
-    try {
-      $contact_sub_types = civicrm_api3('Contact', 'Getvalue', $params);
-    } catch (CiviCRM_API3_Exception $ex) {
-      return FALSE;
-    }
-    foreach ($contact_sub_types as $contact_sub_type) {
-      $threepeas_config = CRM_Threepeas_Config::singleton();
-      if ($contact_sub_type == $threepeas_config->countryContactType) {
-        return TRUE;
-      }
-    }
+    return $countryCoordinatorId;
   }
   /**
    * Function to get anamon from country
    * 
-   * @param int $client_id
-   * @return int $anamon_id
+   * @param int $clientId
+   * @return int $anamonId
    * @access protected
    * @static
    */
-  protected static function get_anamon_id($client_id) {
-    $country_id = self::get_customer_country($client_id);
-    if (!empty($country_id)) {
-      $anamon_id = self::get_default_relation('anamon', $country_id);
+  protected static function getAnamonId($clientId) {
+    $countryId = self::getCustomerCountry($clientId);
+    if (!empty($countryId)) {
+      $anamonId = self::getDefaultRelation('anamon', $countryId);
     } else {
-      $anamon_id = 0;
+      $anamonId = 0;
     }
-    return $anamon_id;
+    return $anamonId;
   }
   /**
    * Function to get project officer from country
    * 
-   * @param int $client_id
-   * @param date $case_start_date
+   * @param int $clientId
+   * @return int $projectOfficerId
    * @access protected
    * @static
    */
-  protected static function get_project_officer_id($client_id) {
-    if (self::is_contact_country($client_id) == FALSE) {
-      $country_id = self::get_customer_country($client_id);
+  protected static function getProjectOfficerId($clientId) {
+    if (CRM_Threepeas_Utils::contactIsCountry($clientId) == FALSE) {
+      $countryId = self::getCustomerCountry($clientId);
     } else {
-      $country_id = $client_id;
+      $countryId = $clientId;
     }
-    if (!empty($country_id)) {
-      $project_officer_id = self::get_default_relation('project_officer', $country_id);
+    if (!empty($countryId)) {
+      $projectOfficerId = self::getDefaultRelation('project_officer', $countryId);
     } else {
-      $project_officer_id = 0;
+      $projectOfficerId = 0;
     }
-    return $project_officer_id;
+    return $projectOfficerId;
   }
   /**
    * Function to get sector coordinator from customer
    * 
-   * @param int $client_id
-   * @param date $case_start_date
-   * @return int $sector_coordinator_id
+   * @param int $contactId
+   * @return int $sectorCoordinatorId
    * @access protected
    * @static
    */
-  protected static function get_sector_coordinator_id($contact_id) {
-    $sector_coordinator_id = 0;
-    $contact_tags = self::get_contact_tags($contact_id);
-    foreach ($contact_tags as $contact_tag) {
-      if (self::is_sector_tag($contact_tag['tag_id']) == TRUE) {
-        $sector_coordinator_id = self::get_enhanced_tag_coordinator($contact_tag['tag_id']);
+  protected static function getSectorCoordinatorId($contactId) {
+    $sectorCoordinatorId = 0;
+    $contactTags = self::getContactTags($contactId);
+    foreach ($contactTags as $contactTag) {
+      if (self::isSectorTag($contactTag['tag_id']) == TRUE) {
+        $sectorCoordinatorId = self::getEnhancedTagCoordinator($contactTag['tag_id']);
       }
     }
-    return $sector_coordinator_id;
+    return $sectorCoordinatorId;
   }
   /**
    * Function to get recruitment team member from customer
    * (temp not used)
    * 
-   * @param int $client_id
-   * @param date $case_start_date
-   * @return int $sector_coordinator_id
+   * @param int $contactId
+   * @return int $recruitmentTeamId
    * @access protected
    * @static
    */
-  protected static function get_recruitment_team_id($contact_id) {
-    $recruitment_team_id = 0;
-    return $recruitment_team_id;
+  protected static function getRecruitmentTeamId($contactId) {
+    $recruitmentTeamId = 0;
+    return $recruitmentTeamId;
   }
   /**
    * Function to get the coordinator for a tag
    * 
-   * @param int $tag_id
-   * @return int $coordinator_id
+   * @param int $tagId
+   * @return int $coordinatorId
    * @access protected
    * @static
    */
-  protected static function get_enhanced_tag_coordinator($tag_id) {
+  protected static function getEnhancedTagCoordinator($tagId) {
     $params = array(
       'is_active' => 1,
-      'tag_id' => $tag_id,
+      'tag_id' => $tagId,
       'return' => 'coordinator_id');
     try {
-      $coordinator_id = civicrm_api3('TagEnhanced', 'Getvalue', $params);
+      $coordinatorId = civicrm_api3('TagEnhanced', 'Getvalue', $params);
     } catch (CiviCRM_API3_Exception $ex) {
-      $coordinator_id = 0;
+      $coordinatorId = 0;
     }
-    return $coordinator_id;
+    return $coordinatorId;
   }
   /**
    * Function to determine if tag is a sector tag
    * 
-   * @param int $tag_id
+   * @param int $tagId
    * @return boolean
    * @access protected
    * @static
    */
-  protected static function is_sector_tag($tag_id) {
-    if (empty($tag_id)) {
+  protected static function isSectorTag($tagId) {
+    if (empty($tagId)) {
       return FALSE;
     }
-    $threepeas_config = CRM_Threepeas_Config::singleton();
-    $sector_tree = $threepeas_config->getSectorTree();
-    if (in_array($tag_id, $sector_tree)) {
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    $sectorTree = $threepeasConfig->getSectorTree();
+    if (in_array($tagId, $sectorTree)) {
       return TRUE;
     } else {
       return FALSE;
@@ -439,124 +399,123 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   /**
    * Function to get contact tags for contact
    * 
-   * @param int $contact_id
+   * @param int $contactId
    * @return array
    * @throws Exception when error from API EntityTag Get
    * @access protected
    * @static
    */
-  protected static function get_contact_tags($contact_id) {
+  protected static function getContactTags($contactId) {
     $params = array(
       'entity_table' => 'civicrm_contact',
-      'entity_id' => $contact_id,
+      'entity_id' => $contactId,
       'options' => array('limit' => 99999));
     try {
-      $contact_tags = civicrm_api3('EntityTag', 'Get', $params);
+      $contactTags = civicrm_api3('EntityTag', 'Get', $params);
     } catch (CiviCRM_API3_Exception $ex) {
       throw new Exception('Error retrieving contact tags with API EntityTag Get: '.$ex->getMessage());
     }
-    return $contact_tags['values'];
+    return $contactTags['values'];
   }
   /**
    * Function to get authorised contact from customer
    * 
-   * @param int $client_id
-   * @return int $authorised_contact_id
+   * @param int $contactId
+   * @return int $authorisedContactId
    * @access protected
    * @static
    */
-  protected static function get_authorised_contact_id($client_id) {
-    $authorised_contact_id = self::get_default_relation('authorised_contact', $client_id);
-    return $authorised_contact_id;
+  protected static function getAuthorisedContactId($contactId) {
+    $authorisedContactId = self::getDefaultRelation('authorised_contact', $contactId);
+    return $authorisedContactId;
   }
   /**
    * Function to get grant coordinator from customer or country if not on customer
    * 
-   * @param int $client_id
-   * @return int $grant_coordinator_id
+   * @param int $contactId
+   * @return int $grantCoordinatorId
    * @access protected
    * @static
    */
-  protected static function get_grant_coordinator_id($client_id) {
-    $grant_coordinator_id = self::get_default_relation('grant_coordinator', $client_id);
-    if (empty($grant_coordinator_id)) {
-      $country_id = self::get_customer_country($client_id);
-      $grant_coordinator_id = self::get_default_relation('grant_coordinator', $country_id);
+  protected static function getGrantCoordinatorId($contactId) {
+    $grantCoordinatorId = self::getDefaultRelation('grant_coordinator', $contactId);
+    if (empty($grantCoordinatorId)) {
+      $countryId = self::getCustomerCountry($contactId);
+      $grantCoordinatorId = self::getDefaultRelation('grant_coordinator', $countryId);
     }
-    return $grant_coordinator_id;
+    return $grantCoordinatorId;
   }
   /**
    * Function to get representative from customer or country if not on customer
    * 
-   * @param int $client_id
-   * @return int $representative_id
+   * @param int $contactId
+   * @return int $representativeId
    * @access protected
    * @static
    */
-  protected static function get_representative_id($client_id) {
-    $representative_id = self::get_default_relation('representative', $client_id);
-    if (empty($representative_id)) {
-      $country_id = self::get_customer_country($client_id);
-      $representative_id = self::get_default_relation('representative', $country_id);
+  protected static function getRepresentativeId($contactId) {
+    $representativeId = self::getDefaultRelation('representative', $contactId);
+    if (empty($representativeId)) {
+      $countryId = self::getCustomerCountry($contactId);
+      $representativeId = self::getDefaultRelation('representative', $countryId);
     }
-    return $representative_id;
+    return $representativeId;
   }
   /**
    * Function to get ceo
-   * (client_id as param is not required but passed because of the generic method
+   * (contactId as param is not required but passed because of the generic method
    * call in callCaseRoleMethod)
    * 
-   * @param int $client_id
+   * @param int $contactId
    * @return int
    * @access protected
    * @static
    */
-  protected static function get_ceo_id($client_id) {
-    $case_relation_config = CRM_Threepeas_CaseRelationConfig::singleton();
-    $pum_ceo = $case_relation_config->get_pum_ceo();
-    return $pum_ceo['contact_id'];
+  protected static function get_ceo_id($contactId) {
+    $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
+    $pumCeo = $caseRelationConfig->getPumCeo();
+    return $pumCeo['contact_id'];
   }
   /**
    * Function to get cfo
-   * (client_id as param is not required but passed because of the generic method
+   * (contactId as param is not required but passed because of the generic method
    * call in callCaseRoleMethod)
    * 
-   * @param int $client_id
+   * @param int $contactId
    * @return int
    * @access protected
    * @static
    */
-  protected static function get_cfo_id($client_id) {
-    $case_relation_config = CRM_Threepeas_CaseRelationConfig::singleton();
-    $pum_cfo = $case_relation_config->get_pum_cfo();
-    return $pum_cfo['contact_id'];
+  protected static function getCfoId($contactId) {
+    $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
+    $pumCfo = $caseRelationConfig->getPumCfo();
+    return $pumCfo['contact_id'];
   }
   /**
    * Function to get contact id of country of a customer
    * 
-   * @param int $customer_id
-   * @return int $country_id
+   * @param int $customerId
+   * @return int $countryId
    * @throws Exception when contact for customer not found
    * @throws Exception when contact for country not found
    */
-  protected static function get_customer_country($customer_id) {
+  protected static function getCustomerCountry($customerId) {
     try {
-      $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $customer_id));
+      $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $customerId));
     } catch (CiviCRM_API3_Exception $ex) {
-      $country_id = 0;
+      $countryId = 0;
     }
     if (isset($contact['country_id'])) {
-      $threepeas_config = CRM_Threepeas_Config::singleton();
+      $threepeasConfig = CRM_Threepeas_Config::singleton();
       $params = array(
-        'custom_'.$threepeas_config->countryCustomFieldId => $contact['country_id'],
+        'custom_'.$threepeasConfig->countryCustomFieldId => $contact['country_id'],
         'return' => 'id');
       try {
-        $country_id = civicrm_api3('Contact', 'Getvalue', $params);
+        $countryId = civicrm_api3('Contact', 'Getvalue', $params);
       } catch (CiviCRM_API3_Exception $ex) {
-        $country_id = 0;
+        $countryId = 0;
       }
     }
-    return $country_id;
+    return $countryId;
   }
 }
-
