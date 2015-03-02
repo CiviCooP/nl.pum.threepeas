@@ -226,7 +226,8 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
           $donorLinkRow['is_fa_donor'] = self::setDisplayTinyint($donorLink['is_fa_donor']);
           $viewContributionUrl = CRM_Utils_System::url('civicrm/contact/view/contribution', 'reset=1&id='
             .$contribution['contribution_id'].'&cid='.$contribution['contact_id'].'&action=view');
-          $donorLinkRow['view_link'] = '<a class="action-item" title="View contribution" href="'.$viewContributionUrl.'">View contribution</a>';
+          $donorLinkRow['view_link'] = '<a class="action-item" title="View contribution" href="'
+            .$viewContributionUrl.'">View contribution</a>';
           break;
       }
     }
@@ -374,12 +375,42 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
      * add required contributions to option list
      */
     foreach ($contributions['values'] as $contribution) {
-      if (isset($activeContributionStatus[$contribution['contribution_status_id']])) {
-        $optionText = $contribution['display_name'].' (type '.$contribution['financial_type'].')';
-        $optionContributions[$contribution['contribution_id']] = $optionText;
+      if (self::contributionIsApplicable($contribution['id']) == TRUE) {
+        if (isset($activeContributionStatus[$contribution['contribution_status_id']])) {
+          $optionText = $contribution['display_name'] . ' (type ' . $contribution['financial_type'] . ')';
+          $optionContributions[$contribution['contribution_id']] = $optionText;
+        }
       }
     }
     asort($optionContributions);
     return $optionContributions;
+  }
+
+  /**
+   * Function to check if the selected contribution is applicable
+   *
+   * @param $contributionId
+   * @return bool
+   * @access public
+   * @static
+   */
+  public static function contributionIsApplicable($contributionId) {
+    if (empty($contributionId)) {
+      return FALSE;
+    }
+    $extensionConfig = CRM_Threepeas_DonorLinkConfig::singleton();
+    $applicableColumn = $extensionConfig->getApplicableCustomFieldColumn();
+    $query = 'SELECT '.$applicableColumn.' FROM '.$extensionConfig->getApplicableCustomGroupTable().' WHERE entity_id= %1';
+    $params = array(1 => array($contributionId, 'Positive'));
+    $dao = CRM_Core_DAO::executeQuery($query, $params);
+    if ($dao->fetch()) {
+      if ($dao->$applicableColumn == 1) {
+        return TRUE;
+      } else {
+        return FALSE;
+      }
+    } else {
+      return FALSE;
+    }
   }
 }

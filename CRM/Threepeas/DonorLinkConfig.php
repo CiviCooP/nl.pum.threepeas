@@ -97,7 +97,7 @@ class CRM_Threepeas_DonorLinkConfig {
    * @access public
    */
   public function getApplicableCustomFieldName() {
-    $this->applicableCustomFieldName;
+    return $this->applicableCustomFieldName;
   }
 
   /**
@@ -106,7 +106,7 @@ class CRM_Threepeas_DonorLinkConfig {
    * @access public
    */
   public function getApplicableCustomFieldId() {
-    $this->applicableCustomFieldId;
+    return $this->applicableCustomFieldId;
   }
 
   /**
@@ -116,7 +116,7 @@ class CRM_Threepeas_DonorLinkConfig {
    * @access public
    */
   public function getApplicableCustomGroupTable() {
-    $this->applicableCustomGroupTable;
+    return $this->applicableCustomGroupTable;
   }
 
   /**
@@ -126,7 +126,7 @@ class CRM_Threepeas_DonorLinkConfig {
    * @access public
    */
   public function getApplicableCustomFieldColumn() {
-    $this->applicableCustomFieldColumn;
+    return $this->applicableCustomFieldColumn;
   }
 
   /**

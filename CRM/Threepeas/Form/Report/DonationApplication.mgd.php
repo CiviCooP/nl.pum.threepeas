@@ -14,8 +14,8 @@ return array (
       'label' => 'DonationApplication',
       'description' => 'DonationApplication (nl.pum.threepeas)',
       'class_name' => 'CRM_Threepeas_Form_Report_DonationApplication',
-      'report_url' => 'donationapplication',
-      'component' => '',
+      'report_url' => 'civicrm/report/donationapplication',
+      'component' => 'CiviContribute',
       'is_active' => 1
     ),
   ),
