@@ -365,7 +365,7 @@ function threepeas_civicrm_postProcess($formName, &$form) {
    */
   if ($formName == 'CRM_Case_Form_CaseView') {
     $caseId = _threepeasRetrieveCaseIdFromUrl($form->_submitValues['entryURL']);
-    $contactId = CRM_Threepeas_BAO_PumCaseRelation::getCaseClient($caseId);
+    $contactId = CRM_Threepeas_Utils::getCaseClient($caseId);
     $values = $form->_submitValues;
     _threepeasCaseDonationLinks($values, $caseId);
     $url = CRM_Utils_System::url('civicrm/contact/view/case', 'reset=1&id='.$caseId
