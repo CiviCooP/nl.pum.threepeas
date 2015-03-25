@@ -16,7 +16,7 @@ class CRM_Threepeas_Utils {
    * @access public
    * @static
    */
-  static function contactIsCountry($contactId) {
+  public static function contactIsCountry($contactId) {
     if (empty($contactId)) {
       return FALSE;
     }
@@ -45,7 +45,7 @@ class CRM_Threepeas_Utils {
    * @access public
    * @static
    */
-  static function getCustomGroup($customGroupName) {
+  public static function getCustomGroup($customGroupName) {
     try {
       $customGroup = civicrm_api3('CustomGroup', 'Getsingle', array('name' => $customGroupName));
       return $customGroup;
@@ -62,7 +62,7 @@ class CRM_Threepeas_Utils {
    * @access public
    * @static
    */
-  static function getActivityTypeOptionGroupId() {
+  public static function getActivityTypeOptionGroupId() {
     $params = array(
       'name' => 'activity_type',
       'return' => 'id');
@@ -81,7 +81,7 @@ class CRM_Threepeas_Utils {
    * @param string $activityTypeName
    * @return array
    */
-  static function getActivityTypeWithName($activityTypeName) {
+  public static function getActivityTypeWithName($activityTypeName) {
     $activityTypeOptionGroupId = self::getActivityTypeOptionGroupId();
     $params = array(
       'option_group_id' => $activityTypeOptionGroupId,
@@ -89,6 +89,45 @@ class CRM_Threepeas_Utils {
     try {
       $activityType = civicrm_api3('OptionValue', 'Getsingle', $params);
       return $activityType;
+    } catch (CiviCRM_API3_Exception $ex) {
+      return array();
+    }
+  }
+  /**
+   * Function to get the option group id of activity status
+   *
+   * @return int $activityStatusOptionGroupId
+   * @throws Exception when option group not found
+   * @access public
+   * @static
+   */
+  public static function getActivityStatusOptionGroupId() {
+    $params = array(
+      'name' => 'activity_status',
+      'return' => 'id');
+    try {
+      $activityStatusOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue', $params);
+      return $activityStatusOptionGroupId;
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find a valid option group for name activity_status, error from
+        API OptionGroup Getvalue: ' . $ex->getMessage());
+    }
+  }
+
+  /**
+   * Function to get activity status with name
+   *
+   * @param string $activityStatusName
+   * @return array
+   */
+  public static function getActivityStatusWithName($activityStatusName) {
+    $activityStatusOptionGroupId = self::getActivityStatusOptionGroupId();
+    $params = array(
+      'option_group_id' => $activityStatusOptionGroupId,
+      'name' => $activityStatusName);
+    try {
+      $activityStatus = civicrm_api3('OptionValue', 'Getsingle', $params);
+      return $activityStatus;
     } catch (CiviCRM_API3_Exception $ex) {
       return array();
     }
@@ -103,7 +142,7 @@ class CRM_Threepeas_Utils {
    * @access public
    * @static
    */
-  static function getCustomField($customGroupId, $customFieldName) {
+  public static function getCustomField($customGroupId, $customFieldName) {
     $params = array(
       'custom_group_id' => $customGroupId,
       'name' => $customFieldName
@@ -124,7 +163,7 @@ class CRM_Threepeas_Utils {
    * @return array
    * @throws Exception when error from API create
    */
-  static function createActivityType($activityTypeName, $activityTypeLabel = null, $componentId = 0) {
+  public static function createActivityType($activityTypeName, $activityTypeLabel = null, $componentId = 0) {
     $activityTypeOptionGroupId = self::getActivityTypeOptionGroupId();
     if (empty($activityTypeLabel)) {
       $labelExplode = explode('_', $activityTypeName);
@@ -149,6 +188,36 @@ class CRM_Threepeas_Utils {
   }
 
   /**
+   * Function to create activity status
+   * @param string $activityStatusName
+   * @param string $activityStatusLabel
+   * @return array
+   * @throws Exception when error from API create
+   */
+  public static function createActivityStatus($activityStatusName, $activityStatusLabel = null) {
+    $activityStatusOptionGroupId = self::getActivityStatusOptionGroupId();
+    if (empty($activityStatusLabel)) {
+      $labelExplode = explode('_', $activityStatusName);
+      foreach ($labelExplode as $key => $label) {
+        $labelExplode[$key] = ucfirst($label);
+      }
+      $activityStatusLabel = implode(' ', $labelExplode);
+    }
+    $params = array(
+      'option_group_id' => $activityStatusOptionGroupId,
+      'name' => $activityStatusName,
+      'label' => $activityStatusLabel,
+      'is_active' => 1);
+    try {
+      $activityStatus = civicrm_api3('OptionValue', 'Create', $params);
+      return $activityStatus['values'];
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not create activity status with name '.$activityStatusName
+        .', error from API OptionValue Create: '.$ex->getMessage());
+    }
+  }
+
+  /**
    * Function to create custom group
    *
    * @param string $customGroupName
@@ -161,7 +230,7 @@ class CRM_Threepeas_Utils {
    * @access public
    * @static
    */
-  static function createCustomGroup($customGroupName, $customGroupTable, $extends, $extendsEntityColumnValues = array(), $customGroupLabel = null) {
+  public static function createCustomGroup($customGroupName, $customGroupTable, $extends, $extendsEntityColumnValues = array(), $customGroupLabel = null) {
     if (empty($customGroupLabel)) {
       $labelExplode = explode('_', $customGroupName);
       foreach ($labelExplode as $key => $label) {
@@ -205,7 +274,7 @@ class CRM_Threepeas_Utils {
    * @access public
    * @static
    */
-  static function createCustomField($customGroupId, $customFieldName, $customFieldColumn, $customFieldDataType,
+  public static function createCustomField($customGroupId, $customFieldName, $customFieldColumn, $customFieldDataType,
       $customFieldHtmlType, $defaultValue = null, $isView = 0, $customFieldLabel = null) {
 
     if (empty($customFieldLabel)) {
@@ -225,7 +294,7 @@ class CRM_Threepeas_Utils {
       'is_active' => 1,
       'is_reserved' => 1,
       'is_view' => $isView,
-      'default_value' => $defaultValue
+      'default_value' => $defaultValue,
     );
     try {
       $customField = civicrm_api3('CustomField', 'Create', $params);
@@ -267,7 +336,7 @@ class CRM_Threepeas_Utils {
    * @access public
    * @static
    */
-  static function getContactName($contactId) {
+  public static function getContactName($contactId) {
     $params = array(
       'id' => $contactId,
       'return' => 'display_name');
@@ -286,7 +355,7 @@ class CRM_Threepeas_Utils {
    * @access public
    * @static
    */
-  static function setIsActive($isActive) {
+  public static function setIsActive($isActive) {
     if ($isActive == 1) {
       return ts('Yes');
     } else {
@@ -301,7 +370,7 @@ class CRM_Threepeas_Utils {
    * @access public
    * @static
    */
-  static function setProjectDate($date) {
+  public static function setProjectDate($date) {
     if (empty($date)) {
       return '';
     } else {

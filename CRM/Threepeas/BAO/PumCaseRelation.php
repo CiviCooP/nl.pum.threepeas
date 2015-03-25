@@ -518,4 +518,39 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     }
     return $countryId;
   }
+
+  /**
+   * Method to get the expert for a case (assumption is only one per case)
+   *
+   * @param int $caseId
+   * @return int|boolean
+   * @throws Exception when relation ship type expert not found
+   * @access public
+   * @static
+   */
+  public static function getCaseExpert($caseId) {
+    if (empty($caseId)) {
+      return FALSE;
+    }
+    $relationshipTypeParams = array(
+      'name_a_b' => 'Expert',
+      'return' => 'id');
+    try {
+      $expertRelationshipTypeId = civicrm_api3('RelationshipType', 'Getvalue', $relationshipTypeParams);
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception(ts('Could not find relationship type Expert, error from API RelationshipType Getvalue: '
+        .$ex->getMessage()));
+    }
+    $relationshipParams = array(
+      'relationship_type_id' => $expertRelationshipTypeId,
+      'case_id' => $caseId,
+      'is_active' => 1,
+      'return' => 'contact_id_b');
+    try {
+      $expertId = civicrm_api3('Relationship', 'Getvalue', $relationshipParams);
+      return $expertId;
+    } catch (CiviCRM_API3_Exception $ex) {
+      return FALSE;
+    }
+  }
 }
