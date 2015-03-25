@@ -208,7 +208,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
    */
   function setAddUpdateDonationLink() {
     $contributionsList = CRM_Threepeas_BAO_PumDonorLink::getContributionsList('Programme', '');
-    $this->add('advmultiselect', 'new_link', '', $contributionsList, false,  
+    $this->add('advmultiselect', 'new_link', '', $contributionsList, false,
       array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
         'class' => 'advmultiselect',
       ));
@@ -384,7 +384,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   function addRules() {
     $ruleParams = array('action' => $this->_action);
     $this->addFormRule(array('CRM_Threepeas_Form_PumProgramme', 'formRule'), $ruleParams);
-    $this->addFormRule(array('CRM_Threepeas_Form_PumProgramme', 'validateFaDonor'));
+    //$this->addFormRule(array('CRM_Threepeas_Form_PumProgramme', 'validateFaDonor'));
   }
   /**
    * Function that executes validation

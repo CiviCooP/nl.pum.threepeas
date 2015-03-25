@@ -11,7 +11,7 @@
   <table class="form-layout-compressed">
     <tbody>
       {foreach from=$elementNames item=elementName}
-        {if $elementName ne 'start_date' and $elementName ne 'end_date' and $elementName ne 'is_active' and $elementName ne 'new_link'}
+        {if $elementName ne 'start_date' and $elementName ne 'end_date' and $elementName ne 'is_active' and $elementName ne 'new_link' and $elementName ne 'fa_donor'}
         <div class="crm-section">
             <div class="label">{$form.$elementName.label}</div>
             {if $action eq 4}
