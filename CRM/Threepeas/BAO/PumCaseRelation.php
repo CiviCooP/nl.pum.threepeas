@@ -75,7 +75,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    */
   protected static function setSectorCoordinatorForCase($caseId) {
     $clientId = CRM_Threepeas_Utils::getCaseClientId($caseId);
-    $sectorCoordinatorId = self::get_sector_coordinator_id($clientId);
+    $sectorCoordinatorId = self::getSectorCoordinatorId($clientId);
     $caseStartDate = self::getCaseStartDate($caseId);
     self::createCaseRelation($caseId, $clientId, $sectorCoordinatorId, $caseStartDate,
       'sector_coordinator');
