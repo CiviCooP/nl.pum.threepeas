@@ -65,7 +65,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     }
     $pumProject->save();
     if (!isset($pumProject->title) || empty($pumProject->title)) {
-      $pumProject->title = self::generate_title($pumProject);
+      $pumProject->title = self::generateTitle($pumProject);
       $pumProject->save();
     }
     if (isset($pumProject->title) && !empty($pumProject->title)) {
