@@ -471,7 +471,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @access protected
    * @static
    */
-  protected static function get_ceo_id($contactId) {
+  protected static function getCeoId($contactId) {
     $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
     $pumCeo = $caseRelationConfig->getPumCeo();
     return $pumCeo['contact_id'];
