@@ -36,4 +36,10 @@
     <title>Pumdrill</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/ajax/dsaactivity</path>
+    <page_callback>CRM_Threepeas_Page_DsaActivity</page_callback>
+    <title>DsaActivity</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

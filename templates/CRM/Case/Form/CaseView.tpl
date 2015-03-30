@@ -70,9 +70,7 @@
         <table class="form-layout-compressed">
           {foreach from=$caseRoles.client item=client}
             <tr class="crm-case-caseview-display_name">
-              <td class="label-left bold" style="padding: 0px; border: none;">{$client.display_name}
-                {* PUM issue 164 add project title for country and customer *}
-                <br /><span class="crm-case-summary-label">{ts}Project{/ts}:</span>&nbsp;{$project_title}</td>
+              <td class="label-left bold" style="padding: 0px; border: none;">{$client.display_name}</td>
             </tr>
             {if $client.phone}
               <tr class="crm-case-caseview-phone">
@@ -82,6 +80,12 @@
             {if $client.birth_date}
               <tr class="crm-case-caseview-birth_date">
                 <td class="label-left description" style="padding: 1px">{ts}DOB{/ts}: {$client.birth_date|crmDate}</td>
+              </tr>
+            {/if}
+            {* PUM issue 164 add project title for country and customer *}
+            {if $project_title}
+              <tr class="crm-case-caseview-project-title">
+                <td class="label-left bold">{ts}Project{/ts}:{$project_title}</td>
               </tr>
             {/if}
           {/foreach}
@@ -1041,7 +1045,7 @@ function buildCaseActivities(filterSearch) {
   }
   var count   = 0;
   var columns = '';
-  var sourceUrl = {/literal}"{crmURL p='civicrm/ajax/activity' h=0 q='snippet=4&caseID='}{$caseID}"{literal};
+  var sourceUrl = {/literal}"{crmURL p='civicrm/ajax/dsaactivity' h=0 q='snippet=4&caseID='}{$caseID}"{literal};
   sourceUrl = sourceUrl + '&cid={/literal}{$contactID}{literal}';
   sourceUrl = sourceUrl + '&userID={/literal}{$userID}{literal}';
 
@@ -1094,6 +1098,12 @@ function buildCaseActivities(filterSearch) {
         "data": aoData,
         "success": fnCallback
       } );
+
+      cj('#activities-selector td').each(function( ) {
+        if (cj(this).attr('title') === 'Edit status') {
+          CRM.alert('We hebben ' + cj(this).val());
+        }
+      });
     }
   });
 }

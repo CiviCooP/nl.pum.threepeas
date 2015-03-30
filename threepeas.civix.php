@@ -3,7 +3,7 @@
 // AUTO-GENERATED FILE -- Civix may overwrite any changes made to this file
 
 /**
- * (Delegated) Implementation of hook_civicrm_config
+ * (Delegated) Implements hook_civicrm_config().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
  */
@@ -28,7 +28,7 @@ function _threepeas_civix_civicrm_config(&$config = NULL) {
 }
 
 /**
- * (Delegated) Implementation of hook_civicrm_xmlMenu
+ * (Delegated) Implements hook_civicrm_xmlMenu().
  *
  * @param $files array(string)
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_xmlMenu
@@ -40,31 +40,31 @@ function _threepeas_civix_civicrm_xmlMenu(&$files) {
 }
 
 /**
- * Implementation of hook_civicrm_install
+ * Implements hook_civicrm_install().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
 function _threepeas_civix_civicrm_install() {
   _threepeas_civix_civicrm_config();
   if ($upgrader = _threepeas_civix_upgrader()) {
-    return $upgrader->onInstall();
+    $upgrader->onInstall();
   }
 }
 
 /**
- * Implementation of hook_civicrm_uninstall
+ * Implements hook_civicrm_uninstall().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_uninstall
  */
 function _threepeas_civix_civicrm_uninstall() {
   _threepeas_civix_civicrm_config();
   if ($upgrader = _threepeas_civix_upgrader()) {
-    return $upgrader->onUninstall();
+    $upgrader->onUninstall();
   }
 }
 
 /**
- * (Delegated) Implementation of hook_civicrm_enable
+ * (Delegated) Implements hook_civicrm_enable().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
@@ -72,27 +72,28 @@ function _threepeas_civix_civicrm_enable() {
   _threepeas_civix_civicrm_config();
   if ($upgrader = _threepeas_civix_upgrader()) {
     if (is_callable(array($upgrader, 'onEnable'))) {
-      return $upgrader->onEnable();
+      $upgrader->onEnable();
     }
   }
 }
 
 /**
- * (Delegated) Implementation of hook_civicrm_disable
+ * (Delegated) Implements hook_civicrm_disable().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_disable
+ * @return mixed
  */
 function _threepeas_civix_civicrm_disable() {
   _threepeas_civix_civicrm_config();
   if ($upgrader = _threepeas_civix_upgrader()) {
     if (is_callable(array($upgrader, 'onDisable'))) {
-      return $upgrader->onDisable();
+      $upgrader->onDisable();
     }
   }
 }
 
 /**
- * (Delegated) Implementation of hook_civicrm_upgrade
+ * (Delegated) Implements hook_civicrm_upgrade().
  *
  * @param $op string, the type of operation being performed; 'check' or 'enqueue'
  * @param $queue CRM_Queue_Queue, (for 'enqueue') the modifiable list of pending up upgrade tasks
@@ -157,7 +158,7 @@ function _threepeas_civix_find_files($dir, $pattern) {
   return $result;
 }
 /**
- * (Delegated) Implementation of hook_civicrm_managed
+ * (Delegated) Implements hook_civicrm_managed().
  *
  * Find any *.mgd.php files, merge their content, and return.
  *
@@ -177,7 +178,7 @@ function _threepeas_civix_civicrm_managed(&$entities) {
 }
 
 /**
- * (Delegated) Implementation of hook_civicrm_caseTypes
+ * (Delegated) Implements hook_civicrm_caseTypes().
  *
  * Find any and return any files matching "xml/case/*.xml"
  *
@@ -262,7 +263,7 @@ function _threepeas_civix_insert_navigation_menu(&$menu, $path, $item, $parentId
 }
 
 /**
- * (Delegated) Implementation of hook_civicrm_alterSettingsFolders
+ * (Delegated) Implements hook_civicrm_alterSettingsFolders().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_alterSettingsFolders
  */
