@@ -1139,7 +1139,47 @@ function threepeas_civicrm_validateForm($formName, &$fields, &$files, &$form, &$
   if ($formName == 'CRM_Case_Form_Case') {
     _threepeasValidateCaseFaDonorForm($fields, $errors);
   }
+  if ($formName == 'CRM_Case_Form_Activity') {
+    if (isset($fields['status_id']) && isset($form->activityTypeId)) {
+      _threepeasValidateCustomerContribution($fields, $form, $errors);
+    }
+  }
 }
+
+/**
+ * Function to validate if customer contribution can be set to complete (isseue 1692
+ *
+ * @param array $fields
+ * @param object $form
+ * @param array $errors
+ * @throws Exception when no activity type or status
+ */
+function _threepeasValidateCustomerContribution($fields, $form, &$errors) {
+  $allowedRoles = array('Finance', 'Finance Admin', 'administrator');
+  $allowedActivity = FALSE;
+  $customerContributionType = CRM_Threepeas_Utils::getActivityTypeWithName('Condition: Customer Contribution.');
+  if (empty($customerContributionType)) {
+    throw new Exception('Could not find activity type name for Condition: Customer Contribution.');
+  }
+  $completedActivityStatus = CRM_Threepeas_Utils::getActivityStatusWithName('Completed');
+  if (empty($completedActivityStatus)) {
+    throw new Exception('Could not find activity status with name Completed');
+  }
+  $customerContributionTypeId = $customerContributionType['value'];
+  $completedActivityStatusId = $completedActivityStatus['value'];
+  if ($form->_activityTypeId == $customerContributionTypeId && $fields['status_id'] == $completedActivityStatusId) {
+    global $user;
+    foreach ($user->roles as $userRole) {
+      if (in_array($userRole, $allowedRoles)) {
+        $allowedActivity = TRUE;
+      }
+    }
+    if ($allowedActivity == FALSE) {
+      $errors['status_id'] = 'Changing the status to Completed is only allowed if you have the role Finance, Finance Admin or administrator';
+    }
+  }
+}
+
 /**
  * Function to validate the fa donor in the form (has to be in selected linked donors)
  * issue 937
