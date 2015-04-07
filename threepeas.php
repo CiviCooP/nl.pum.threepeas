@@ -1140,7 +1140,7 @@ function threepeas_civicrm_validateForm($formName, &$fields, &$files, &$form, &$
     _threepeasValidateCaseFaDonorForm($fields, $errors);
   }
   if ($formName == 'CRM_Case_Form_Activity') {
-    if (isset($fields['status_id']) && isset($form->activityTypeId)) {
+    if (isset($fields['status_id']) && isset($form->_activityTypeId)) {
       _threepeasValidateCustomerContribution($fields, $form, $errors);
     }
   }
