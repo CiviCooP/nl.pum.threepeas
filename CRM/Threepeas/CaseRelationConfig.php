@@ -120,6 +120,15 @@ class CRM_Threepeas_CaseRelationConfig {
   }
 
   /**
+   * Function to get relationship types
+   *
+   * @return null
+   */
+  public function getRelationshipTypes() {
+    return $this->relationshipTypes;
+  }
+
+  /**
    * Function to set activity status for completed
    * 
    * @throws Exception when option group activity_status not found

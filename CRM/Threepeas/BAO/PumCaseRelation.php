@@ -27,6 +27,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     $caseRoles = $caseRelationConfig->getCaseTypeRelations($caseType);
     foreach ($caseRoles as $caseRoleLabel => $caseRoleActive) {
       if ($caseRoleActive == 1) {
+        $methodName =
         $caseRoleId = self::callCaseRoleMethod($caseRoleLabel, $clientId);
         self::createCaseRelation($caseId, $clientId, $caseRoleId, $caseStartDate, $caseRoleLabel);
       }
@@ -112,10 +113,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     $relationshipTypeId = $caseRelationConfig->getRelationshipTypeId($caseRoleLabel);
     $relationships = self::getActiveRelationships($relationshipTypeId, $sourceContactId);
     foreach ($relationships as $relationship) {
-      if (!isset($relationship['case_id'])) {
-        $foundContactId = $relationship['contact_id_b'];
-        break;
-      }
+      $foundContactId = $relationship['contact_id_b'];
     }
     return $foundContactId;
   }
@@ -129,6 +127,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   protected static function getActiveRelationships($relationshipTypeId, $sourceContactId) {
     $params = array(
       'is_active' => 1,
+      'case_id' => 'null',
       'relationship_type_id' => $relationshipTypeId,
       'contact_id_a' => $sourceContactId,
       'options' => array('sort' => 'start_date DESC', 'limit' => 99999));
@@ -145,7 +144,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @param int $caseId
    * @param int $contactIdA
    * @param int $contactIdB
-   * @param string $startDate
+   * @param date $startDate
    * @param string $caseRoleLabel
    * @access protected
    * @static
@@ -201,7 +200,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @param int $contactIdA
    * @param int $contactIdB
    * @param date $startDate
-   * @param label $caseRoleLabel
+   * @param string $caseRoleLabel
    * @return array
    */
   protected static function setCaseRelationParams($caseId, $contactIdA, $contactIdB,
@@ -248,19 +247,32 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     }
     return $caseType;
   }
+
   /**
-   * Function to merge function name and call processing function
-   * 
-   * @param type $caseRoleLabel
-   * @throws Exception when function not found in class
+   * Method to build method name to get role id from label
+   *
+   * @param string $caseRoleLabel
+   * @return string $methodName
+   * @access public
    */
-  protected static function callCaseRoleMethod($caseRoleLabel,$clientId) {
+  public static function buildMethodName($caseRoleLabel) {
     $explodedLabels = explode('_', $caseRoleLabel);
     foreach ($explodedLabels as $key => $label) {
       $explodedLabels[$key] = ucfirst($label);
     }
     $roleLabel = implode($explodedLabels);
     $methodName = 'get'.$roleLabel.'Id';
+    return $methodName;
+  }
+  /**
+   * Function to merge function name and call processing function
+   * 
+   * @param string $caseRoleLabel
+   * @param int $clientId
+   * @throws Exception when function not found in class
+   */
+  protected static function callCaseRoleMethod($caseRoleLabel, $clientId) {
+    $methodName = self::buildMethodName($caseRoleLabel);
     if (method_exists('CRM_Threepeas_BAO_PumCaseRelation', $methodName)) {
       return self::$methodName($clientId);
     } else {
@@ -552,5 +564,92 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     } catch (CiviCRM_API3_Exception $ex) {
       return FALSE;
     }
+  }
+
+  /**
+   * Method to retrieve the contacts where the parameter contact has the parameter role for
+   * (so for example all customers or countries where the contact is active project officer for)
+   *
+   * @param int $contactId
+   * @param string $roleLabel
+   * @return array $result (ids of found contacts
+   * @access public
+   * @static
+   */
+  public static function isContactRelationFor($contactId, $roleLabel) {
+    $result = array();
+    if (empty($contactId) || empty($roleLabel)) {
+      return $result;
+    }
+    $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
+    $relationshipTypeId = $caseRelationConfig->getRelationshipTypeId($roleLabel);
+    $relationshipParams = array(
+      'case_id' => 'null',
+      'is_active' => 1,
+      'relationship_type_id' => $relationshipTypeId,
+      'options' => array('limit' => 99999),
+      'contact_id_b' => $contactId,
+      'return' => 'contact_id_a');
+    $foundRelationships = civicrm_api3('Relationship', 'Get', $relationshipParams);
+    foreach ($foundRelationships['values'] as $foundRelationship) {
+      $result[] = $foundRelationship['contact_id_a'];
+    }
+  return $result;
+  }
+
+  /**
+   * Method to retrieve all customers the contact is sectorCoordinator for
+   * (first get all tags the contact is coordinator for, then select all
+   * customers with the same tag)
+   *
+   * @param int $contactId
+   * @return array $result
+   * @access public
+   * @static
+   */
+  public static function isContactSectorCoordinatorFor($contactId) {
+    $result = array();
+    $sectorParams = array(
+      'is_active' => 1,
+      'coordinator_id' => $contactId);
+    $sectorTags = CRM_Enhancedtags_BAO_TagEnhanced::getValues($sectorParams);
+    foreach ($sectorTags as $sectorTag) {
+      $entityTagParams = array(
+        'entity_table' => 'civicrm_contact',
+        'tag_id' => $sectorTag['tag_id']);
+      $entityTags = civicrm_api3('EntityTag', 'Get', $entityTagParams);
+      foreach ($entityTags['values'] as $entityTag) {
+        $result[] = $entityTag['entity_id'];
+      }
+    }
+    return $result;
+  }
+
+  /**
+   * Method to find all active projects where contact has active role in active case(s)
+   *
+   * @param int $contactId
+   * @return array $activeProjects
+   * @access public
+   * @static
+   */
+  public static function isContactActiveInCases($contactId) {
+    $activeProjects = array();
+    $query = 'SELECT DISTINCT(proj.id) as project_id
+      FROM civicrm_relationship rel
+      JOIN civicrm_case_project cproj ON rel.case_id = cproj.case_id
+      JOIN civicrm_project proj ON cproj.project_id = proj.id
+      WHERE rel.case_id IS NOT NULL AND rel.is_active=%1 AND proj.is_active=%1 AND rel.contact_id_b = %2';
+    $queryParams = array(
+      1 => array(1, 'Integer'),
+      2 => array($contactId, 'Integer'));
+    $dao = CRM_Core_DAO::executeQuery($query, $queryParams);
+    while ($dao->fetch()) {
+      $projects = CRM_Threepeas_BAO_PumProject::getValues(array('id' => $dao->project_id));
+      foreach ($projects as $project) {
+        $activeProjects[$project['id']] = $project;
+      }
+    }
+    return $activeProjects;
   }
 }

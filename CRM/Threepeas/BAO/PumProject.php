@@ -464,5 +464,154 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       $title = 'Project <onbekend> -'.$pumProject->id;
     }
     return $title;
-  } 
+  }
+
+  /**
+   * Method to get a string with the roles of the user on a given project
+   * possible are:
+   * - projectmanager
+   * - name of a relation from PumCaseRelation (country coord, sector coord, anamon etc.)
+   * - expert
+   *
+   * @param array $params
+   * @return string
+   * @access public
+   * @static
+   */
+  public static function getUserRoles($params) {
+    $myRoles = array();
+    $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
+    $relationTypes = $caseRelationConfig->getRelationshipTypes();
+    if (self::isProjectManager($params['project_id'], $params['user_id']) == TRUE) {
+      $myRoles[] = ts('Projectmanager');
+    }
+    foreach ($relationTypes as $roleLabel => $roleText) {
+      $roleId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($params['customer_id'], $roleLabel);
+      if ($roleId == $params['user_id']) {
+        $roleString = self::buildMyRoleTextFromLabel($roleLabel);
+        if (!in_array($roleString, $myRoles)) {
+          $myRoles[] = $roleString;
+        }
+      }
+    }
+    if (self::isExpertOnProject($params['project_id'], $params['user_id']) == TRUE) {
+      if (!in_array('Expert', $myRoles)) {
+        $myRoles[] = 'Expert';
+      }
+    }
+    if (self::isActiveOnCasesInProject($params['project_id'], $params['user_id']) == TRUE) {
+      $myRoles[] = 'Main activity role';
+    }
+    return implode('; ', $myRoles);
+  }
+
+  /**
+   * Method to check if the contact has an active role on a case in the project
+   *
+   * @param int $projectId
+   * @param int $contactId
+   * @return bool
+   * @access public
+   * @static
+   */
+  public static function isActiveOnCasesInProject($projectId, $contactId) {
+    $query = 'SELECT COUNT(*) AS activeCount
+      FROM civicrm_case_project cproj
+      JOIN civicrm_relationship rel ON cproj.case_id = rel.case_id
+      WHERE rel.case_id IS NOT NULL AND rel.is_active=%1 AND contact_id_b = %2 AND project_id = %3';
+    $queryParams = array(
+      1 => array(1, 'Integer'),
+      2 => array($contactId, 'Integer'),
+      3 => array($projectId, 'Integer'));
+    $dao = CRM_Core_DAO::executeQuery($query, $queryParams);
+    if ($dao->fetch()) {
+      if ($dao->activeCount > 0) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * Method to check if user is projectmanager of project
+   *
+   * @param int $projectId
+   * @param int $userId
+   * @return bool
+   * @access public
+   * @static
+   */
+  public static function isProjectManager($projectId, $userId) {
+    $project = new CRM_Threepeas_BAO_PumProject();
+    $project->id = $projectId;
+    $project->find(true);
+    if ($project->projectmanager_id == $userId) {
+      return TRUE;
+    } else {
+      return FALSE;
+    }
+  }
+
+  /**
+   * Method to determine if the user is expert on a case linked to the project
+   *
+   * @param int $projectId
+   * @param int $userId
+   * @return bool
+   * @access public
+   * @static
+   */
+  public static function isExpertOnProject($projectId, $userId) {
+    $projectCases = CRM_Threepeas_BAO_PumCaseProject::getValues(array('project_id' => $projectId));
+    foreach ($projectCases as $projectCase) {
+      $expertId = CRM_Threepeas_BAO_PumCaseRelation::getCaseExpert($projectCase['case_id']);
+      if ($expertId == $userId) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * Method to build a string for a role label
+   * (so sector_coordinator becomes Sector Coordinator)
+   *
+   * @param string $roleLabel
+   * @return string
+   * @access public
+   * @static
+   */
+  public static function buildMyRoleTextFromLabel($roleLabel) {
+    $labelStrings = array();
+    $labelParts = explode('_', $roleLabel);
+    if (is_array($labelParts)) {
+      foreach ($labelParts as $labelPart) {
+        $labelStrings[] = ucfirst($labelPart);
+      }
+    }
+    return implode(' ', $labelStrings);
+  }
+
+  /**
+   * Method to get all active projects for contact (customer or country)
+   *
+   * @param int $contactId
+   * @return array
+   * @access public
+   * @static
+   */
+  public static function getContactProjects($contactId) {
+    $result = array();
+    $projectParams = array('is_active' => 1);
+    if (CRM_Threepeas_Utils::contactIsCountry($contactId) == TRUE) {
+      $projectParams['country_id'] = $contactId;
+    } else {
+      $projectParams['customer_id'] = $contactId;
+    }
+    $contactProjects = self::getValues($projectParams);
+    foreach ($contactProjects as $contactProject) {
+      $result[$contactProject['id']] = $contactProject;
+    }
+    return $result;
+  }
 }
