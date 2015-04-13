@@ -12,8 +12,8 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
 
   protected $customerSelect = array();
   protected $countrySelect = array();
+  protected $userSelect = array();
   protected $tableAlias = NULL;
-  protected $userId = NULL;
   protected $userCountryCoordinator = FALSE;
   protected $userSectorCoordinator = FALSE;
   protected $userProjectOfficer = FALSE;
@@ -25,8 +25,8 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
     $this->_add2groupSupported = FALSE;
     $this->setCustomerSelect();
     $this->setCountrySelect();
+    $this->setUserSelect();
     $session = CRM_Core_Session::singleton();
-    $this->userId = $session->get('userID');
     $userContextUrl = CRM_Utils_Request::retrieve('q', 'String');
     $session->pushUserContext(CRM_Utils_System::url($userContextUrl, 'reset=1', true));
     $this->setCriteriaColumns();
@@ -53,7 +53,6 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
    * @access public
    */
   public function postProcess() {
-
 
     $this->beginPostProcess();
 
@@ -118,7 +117,7 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
       $daoRows[$dao->id] = $this->buildSingleRow($this->buildDaoRow($dao));
     }
     /*
-     * addRows for current user if only current user
+     * addRows for selected user
      * (country coordinator, sector coordinator, prof or any active case role)
      */
     $userRows = array();
@@ -138,26 +137,28 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
    * @access protected
    */
   protected function addUserRows(&$userRows) {
-    if (isset($this->_submitValues['current_user_value']) && $this->_submitValues['current_user_value'] == 1) {
+    if (!isset($this->_params['user_id_value']) || empty($this->_params['user_id_value'])) {
       $session = CRM_Core_Session::singleton();
       $userId = $session->get('userID');
-      $countryCoordinatorIds = CRM_Threepeas_BAO_PumCaseRelation::isContactRelationFor($userId, 'country_coordinator');
-      $projectOfficerIds = CRM_Threepeas_BAO_PumCaseRelation::isContactRelationFor($userId, 'project_officer');
-      $sectorCoordinatorIds = CRM_Threepeas_BAO_PumCaseRelation::isContactSectorCoordinatorFor($userId);
-      $activeCaseProjectIds = CRM_Threepeas_BAO_PumCaseRelation::isContactActiveInCases($userId);
-      $contactIds = array_merge($countryCoordinatorIds, $projectOfficerIds, $sectorCoordinatorIds);
-      $allContactProjects = array();
-      foreach ($contactIds as $contactId) {
-        $contactProjects = CRM_Threepeas_BAO_PumProject::getContactProjects($contactId);
-        foreach ($contactProjects as $contactProject) {
-          $allContactProjects[$contactProject['id']] = $contactProject;
-        }
+    } else {
+      $userId = $this->_params['user_id_value'];
+    }
+    $countryCoordinatorIds = CRM_Threepeas_BAO_PumCaseRelation::isContactRelationFor($userId, 'country_coordinator');
+    $projectOfficerIds = CRM_Threepeas_BAO_PumCaseRelation::isContactRelationFor($userId, 'project_officer');
+    $sectorCoordinatorIds = CRM_Threepeas_BAO_PumCaseRelation::isContactSectorCoordinatorFor($userId);
+    $activeCaseProjectIds = CRM_Threepeas_BAO_PumCaseRelation::isContactActiveInCases($userId);
+    $contactIds = array_merge($countryCoordinatorIds, $projectOfficerIds, $sectorCoordinatorIds);
+    $allContactProjects = array();
+    foreach ($contactIds as $contactId) {
+      $contactProjects = CRM_Threepeas_BAO_PumProject::getContactProjects($contactId);
+      foreach ($contactProjects as $contactProject) {
+        $allContactProjects[$contactProject['id']] = $contactProject;
       }
-      $foundProjects = array_merge($allContactProjects + $activeCaseProjectIds);
-      foreach ($foundProjects as $foundProject) {
-        $projectRow = self::buildAdditionalRow($foundProject);
-        $userRows[$projectRow['project_id']] = self::buildSingleRow($projectRow);
-      }
+    }
+    $foundProjects = array_merge($allContactProjects + $activeCaseProjectIds);
+    foreach ($foundProjects as $foundProject) {
+      $projectRow = self::buildAdditionalRow($foundProject);
+      $userRows[$projectRow['project_id']] = self::buildSingleRow($projectRow);
     }
   }
   /**
@@ -246,7 +247,7 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
     $singleRow['end_date'] = CRM_Utils_Date::customFormat($singleRow['end_date'], $config->dateformatFull);
     $roleParams = array(
       'project_id' => $singleRow['project_id'],
-      'user_id' => $this->userId);
+      'user_id' => $this->_params['user_id_value']);
     if (!empty($singleRow['customer_id'])) {
       $roleParams['customer_id'] = $singleRow['customer_id'];
     } else {
@@ -282,11 +283,13 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
    */
   public function where() {
     $whereClauses[] = $this->tableAlias.'.is_active = 1';
-    if (isset($this->_submitValues['current_user_value']) && $this->_submitValues['current_user_value'] == 1) {
+    if (!isset($this->_params['user_id_value']) || empty($this->_params['user_id_value'])) {
       $session = CRM_Core_Session::singleton();
       $userId = $session->get('userID');
-      $whereClauses[] = $this->tableAlias.'.projectmanager_id = '.$userId;
+    } else {
+      $userId = $this->_params['user_id_value'];
     }
+    $whereClauses[] = $this->tableAlias . '.projectmanager_id = ' . $userId;
     $this->_where = ' WHERE '.implode(' AND ', $whereClauses);
   }
 
@@ -377,12 +380,12 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
           ),
         ),
         'filters' => array(
-          'current_user' => array(
-            'title' => ts('Limit To Current User'),
+          'user_id' => array(
+            'title' => ts('Projects for user'),
             'default' => 1,
             'type' => CRM_Utils_Type::T_INT,
             'operatorType' => CRM_Report_Form::OP_SELECT,
-            'options' => array('0' => ts('No'), '1' => ts('Yes')),
+            'options' => $this->userSelect,
           ),
           'title' => array(
             'title' => ts('Project'),
@@ -452,6 +455,28 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
         $this->countrySelect[$contactId] = $contactValues['display_name'];
       }
     } catch (CiviCRM_API3_Exception $ex) {
+    }
+  }
+  protected function setUserSelect() {
+    $ccContacts = CRM_Threepeas_BAO_PumCaseRelation::getAllActiveRelationContacts('country_coordinator');
+    $profContacts = CRM_Threepeas_BAO_PumCaseRelation::getAllActiveRelationContacts('project_officer');
+    $sectorContacts = CRM_Threepeas_BAO_PumCaseRelation::getAllSectorCoordinators();
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
+    $projectManagers = array();
+    $pmContacts = array();
+    $groupContactParams = array('group_id' => $threepeasConfig->projectmanagerGroupId);
+    try {
+      $projectManagers = civicrm_api3('GroupContact', 'Get', $groupContactParams);
+    } catch (CiviCRM_API3_Exception $ex) {
+    }
+    foreach ($projectManagers['values'] as $projectManager) {
+      $pmContacts[$projectManager['contact_id']] = $projectManager['contact_id'];
+    }
+    $allContacts = $ccContacts + $profContacts + $sectorContacts + $pmContacts;
+    ksort($allContacts);
+    $this->userSelect[0] = 'current user';
+    foreach ($allContacts as $contact) {
+      $this->userSelect[$contact] = CRM_Threepeas_Utils::getContactName($contact);
     }
   }
 }

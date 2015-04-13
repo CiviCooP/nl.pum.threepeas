@@ -111,7 +111,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     $foundContactId = 0;
     $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
     $relationshipTypeId = $caseRelationConfig->getRelationshipTypeId($caseRoleLabel);
-    $relationships = self::getActiveRelationships($relationshipTypeId, $sourceContactId);
+    $relationships = self::getActiveContactRelationships($relationshipTypeId, $sourceContactId);
     foreach ($relationships as $relationship) {
       $foundContactId = $relationship['contact_id_b'];
     }
@@ -124,7 +124,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @param int $sourceContactId
    * @return array $relationships['values']
    */
-  protected static function getActiveRelationships($relationshipTypeId, $sourceContactId) {
+  protected static function getActiveContactRelationships($relationshipTypeId, $sourceContactId) {
     $params = array(
       'is_active' => 1,
       'case_id' => 'null',
@@ -651,5 +651,55 @@ class CRM_Threepeas_BAO_PumCaseRelation {
       }
     }
     return $activeProjects;
+  }
+
+  /**
+   * Method to find all contacts that have an active relation with a specific label
+   * (so all Country Coordinators for example)
+   *
+   * @param string $roleLabel
+   * @return array
+   * @access public
+   * @static
+   */
+  public static function getAllActiveRelationContacts($roleLabel) {
+    $foundContacts = array();
+    if (empty($roleLabel)) {
+      return $foundContacts;
+    }
+    $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
+    $relationshipTypeId = $caseRelationConfig->getRelationshipTypeId($roleLabel);
+    $relationParams = array(
+      'is_active' => 1,
+      'case_id' => 'null',
+      'options' => array('limit' => 99999),
+      'relationship_type_id' => $relationshipTypeId);
+    try {
+      $relationContacts = civicrm_api3('Relationship', 'Get', $relationParams);
+      foreach ($relationContacts['values'] as $relationContact) {
+        $foundContacts[$relationContact['contact_id_b']] = $relationContact['contact_id_b'];
+      }
+    } catch (CiviCRM_API3_Exception $ex) {
+      return $foundContacts;
+    }
+    return $foundContacts;
+  }
+
+  /**
+   * Method to get all active SectorCoordinators
+   *
+   * @return array
+   * @access public
+   * @static
+   */
+  public static function getAllSectorCoordinators() {
+    $foundContacts = array();
+    $enhancedTags = CRM_Enhancedtags_BAO_TagEnhanced::getValues(array('is_active' => 1));
+    foreach ($enhancedTags as $enhancedTag) {
+      if (!empty($enhancedTag['coordinator_id'])) {
+        $foundContacts[$enhancedTag['coordinator_id']] = $enhancedTag['coordinator_id'];
+      }
+    }
+    return $foundContacts;
   }
 }

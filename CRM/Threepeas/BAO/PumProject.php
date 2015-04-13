@@ -478,29 +478,32 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * @access public
    * @static
    */
-  public static function getUserRoles($params) {
+  public static function getUserRoles($params)
+  {
     $myRoles = array();
     $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
     $relationTypes = $caseRelationConfig->getRelationshipTypes();
-    if (self::isProjectManager($params['project_id'], $params['user_id']) == TRUE) {
-      $myRoles[] = ts('Projectmanager');
-    }
-    foreach ($relationTypes as $roleLabel => $roleText) {
-      $roleId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($params['customer_id'], $roleLabel);
-      if ($roleId == $params['user_id']) {
-        $roleString = self::buildMyRoleTextFromLabel($roleLabel);
-        if (!in_array($roleString, $myRoles)) {
-          $myRoles[] = $roleString;
+    if (isset($params['project_id']) && isset($params['user_id'])) {
+      if (self::isProjectManager($params['project_id'], $params['user_id']) == TRUE) {
+        $myRoles[] = ts('Projectmanager');
+      }
+      foreach ($relationTypes as $roleLabel => $roleText) {
+        $roleId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($params['customer_id'], $roleLabel);
+        if ($roleId == $params['user_id']) {
+          $roleString = self::buildMyRoleTextFromLabel($roleLabel);
+          if (!in_array($roleString, $myRoles)) {
+            $myRoles[] = $roleString;
+          }
         }
       }
-    }
-    if (self::isExpertOnProject($params['project_id'], $params['user_id']) == TRUE) {
-      if (!in_array('Expert', $myRoles)) {
-        $myRoles[] = 'Expert';
+      if (self::isExpertOnProject($params['project_id'], $params['user_id']) == TRUE) {
+        if (!in_array('Expert', $myRoles)) {
+          $myRoles[] = 'Expert';
+        }
       }
-    }
-    if (self::isActiveOnCasesInProject($params['project_id'], $params['user_id']) == TRUE) {
-      $myRoles[] = 'Main activity role';
+      if (self::isActiveOnCasesInProject($params['project_id'], $params['user_id']) == TRUE) {
+        $myRoles[] = 'Main activity role';
+      }
     }
     return implode('; ', $myRoles);
   }

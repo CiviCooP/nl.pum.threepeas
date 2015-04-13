@@ -377,4 +377,24 @@ class CRM_Threepeas_Utils {
       return $date;
     }
   }
+
+  /**
+   * MEthod to return relationship type data on name_a_b
+   *
+   * @param string $nameAB
+   * @return array
+   * @access public
+   * @static
+   */
+  public static function getRelationshipTypeWithName($nameAB) {
+    $params = array(
+      'name_a_b' => $nameAB,
+      'return' => 'id');
+    try {
+      $relationshipType = civicrm_api3('RelationshipType', 'Getsingle', $params);
+      return $relationshipType;
+    } catch (CiviCRM_API3_Exception $ex) {
+      return array();
+    }
+  }
 }
