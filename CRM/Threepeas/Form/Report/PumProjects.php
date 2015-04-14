@@ -13,10 +13,17 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
   protected $customerSelect = array();
   protected $countrySelect = array();
   protected $userSelect = array();
-  protected $tableAlias = NULL;
   protected $userCountryCoordinator = FALSE;
   protected $userSectorCoordinator = FALSE;
   protected $userProjectOfficer = FALSE;
+
+  /*
+   * properties used to store start and end date values
+   */
+  protected $startDateFrom = NULL;
+  protected $startDateTo = NULL;
+  protected $endDateFrom = NULL;
+  protected $endDateTo = NULL;
 
   /**
    * Constructor method
@@ -157,10 +164,264 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
     }
     $foundProjects = array_merge($allContactProjects + $activeCaseProjectIds);
     foreach ($foundProjects as $foundProject) {
-      $projectRow = self::buildAdditionalRow($foundProject);
-      $userRows[$projectRow['project_id']] = self::buildSingleRow($projectRow);
+      if ($this->isRowSelectable($foundProject) == TRUE) {
+        $projectRow = $this->buildAdditionalRow($foundProject);
+        $userRows[$projectRow['project_id']] = $this->buildSingleRow($projectRow);
+      }
     }
   }
+
+  /**
+   * Method to determine if projectRow added for user roles can be
+   * selected according to report filters for title, country, customer and date range
+   *
+   * @param array $projectRow
+   * @return bool
+   * @access protected
+   */
+  protected function isRowSelectable($projectRow) {
+    if (isset($this->_params['title_op']) && !empty($this->_params['title_op'])) {
+      if ($this->checkTitleValue($projectRow['title']) == FALSE) {
+        return FALSE;
+      }
+    }
+    if (isset($this->_params['country_id_op']) && !empty($this->_params['country_id_op'])) {
+      if (!isset($projectRow['country_id'])) {
+        $projectRow['country_id'] = 0;
+      }
+      if (!isset($projectRow['customer_id'])) {
+        $projectRow['customer_id'] = 0;
+      }
+      if ($this->checkCountryIdValue($projectRow['country_id'], $projectRow['customer_id']) == FALSE) {
+        return FALSE;
+      }
+    }
+    if (isset($this->_params['customer_id_op']) && !empty($this->_params['customer_id_op'])) {
+      if (isset($projectRow['customer_id'])) {
+        if ($this->checkCustomerIdValue($projectRow['customer_id']) == FALSE) {
+          return FALSE;
+        }
+      }
+    }
+    if (isset($this->_params['start_date_relative']) && $this->_params['start_date_relative'] != '') {
+      if (!isset($projectRow['start_date'])) {
+        $projectRow['start_date'] = null;
+      }
+      if ($this->checkDateValue($projectRow['start_date'], 'start') == FALSE) {
+        return FALSE;
+      }
+    }
+    if (isset($this->_params['end_date_relative']) && $this->_params['end_date_relative'] != '') {
+      if (!isset($projectRow['end_date'])) {
+        $projectRow['end_date'] = null;
+      }
+      if ($this->checkDateValue($projectRow['end_date'], 'end') == FALSE) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  }
+
+  /**
+   * Method to check if date project is in selected date range
+   *
+   * @param string $projectDate
+   * @param string $dateType
+   * @return bool
+   * @access protected
+   */
+  protected function checkDateValue($projectDate, $dateType) {
+    $validDate = FALSE;
+    $relativeName = $dateType.'_date_relative';
+    switch ($this->_params[$relativeName]) {
+      case 'nll':
+        if (empty($projectDate)) {
+          $validDate = TRUE;
+        }
+        break;
+      case 'nnll':
+        if (!empty($projectDate)) {
+          $validDate = TRUE;
+        }
+        break;
+      default:
+        $projectDate = date('YmdHis', strtotime($projectDate));
+        if ($dateType == 'start') {
+          if (!empty($this->startDateFrom) && !empty($this->startDateTo)) {
+            if ($projectDate >= $this->startDateFrom && $projectDate <= $this->startDateTo) {
+              $validDate = TRUE;
+            }
+          } else {
+            if (!empty($this->startDateFrom)) {
+              if ($projectDate >= $this->startDateFrom) {
+                $validDate = TRUE;
+              }
+            }
+            if (!empty($this->startDateTo)) {
+              if ($projectDate <= $this->startDateTo) {
+                $validDate = TRUE;
+              }
+            }
+          }
+        }
+        if ($dateType == 'end') {
+          if (empty($this->endDateFrom) && empty($this->endDateTo)) {
+            $validDate = TRUE;
+          }
+          if (!empty($this->endDateFrom) && !empty($this->endDateTo)) {
+            if ($projectDate >= $this->endDateFrom && $projectDate <= $this->endDateTo) {
+              $validDate = TRUE;
+            }
+          } else {
+            if (!empty($this->endDateFrom)) {
+              if ($projectDate >= $this->endDateFrom) {
+                $validDate = TRUE;
+              }
+            }
+            if (!empty($this->endDateTo)) {
+              if ($projectDate <= $this->endDateTo) {
+                $validDate = TRUE;
+              }
+            }
+          }
+        }
+        break;
+    }
+    return $validDate;
+  }
+
+  /**
+   * Method to check if project can be selected with customer selected
+   *
+   * @param int $customerId
+   * @return bool $customerValid
+   * @access protected
+   */
+  protected function checkCustomerIdValue($customerId) {
+    if (empty($this->_params['customer_id_value'])) {
+      return TRUE;
+    }
+    $customerValid = FALSE;
+    switch ($this->_params['customer_id_op']) {
+      case 'in':
+        if (in_array($customerId, $this->_params['customer_id_value'])) {
+          $customerValid = TRUE;
+        }
+      break;
+      case 'notin':
+        if (!in_array($customerId, $this->_params['customer_id_value'])) {
+          $customerValid = TRUE;
+        }
+      break;
+    }
+    return $customerValid;
+  }
+
+  /**
+   * Method to check if project can be selected with country selected
+   * (checks project country AND project customer country)
+   *
+   * @param int $countryId
+   * @param int $customerId
+   * @return bool $countryValid
+   * @access protected
+   */
+  protected function checkCountryIdValue($countryId, $customerId) {
+    if (empty($this->_params['country_id_value'])) {
+      return TRUE;
+    }
+    $countryValid = FALSE;
+    if (empty($countryId)) {
+      try {
+        $contactData = civicrm_api3('Contact', 'Getsingle', array('id' => $customerId));
+        $countryCustomGroup = CRM_Threepeas_CountryCustomGroup::singleton();
+        $countryContactParams = array(
+          'custom_' . $countryCustomGroup->getCountryCustomFieldId() => $contactData['country_id'],
+          'return' => 'id');
+        try {
+          $countryId = civicrm_api3('Contact', 'Getvalue', $countryContactParams);
+        } catch (CiviCRM_API3_Exception $ex) {
+          $countryValid = FALSE;
+        }
+      } catch (CiviCRM_API3_Exception $ex) {
+        $countryValid = FALSE;
+      }
+    }
+    switch ($this->_params['country_id_op']) {
+      case 'in':
+        if (in_array($countryId, $this->_params['country_id_value'])) {
+          $countryValid = TRUE;
+        }
+      break;
+      case 'notin':
+        if (!in_array($countryId, $this->_params['country_id_value'])) {
+          $countryValid = TRUE;
+        }
+      break;
+    }
+    return $countryValid;
+  }
+
+  /**
+   * Method to chech if the current project title meets the report selection criteria
+   *
+   * @param string $projectTitle
+   * @return bool $valueValid
+   * @access protected
+   */
+  protected function checkTitleValue($projectTitle) {
+    $valueValid = FALSE;
+    switch ($this->_params['title_op']) {
+      case 'sw':
+        $valLength = strlen($this->_params['title_value']);
+        if (substr($projectTitle, 0, $valLength) == $this->_params['title_value']) {
+          $valueValid = TRUE;
+        }
+      break;
+      case 'ew':
+        $valLength = '-'.strlen($this->_params['title_value']);
+        if (substr($projectTitle, $valLength) == $this->_params['title_value']) {
+          $valueValid = TRUE;
+        }
+      break;
+      case 'nhas':
+        if (strpos($projectTitle, $this->_params['title_value']) == FALSE) {
+          $valueValid = TRUE;
+        }
+      break;
+      case 'eq':
+        if ($projectTitle == $this->_params['title_value']) {
+          $valueValid = TRUE;
+        }
+      break;
+      case 'neq':
+        if ($projectTitle != $this->_params['title_value']) {
+          $valueValid = TRUE;
+        }
+      break;
+      case 'has':
+        if (empty($this->_params['title_value'])) {
+          return TRUE;
+        } else {
+          if (strpos($projectTitle, $this->_params['title_value']) != FALSE) {
+            $valueValid = TRUE;
+          }
+        }
+      break;
+      case 'nll':
+        if (empty($projectTitle)) {
+          $valueValid = TRUE;
+        }
+      break;
+      case 'nnll':
+        if (!empty($projectTitle)) {
+          $valueValid = TRUE;
+        }
+      break;
+    }
+    return $valueValid;
+  }
+
   /**
    * Method to build data array from additional projects
    *
@@ -277,23 +538,6 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
   }
 
   /**
-   * Method to set the where part of the report query
-   *
-   * @access public
-   */
-  public function where() {
-    $whereClauses[] = $this->tableAlias.'.is_active = 1';
-    if (!isset($this->_params['user_id_value']) || empty($this->_params['user_id_value'])) {
-      $session = CRM_Core_Session::singleton();
-      $userId = $session->get('userID');
-    } else {
-      $userId = $this->_params['user_id_value'];
-    }
-    $whereClauses[] = $this->tableAlias . '.projectmanager_id = ' . $userId;
-    $this->_where = ' WHERE '.implode(' AND ', $whereClauses);
-  }
-
-  /**
    * Overridden parent method to alter display rows (make clickable)
    *
    * @param array $rows
@@ -383,6 +627,7 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
           'user_id' => array(
             'title' => ts('Projects for user'),
             'default' => 1,
+            'pseudofield' => 1,
             'type' => CRM_Utils_Type::T_INT,
             'operatorType' => CRM_Report_Form::OP_SELECT,
             'options' => $this->userSelect,
@@ -427,6 +672,7 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
     $customerParams = array(
       'contact_sub_type' => $threepeasConfig->customerContactType,
       'contact_is_deleted' => 0,
+      'options' => array('limit' => 0),
       'return' => 'display_name'
     );
     try {
@@ -447,6 +693,7 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
     $countryParams = array(
       'contact_sub_type' => $threepeasConfig->countryContactType,
       'contact_is_deleted' => 0,
+      'options' => array('limit' => 0),
       'return' => 'display_name'
     );
     try {
@@ -479,4 +726,76 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
       $this->userSelect[$contact] = CRM_Threepeas_Utils::getContactName($contact);
     }
   }
+
+  /**
+   * Overridden parent method to get where part of query
+   *
+   * @access public
+   */
+  public function where() {
+    if (!isset($this->_params['user_id_value']) || empty($this->_params['user_id_value'])) {
+      $session = CRM_Core_Session::singleton();
+      $userId = $session->get('userID');
+    } else {
+      $userId = $this->_params['user_id_value'];
+    }
+    $this->_whereClauses[] = '('.$this->_columns['civicrm_project']['alias'].'.is_active = 1)';
+    $this->_whereClauses[] = '('.$this->_columns['civicrm_project']['alias'].'.projectmanager_id = '.$userId.')';
+    $this->storeWhereHavingClauseArray();
+    $this->_where = "WHERE " . implode(' AND ', $this->_whereClauses);
+  }
+
+  /**
+   * Overridden parent method to catch to and from dates so they can be used in additional project Rows
+   *
+   * @param $fieldName
+   * @param $relative
+   * @param $from
+   * @param $to
+   * @param null $type
+   * @param null $fromTime
+   * @param null $toTime
+   * @return null|string
+   */
+  function dateClause($fieldName,
+                      $relative, $from, $to, $type = NULL, $fromTime = NULL, $toTime = NULL
+  ) {
+    $clauses = array();
+    if (in_array($relative, array_keys($this->getOperationPair(CRM_Report_Form::OP_DATE)))) {
+      $sqlOP = $this->getSQLOperator($relative);
+      return "( {$fieldName} {$sqlOP} )";
+    }
+
+    list($from, $to) = $this->getFromTo($relative, $from, $to, $fromTime, $toTime);
+    /*
+     * store from and to in class properties so they can be used in comparison of added rows
+     */
+    $startDateField = $this->_columns['civicrm_project']['alias'].'.start_date';
+    $endDateField = $this->_columns['civicrm_project']['alias'].'.end_date';
+    if ($fieldName == $startDateField) {
+      $this->startDateFrom = $from;
+      $this->startDateTo = $to;
+    }
+    if ($fieldName == $endDateField) {
+      $this->endDateFrom = $from;
+      $this->endDateTo = $to;
+    }
+
+    if ($from) {
+      $from = ($type == CRM_Utils_Type::T_DATE) ? substr($from, 0, 8) : $from;
+      $clauses[] = "( {$fieldName} >= $from )";
+    }
+
+    if ($to) {
+      $to = ($type == CRM_Utils_Type::T_DATE) ? substr($to, 0, 8) : $to;
+      $clauses[] = "( {$fieldName} <= {$to} )";
+    }
+
+    if (!empty($clauses)) {
+      return implode(' AND ', $clauses);
+    }
+
+    return NULL;
+  }
+
 }

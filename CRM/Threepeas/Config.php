@@ -21,7 +21,7 @@ class CRM_Threepeas_Config {
   public $countryCustomFieldId = NULL;
   public $countryCustomFieldColumn = NULL;
   public $countryCustomTable = NULL;
-  /* 
+  /*
    * custom group id for Project Information (used in case Projectintake),
    * country action plan (used in case CP-AP)
    */
