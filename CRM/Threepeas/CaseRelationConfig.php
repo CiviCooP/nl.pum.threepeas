@@ -362,6 +362,17 @@ class CRM_Threepeas_CaseRelationConfig {
         'cfo' => 0,
         'recruitment_team' => 0,
         'grant_coordinator' => 0),
+      'ExitExpert' => array(
+        'sector_coordinator' => 1,
+        'country_coordinator' => 0,
+        'authorised_contact' => 0,
+        'project_officer' => 0,
+        'representative' => 0,
+        'anamon' => 0,
+        'ceo' => 0,
+        'cfo' => 0,
+        'recruitment_team' => 0,
+        'grant_coordinator' => 0),
       );
   }
   /**
