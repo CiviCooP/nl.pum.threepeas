@@ -322,38 +322,43 @@ function _threepeasSetProject($params) {
  * @date 19 May 2014
  */
 function threepeas_civicrm_buildForm($formName, &$form) {
-  if ($formName == 'CRM_Case_Form_CaseView') {
-    _threepeasAddProjectElementCaseView($form);
-    $caseId = $form->getVar('_caseID');
-    $caseType = $form->getVar('_caseType');
-    _threepeasAddDonorLinkToCaseView($caseId, $caseType, $form, $defaults);
-    if (!empty($defaults)) {
-      $form->setDefaults($defaults);
-    }
-  }
-  if ($formName == 'CRM_Contribute_Form_ContributionView') {
-    CRM_Threepeas_DonorLinkConfig::singleton();
-    $action = $form->getVar('_action');
-    if ($action != CRM_Core_Action::DELETE) {
-      $contributionId = CRM_Utils_Request::retrieve('id', 'Positive');
-      _threepeasAddDonorLinkElements($action, $form, $contributionId);
-    }
-  }
-  if ($formName == 'CRM_Contribute_Form_Contribution') {
-    CRM_Threepeas_DonorLinkConfig::singleton();
-    $action = $form->getVar('_action');
-    if ($action != CRM_Core_Action::DELETE) {
-      $contributionId = $form->getVar('_id');
-      _threepeasAddDonorLinkElements($action, $form, $contributionId);
-    }    
-  }
-  if ($formName == 'CRM_Case_Form_Case') {
-    $action = $form->getVar('_action');
-    if ($action != CRM_Core_Action::DELETE) {
-      _threepeasSetDefaultCaseSubject($form);
-      _threepeasAddProjectElementCase($form);
-      _threepeasAddDonorLinkToCase($form);
-    }
+  switch ($formName) {
+    case 'CRM_Case_Form_CaseView':
+      _threepeasAddProjectElementCaseView($form);
+      $caseId = $form->getVar('_caseID');
+      $caseType = $form->getVar('_caseType');
+      _threepeasAddDonorLinkToCaseView($caseId, $caseType, $form, $defaults);
+      if (!empty($defaults)) {
+        $form->setDefaults($defaults);
+      }
+      break;
+    case 'CRM_Contribute_Form_ContributionView':
+      CRM_Threepeas_DonorLinkConfig::singleton();
+      $action = $form->getVar('_action');
+      if ($action != CRM_Core_Action::DELETE) {
+        $contributionId = CRM_Utils_Request::retrieve('id', 'Positive');
+        _threepeasAddDonorLinkElements($action, $form, $contributionId);
+      }
+      break;
+    case 'CRM_Contribute_Form_Contribution':
+      CRM_Threepeas_DonorLinkConfig::singleton();
+      $action = $form->getVar('_action');
+      if ($action != CRM_Core_Action::DELETE) {
+        $contributionId = $form->getVar('_id');
+        _threepeasAddDonorLinkElements($action, $form, $contributionId);
+      }
+      break;
+    case 'CRM_Case_Form_Case':
+      $action = $form->getVar('_action');
+      if ($action != CRM_Core_Action::DELETE) {
+        _threepeasSetDefaultCaseSubject($form);
+        _threepeasAddProjectElementCase($form);
+        _threepeasAddDonorLinkToCase($form);
+      }
+      break;
+    case 'CRM_Case_Form_Activity':
+      _threepeasCustomerContributionStatus($form);
+      break;
   }
 }
 /**
@@ -1139,43 +1144,41 @@ function threepeas_civicrm_validateForm($formName, &$fields, &$files, &$form, &$
   if ($formName == 'CRM_Case_Form_Case') {
     _threepeasValidateCaseFaDonorForm($fields, $errors);
   }
-  if ($formName == 'CRM_Case_Form_Activity') {
-    if (isset($fields['status_id']) && isset($form->_activityTypeId)) {
-      _threepeasValidateCustomerContribution($fields, $form, $errors);
-    }
-  }
 }
 
 /**
- * Function to validate if customer contribution can be set to complete (isseue 1692
+ * Function to remove status from activity form in case of customer contribution
  *
- * @param array $fields
  * @param object $form
- * @param array $errors
  * @throws Exception when no activity type or status
  */
-function _threepeasValidateCustomerContribution($fields, $form, &$errors) {
+function _threepeasCustomerContributionStatus(&$form) {
   $allowedRoles = array('Finance', 'Finance Admin', 'administrator');
-  $allowedActivity = FALSE;
   $customerContributionType = CRM_Threepeas_Utils::getActivityTypeWithName('Condition: Customer Contribution.');
   if (empty($customerContributionType)) {
     throw new Exception('Could not find activity type name for Condition: Customer Contribution.');
   }
-  $completedActivityStatus = CRM_Threepeas_Utils::getActivityStatusWithName('Completed');
-  if (empty($completedActivityStatus)) {
-    throw new Exception('Could not find activity status with name Completed');
-  }
   $customerContributionTypeId = $customerContributionType['value'];
-  $completedActivityStatusId = $completedActivityStatus['value'];
-  if ($form->_activityTypeId == $customerContributionTypeId && $fields['status_id'] == $completedActivityStatusId) {
+  if ($form->_activityTypeId == $customerContributionTypeId) {
+    $userAllowed = FALSE;
     global $user;
     foreach ($user->roles as $userRole) {
       if (in_array($userRole, $allowedRoles)) {
-        $allowedActivity = TRUE;
+        $userAllowed = TRUE;
       }
     }
-    if ($allowedActivity == FALSE) {
-      $errors['status_id'] = 'Changing the status to Completed is only allowed if you have the role Finance, Finance Admin or administrator';
+    if ($userAllowed == FALSE) {
+      $scheduledActivityStatus = CRM_Threepeas_Utils::getActivityStatusWithName('Scheduled');
+      if (empty($scheduledActivityStatus)) {
+        throw new Exception('Could not find activity status with name Scheduled');
+      }
+      $scheduledActivityStatusId = $scheduledActivityStatus['value'];
+      $typeIndex = $form->_elementIndex['status_id'];
+      foreach ($form->_elements[$typeIndex]->_options as $optionId => $optionData) {
+        if ($optionData['attr']['value'] != $scheduledActivityStatusId) {
+          unset($form->_elements[$typeIndex]->_options[$optionId]);
+        }
+      }
     }
   }
 }
