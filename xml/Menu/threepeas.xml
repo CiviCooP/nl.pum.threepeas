@@ -42,4 +42,10 @@
     <title>DsaActivity</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/ajax/pumdelcaserole</path>
+    <page_callback>CRM_Threepeas_Page_DeleteCaseRoles</page_callback>
+    <title>DeleteCaseRoles</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

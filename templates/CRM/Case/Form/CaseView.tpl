@@ -203,7 +203,7 @@
       var relType  = cj(this).attr('rel_type');
 
       CRM.confirm(function() {
-        var postUrl = {/literal}"{crmURL p='civicrm/ajax/delcaserole' h=0 }"{literal};
+        var postUrl = {/literal}"{crmURL p='civicrm/ajax/pumdelcaserole' h=0 }"{literal};
         cj.post( postUrl, {
           rel_type: relType, case_id: caseID, key: {/literal}"{crmKey name='civicrm/ajax/delcaserole'}"{literal}},
           function(data) {
@@ -411,9 +411,9 @@
             return false;
           }
 
-          var postUrl = {/literal}"{crmURL p='civicrm/ajax/relation' h=0 }"{literal};
+          var postUrl = {/literal}"{crmURL p='civicrm/ajax/singlecaserole' h=0 }"{literal};
           cj.post( postUrl, { rel_contact: v1, rel_type: relType, contact_id: sourceContact,
-            rel_id: relID, case_id: caseID, key: {/literal}"{crmKey name='civicrm/ajax/relation'}"{literal} },
+            rel_id: relID, case_id: caseID, key: {/literal}"{crmKey name='civicrm/ajax/singlecaserole'}"{literal} },
             function( data ) {
               if ( data.status == 'process-relationship-success' ) {
                 // reloading datatable
@@ -735,9 +735,9 @@ function addRole() {
         }
 
         /* send synchronous request so that disabling any actions for slow servers*/
-        var postUrl = {/literal}"{crmURL p='civicrm/ajax/relation' h=0 }"{literal};
+        var postUrl = {/literal}"{crmURL p='civicrm/ajax/singlecaserole' h=0 }"{literal};
         var data = 'rel_contact='+ v1 + '&rel_type='+ v2 + '&contact_id='+sourceContact + '&rel_id='+ relID
-          + '&case_id=' + caseID + "&key={/literal}{crmKey name='civicrm/ajax/relation'}{literal}";
+          + '&case_id=' + caseID + "&key={/literal}{crmKey name='civicrm/ajax/singlecaserole'}{literal}";
         cj.ajax({
           type     : "POST",
           url      : postUrl,
@@ -752,8 +752,12 @@ function addRole() {
             }
             else {
               var relTypeName = cj("#role_type :selected").text();
-              var relTypeAdminLink = {/literal}"{crmURL p='civicrm/admin/reltype' q='reset=1' h=0 }"{literal};
-              var errorMsg = '{/literal}{ts escape="js" 1="' + relTypeName + '" 2="' + relTypeAdminLink + '"}The relationship type definition for the %1 case role is not valid for the client and / or staff contact types. You can review and edit relationship types at <a href="%2">Administer >> Option Lists >> Relationship Types</a>{/ts}{literal}.';
+              if (values.status == 'singlecaserole-error') {
+                var errorMsg = 'The case role ' + relTypeName + ' can only exist once on this case';
+              } else {
+                var relTypeAdminLink = {/literal}"{crmURL p='civicrm/admin/reltype' q='reset=1' h=0 }"{literal};
+                var errorMsg = '{/literal}{ts escape="js" 1="' + relTypeName + '" 2="' + relTypeAdminLink + '"}The relationship type definition for the %1 case role is not valid for the client and / or staff contact types. You can review and edit relationship types at <a href="%2">Administer >> Option Lists >> Relationship Types</a>{/ts}{literal}.';
+              }
 
               //display error message.
               cj().crmError(errorMsg);
