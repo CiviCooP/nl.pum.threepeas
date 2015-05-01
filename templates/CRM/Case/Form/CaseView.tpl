@@ -421,12 +421,17 @@
                 oTable.fnDraw();
               }
               else {
-                // This is an awkward mix of smarty and javascript: the relTypeName variable is
-                // not available in smarty, could not find an i18n-correct way of doing this.
-                {/literal}
-                  {capture assign=relTypeAdminLink}{crmURL p='civicrm/admin/reltype' q='reset=1' h=0 }{/capture}
-                {literal}
-                var errorMsg = relTypeName + ': ' + '{/literal}{ts escape="js" 1="$relTypeAdminLink"}The relationship type definition for the case role is not valid for the client and / or staff contact types. You can review and edit relationship types at <a href="%1">Administer >> Option Lists >> Relationship Types</a>.{/ts}{literal}';
+                if (data.status == 'singlecaserole-error') {
+                  var relTypeName = cj("#role_type :selected").text();
+                  var errorMsg = 'The case role ' + relTypeName + ' can only exist once on this case';
+                } else {
+                  // This is an awkward mix of smarty and javascript: the relTypeName variable is
+                  // not available in smarty, could not find an i18n-correct way of doing this.
+                  {/literal}
+                    {capture assign=relTypeAdminLink}{crmURL p='civicrm/admin/reltype' q='reset=1' h=0 }{/capture}
+                  {literal}
+                  var errorMsg = relTypeName + ': ' + '{/literal}{ts escape="js" 1="$relTypeAdminLink"}The relationship type definition for the case role is not valid for the client and / or staff contact types. You can review and edit relationship types at <a href="%1">Administer >> Option Lists >> Relationship Types</a>.{/ts}{literal}';
+              }
 
                 //display error message.
                 cj().crmError(errorMsg);
