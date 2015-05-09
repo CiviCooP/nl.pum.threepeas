@@ -432,7 +432,7 @@
                   cj().crmError(errorMsg);
                   break;
                 case 'pumbdsa-error':
-                  var errorMsg = 'The expert still has an open credit business dsa, you can change expert yet';
+                  var errorMsg = 'The expert still has an open credit business dsa, you can not change expert yet';
                   cj().crmError(errorMsg);
                   break;
                 default:
@@ -770,7 +770,7 @@ function addRole() {
                 var errorMsg = 'The case role ' + relTypeName + ' can only exist once on this case';
               } else {
                 if (values.status == 'pumbdsa-error') {
-                 var errorMsg = 'The expert still has an open credit business dsa, you can change expert yet';
+                 var errorMsg = 'The expert still has an open credit business dsa, you can not change expert yet';
                 } else {
                   var relTypeAdminLink = {/literal}"{crmURL p='civicrm/admin/reltype' q='reset=1' h=0 }"{literal};
                   var errorMsg = '{/literal}{ts escape="js" 1="' + relTypeName + '" 2="' + relTypeAdminLink + '"}The relationship type definition for the %1 case role is not valid for the client and / or staff contact types. You can review and edit relationship types at <a href="%2">Administer >> Option Lists >> Relationship Types</a>{/ts}{literal}.';
