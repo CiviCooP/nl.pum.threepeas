@@ -207,10 +207,15 @@
         cj.post( postUrl, {
           rel_type: relType, case_id: caseID, key: {/literal}"{crmKey name='civicrm/ajax/delcaserole'}"{literal}},
           function(data) {
-            // reloading datatable
-            var oTable = cj('#' + caseselector).dataTable();
-            oTable.fnDraw();
-          }
+            if (data.status == 'pum-not-to-be-removed') {
+              var errorMsg = 'You can not remove the Expert, there is still a payable credit business dsa on the case';
+              cj().crmError(errorMsg);
+            } else {
+              // reloading datatable
+              var oTable = cj('#' + caseselector).dataTable();
+              oTable.fnDraw();
+            }
+          }, 'json'
         );
       }
       ,{

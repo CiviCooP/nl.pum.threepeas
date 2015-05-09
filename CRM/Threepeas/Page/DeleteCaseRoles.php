@@ -12,17 +12,19 @@ require_once 'CRM/Core/Page.php';
 
 class CRM_Threepeas_Page_DeleteCaseRoles extends CRM_Core_Page {
   /**
-   * Function to detele case role (based on CRM_Case_Page_AJAX::deleteCaseRoles)
+   * Function to delete case role (based on CRM_Case_Page_AJAX::deleteCaseRoles)
    */
   function run() {
     $caseId  = CRM_Utils_Type::escape($_POST['case_id'], 'Integer');
     $relType = CRM_Utils_Type::escape($_POST['rel_type'], 'Integer');
+    $result['status'] = null;
+
     if (method_exists('CRM_Businessdsa_BAO_BusinessDsa', 'canExpertBeRemovedFromCase')) {
-      $expertRelationTypeId = CRM_Threepeas_Utils::getRelationshipTypeWithName('Expert');
+      $expertRelationType = CRM_Threepeas_Utils::getRelationshipTypeWithName('Expert');
+      $expertRelationTypeId = $expertRelationType['id'];
       if ($relType == $expertRelationTypeId && CRM_Businessdsa_BAO_BusinessDsa::canExpertBeRemovedFromCase($caseId) == FALSE) {
-        $session = CRM_Core_Session::singleton();
-        $session->setStatus(ts('Can not remove Expert from Case, there is still an unpaid Credit Business DSA in the case',
-          'Expert can not be removed', 'error'));
+        $result['status'] = 'pum-not-to-be-removed';
+        echo json_encode($result);
         CRM_Utils_System::civiExit();
       }
     }
@@ -32,6 +34,7 @@ class CRM_Threepeas_Page_DeleteCaseRoles extends CRM_Core_Page {
       2 => array($relType, 'Integer')
     );
     CRM_Core_DAO::executeQuery($sql, $sqlParams);
+    echo json_encode($result);
     CRM_Utils_System::civiExit();
   }
 }
