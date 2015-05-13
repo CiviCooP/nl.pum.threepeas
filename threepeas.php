@@ -218,6 +218,42 @@ function threepeas_civicrm_tabs(&$tabs, $contactID) {
     }
   }
 }
+
+/**
+ * Implementation of hook civicrm_pageRun to add form element for main activities count expert (issue 1608)
+ *
+ * @param object $page
+ */
+function threepeas_civicrm_pageRun(&$page) {
+  $pageName = $page->getVar('_name');
+  if ($pageName == 'CRM_Contact_Page_View_Summary') {
+    $contactId = $page->getVar('_contactId');
+    $page->assign('countExpertCases', CRM_Threepeas_BAO_PumCaseRelation::getExpertNumberOfCases($contactId));
+  }
+}
+
+/**
+ * Implementation of hook civicrm_summary to add count main activities for expert (issue 1608)
+ *
+ * @param $contactId
+ * @param $content
+ */
+function threepeas_civicrm_summary($contactId, &$content) {
+  try {
+    $contactParams = array(
+      'id' => $contactId,
+      'return' => 'contact_sub_type'
+    );
+    $contactData = civicrm_api3('Contact', 'Getvalue', $contactParams);
+    foreach ($contactData as $contactSubType) {
+      if ($contactSubType == 'Expert') {
+        CRM_Core_Region::instance('page-body')->add(array(
+          'template' => 'CRM/Threepeas/Page/ExpertCases.tpl'));
+      }
+    }
+  } catch (CiviCRM_API3_Exception $ex) {}
+}
+
 /**
  * Function to add the project tab to the summary page
  * 
@@ -237,6 +273,7 @@ function _threepeasAddProjectTab($contactId, $customerType, $projectWeight = 0) 
     'count'     => $projectCount);
   return $projectTab;
 }
+
 /**
  * Implementation of hook_civicrm_custom
  * - automatically create project in table civicrm_project when custom group

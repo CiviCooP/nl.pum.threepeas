@@ -702,4 +702,91 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     }
     return $foundContacts;
   }
+
+  /**
+   * Method to count all the main activities of the expert
+   * (only if case type is one of configurable expert case types and if status is completed)
+   *
+   * @param int $expertId
+   * @return int $countExpertCases
+   * @access public
+   * @static
+   */
+  public static function getExpertNumberOfCases($expertId) {
+    $expertRelationshipType = CRM_Threepeas_Utils::getRelationshipTypeWithName('Expert');
+    $expertRelationshipTypeId = $expertRelationshipType['id'];
+    $expertRelationParams = array(
+      'contact_id_b' => $expertId,
+      'relationship_type_id' => $expertRelationshipTypeId,
+      'return' => 'case_id',
+      'options' => array('limit' => 99999));
+    try {
+      $expertRelations = civicrm_api3('Relationship', 'Get', $expertRelationParams);
+      $expertCases = array();
+      foreach ($expertRelations['values'] as $expertRelation) {
+        $expertCases[] = $expertRelation['case_id'];
+      }
+      array_unique($expertCases);
+      $countExpertCases = self::countExpertCases($expertCases);
+
+    } catch (CiviCRM_API3_Exception $ex) {
+      $countExpertCases = 0;
+    }
+    return $countExpertCases;
+  }
+
+  /**
+   * Method to count the number of applicable cases for an expert
+   *
+   * @param array $expertCases
+   * @return int $countExpertCases
+   * @access protected
+   * @static
+   */
+  protected static function countExpertCases($expertCases) {
+    $countExpertCases = 0;
+    if (!empty($expertCases)) {
+      $extensionConfig = CRM_Threepeas_CaseRelationConfig::singleton();
+      $validExpertCaseTypes = $extensionConfig->getExpertCaseTypes();
+      $completedCaseStatus = $extensionConfig->getCaseStatusCompleted();
+      foreach ($expertCases as $expertCaseId) {
+        try {
+          $caseData = civicrm_api3('Case', 'Getsingle', array('id' => $expertCaseId));
+          if (in_array($caseData['case_type_id'], $validExpertCaseTypes)
+            && $caseData['status_id'] == $completedCaseStatus) {
+            $countExpertCases++;
+          }
+        } catch (CiviCRM_API3_Exception $ex) {}
+      }
+    }
+    return $countExpertCases;
+  }
+
+  /**
+   * Method checks if there are any restrictions for the expert
+   *
+   * @param int $expertId
+   * @return bool $hasRestrictions
+   * @access public
+   * @static
+   */
+  public static function restrictionsForExpert($expertId) {
+    $hasRestrictions = FALSE;
+    $restrictionActivityType = CRM_Threepeas_Utils::getActivityTypeWithName('Restrictions');
+    if (!empty($restrictionActivityType)) {
+      $restrictionActivityTypeId = $restrictionActivityType['value'];
+      $activityParams = array(
+        'is_deleted' => 0,
+        'is_current_revision' => 1,
+        'target_id' => $expertId,
+        'activity_type_id' => $restrictionActivityTypeId);
+      try {
+        $countRestrictions = civicrm_api3('Activity', 'Getcount', $activityParams);
+        if ($countRestrictions > 0) {
+          $hasRestrictions = TRUE;
+        }
+      } catch (CiviCRM_API3_Exception $ex) {}
+    }
+    return $hasRestrictions;
+  }
 }

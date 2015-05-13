@@ -25,9 +25,14 @@ class CRM_Threepeas_CaseRelationConfig {
   protected $ceoRelationshipTypeId = NULL;
   protected $cfoRelationshipTypeId = NULL;
   /*
-   * activity status completed
+   * activity and case status completed
    */
   protected $activityStatusCompleted = NULL;
+  protected $caseStatusCompleted = NULL;
+  /*
+   * property for all case types to be counted as a main activity for expert
+   */
+  protected $expertCaseTypes = array();
 
   /**
    * Function to return singleton object
@@ -51,6 +56,17 @@ class CRM_Threepeas_CaseRelationConfig {
     $this->setRelationshipTypes();
     $this->setCeoCfo();
     $this->setActivityStatusCompleted();
+    $this->setCaseStatusCompleted();
+    $this->setExpertCaseTypes();
+  }
+  /**
+   * Function to get the expert case types
+   *
+   * @return array
+   * @access public
+   */
+  public function getExpertCaseTypes() {
+    return $this->expertCaseTypes;
   }
 
   /**
@@ -61,6 +77,16 @@ class CRM_Threepeas_CaseRelationConfig {
    */
   public function getActivityStatusCompleted() {
     return $this->activityStatusCompleted;
+  }
+
+  /**
+   * Function to get the case status id of completed
+   *
+   * @return int
+   * @access public
+   */
+  public function getCaseStatusCompleted() {
+    return $this->caseStatusCompleted;
   }
 
   /**
@@ -151,6 +177,33 @@ class CRM_Threepeas_CaseRelationConfig {
       $this->activityStatusCompleted = civicrm_api3('OptionValue', 'Getvalue', $paramsOptionValue);
     } catch (CiviCRM_API3_Exception $ex) {
       throw new Exception('Could not find activity status with name Completed, '
+        . 'error from API OptionValue Getvalue: '.$ex->getMessage());
+    }
+  }
+
+  /**
+   * Method to set case status for completed
+   *
+   * @throws Exception when option group case_status not found
+   * @throws Exception when case status completed not found
+   * @access protected
+   */
+  protected function setCaseStatusCompleted() {
+    $paramsOptionGroup = array('name' => 'case_status', 'return' => 'id');
+    try {
+      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', $paramsOptionGroup);
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find option group with name case_status, '
+        . 'error from API OptionGroup Getvalue: '.$ex->getMessage());
+    }
+    $paramsOptionValue = array(
+      'option_group_id' => $optionGroupId,
+      'name' => 'Completed',
+      'return' => 'value');
+    try {
+      $this->caseStatusCompleted = civicrm_api3('OptionValue', 'Getvalue', $paramsOptionValue);
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find case status with name Completed, '
         . 'error from API OptionValue Getvalue: '.$ex->getMessage());
     }
   }
@@ -393,5 +446,18 @@ class CRM_Threepeas_CaseRelationConfig {
       'representative' => 'Representative is',
       'sector_coordinator' => 'Sector Coordinator'
     );
+  }
+
+  /**
+   * Method to set the valid case types for counting expert main activities
+   *
+   * @access protected
+   */
+  protected function setExpertCaseTypes() {
+    $validCaseTypes = array('Advice', 'Business', 'RemoteCoaching', 'Seminar');
+    foreach ($validCaseTypes as $validCaseType) {
+      $caseType = CRM_Threepeas_Utils::getCaseTypeWithName($validCaseType);
+      $this->expertCaseTypes[] = $caseType['value'];
+    }
   }
 }
