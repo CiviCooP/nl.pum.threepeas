@@ -774,18 +774,21 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     $hasRestrictions = FALSE;
     $restrictionActivityType = CRM_Threepeas_Utils::getActivityTypeWithName('Restrictions');
     if (!empty($restrictionActivityType)) {
-      $restrictionActivityTypeId = $restrictionActivityType['value'];
-      $activityParams = array(
-        'is_deleted' => 0,
-        'is_current_revision' => 1,
-        'target_id' => $expertId,
-        'activity_type_id' => $restrictionActivityTypeId);
-      try {
-        $countRestrictions = civicrm_api3('Activity', 'Getcount', $activityParams);
-        if ($countRestrictions > 0) {
+      $actQueryParams = array(
+        1 => array(3, 'Integer'),
+        2 => array(1, 'Integer'),
+        3 => array($restrictionActivityType['value'], 'Integer'),
+        4 => array($expertId, 'Integer'));
+      $actQuery = 'SELECT COUNT(*) AS countRestrictions
+        FROM civicrm_activity act
+        JOIN civicrm_activity_contact cont ON act.id = cont.activity_id AND record_type_id = %1
+        WHERE is_current_revision = %2 and activity_type_id = %3 and cont.contact_id = %4';
+      $daoAct = CRM_Core_DAO::executeQuery($actQuery, $actQueryParams);
+      if ($daoAct->fetch()) {
+        if ($daoAct->countRestrictions > 0) {
           $hasRestrictions = TRUE;
         }
-      } catch (CiviCRM_API3_Exception $ex) {}
+      }
     }
     return $hasRestrictions;
   }
