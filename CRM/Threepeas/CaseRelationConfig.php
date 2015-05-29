@@ -136,23 +136,7 @@ class CRM_Threepeas_CaseRelationConfig {
    * @access protected
    */
   protected function setActivityStatusCompleted() {
-    $paramsOptionGroup = array('name' => 'activity_status', 'return' => 'id');
-    try {
-      $optionGroupId = civicrm_api3('OptionGroup', 'Getvalue', $paramsOptionGroup);
-    } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Could not find option group with name activity_status, '
-        . 'error from API OptionGroup Getvalue: '.$ex->getMessage());
-    }
-    $paramsOptionValue = array(
-      'option_group_id' => $optionGroupId,
-      'name' => 'Completed',
-      'return' => 'value');
-    try {
-      $this->activityStatusCompleted = civicrm_api3('OptionValue', 'Getvalue', $paramsOptionValue);
-    } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Could not find activity status with name Completed, '
-        . 'error from API OptionValue Getvalue: '.$ex->getMessage());
-    }
+    $this->activityStatusCompleted = CRM_Core_OptionGroup::getValue('activity_status', 'Completed', 'name');
   }
 
   /**
@@ -163,34 +147,26 @@ class CRM_Threepeas_CaseRelationConfig {
    * $access protected
    */
   protected function setCeoCfo() {
-    $relationshipParams = array(
-      'contact_id_b' => 1,
-      'is_active' => 1,
-      'relationship_type_id' => $this->getEmployeeRelationshipTypeId(),
-      'options' => array('limit' => 99999));
-    $pumEmployees = civicrm_api3('Relationship', 'Get', $relationshipParams);
-    foreach ($pumEmployees['values'] as $pumEmployee) {
-      $this->setCeoCfoValues($pumEmployee['contact_id_a']);
-    }
-  }
-
-  /**
-   * Function to set ceo and cfo values
-   * 
-   * @param int $contactId
-   * @access protected
-   */
-  protected function setCeoCfoValues($contactId) {
-    $contactData = civicrm_api3('Contact', 'Getsingle', array('id' => $contactId));
-    if (isset($contactData['job_title'])) {
-      switch ($contactData['job_title']) {
+    $params[1] = array($this->getEmployeeRelationshipTypeId(), 'Integer');
+    $sql = "SELECT c.job_title, c.id as contact_id, c.display_name
+            FROM civicrm_contact c
+             INNER JOIN civicrm_relationship r ON r.contact_id_a = c.id
+             WHERE (c.job_title = 'CEO' or c.job_title = 'CFO')
+             and r.relationship_type_id = %1
+             and r.is_active = 1
+             and (r.start_date IS NULL or r.start_date <= NOW())
+             and (r.end_date IS NULL or r.end_date >= NOW())
+";
+    $dao = CRM_Core_DAO::executeQuery($sql, $params);
+    while($dao->fetch()) {
+      switch ($dao->job_title) {
         case 'CEO':
-          $this->pumCeo['contact_id'] = $contactId;
-          $this->pumCeo['display_name'] = $contactData['display_name'];
+          $this->pumCeo['contact_id'] = $dao->contact_id;
+          $this->pumCeo['display_name'] = $dao->display_name;
           break;
         case 'CFO':
-          $this->pumCfo['contact_id'] = $contactId;
-          $this->pumCfo['display_name'] = $contactData['display_name'];
+          $this->pumCfo['contact_id'] = $dao->contact_id;
+          $this->pumCfo['display_name'] = $dao->display_name;
           break;
       }
     }
