@@ -93,6 +93,7 @@ class CRM_Threepeas_Utils {
       return array();
     }
   }
+
   /**
    * Function to get the option group id of activity status
    *
@@ -395,6 +396,46 @@ class CRM_Threepeas_Utils {
       return $relationshipType;
     } catch (CiviCRM_API3_Exception $ex) {
       return array();
+    }
+  }
+
+  /**
+   * Function to get case type with name
+   *
+   * @param string $caseTypeName
+   * @return array
+   */
+  public static function getCaseTypeWithName($caseTypeName) {
+    $caseTypeOptionGroupId = self::getCaseTypeOptionGroupId();
+    $params = array(
+      'option_group_id' => $caseTypeOptionGroupId,
+      'name' => $caseTypeName);
+    try {
+      $caseType = civicrm_api3('OptionValue', 'Getsingle', $params);
+      return $caseType;
+    } catch (CiviCRM_API3_Exception $ex) {
+      return array();
+    }
+  }
+
+  /**
+   * Function to get the option group id of case type
+   *
+   * @return int $caseTypeOptionGroupId
+   * @throws Exception when option group not found
+   * @access public
+   * @static
+   */
+  public static function getCaseTypeOptionGroupId() {
+    $params = array(
+      'name' => 'case_type',
+      'return' => 'id');
+    try {
+      $caseTypeOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue', $params);
+      return $caseTypeOptionGroupId;
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find a valid option group for name case_type, error from
+        API OptionGroup Getvalue: ' . $ex->getMessage());
     }
   }
 }

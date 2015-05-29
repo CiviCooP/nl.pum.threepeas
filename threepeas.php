@@ -218,6 +218,42 @@ function threepeas_civicrm_tabs(&$tabs, $contactID) {
     }
   }
 }
+
+/**
+ * Implementation of hook civicrm_pageRun to add form element for main activities count expert (issue 1608)
+ *
+ * @param object $page
+ */
+function threepeas_civicrm_pageRun(&$page) {
+  $pageName = $page->getVar('_name');
+  if ($pageName == 'CRM_Contact_Page_View_Summary') {
+    $contactId = $page->getVar('_contactId');
+    $page->assign('countExpertCases', CRM_Threepeas_BAO_PumCaseRelation::getExpertNumberOfCases($contactId));
+  }
+}
+
+/**
+ * Implementation of hook civicrm_summary to add count main activities for expert (issue 1608)
+ *
+ * @param $contactId
+ * @param $content
+ */
+function threepeas_civicrm_summary($contactId, &$content) {
+  try {
+    $contactParams = array(
+      'id' => $contactId,
+      'return' => 'contact_sub_type'
+    );
+    $contactData = civicrm_api3('Contact', 'Getvalue', $contactParams);
+    foreach ($contactData as $contactSubType) {
+      if ($contactSubType == 'Expert') {
+        CRM_Core_Region::instance('page-body')->add(array(
+          'template' => 'CRM/Threepeas/Page/ExpertCases.tpl'));
+      }
+    }
+  } catch (CiviCRM_API3_Exception $ex) {}
+}
+
 /**
  * Function to add the project tab to the summary page
  * 
@@ -237,6 +273,7 @@ function _threepeasAddProjectTab($contactId, $customerType, $projectWeight = 0) 
     'count'     => $projectCount);
   return $projectTab;
 }
+
 /**
  * Implementation of hook_civicrm_custom
  * - automatically create project in table civicrm_project when custom group
@@ -784,39 +821,41 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       /*
        * issue 838 create country project
        */
-      CRM_Threepeas_BAO_PumProject::createCountryProjectForCase($objectRef->case_id);
-      
-      $caseQry = 'SELECT case_type_id, start_date FROM civicrm_case WHERE id = %1';
-      $caseParams = array(1 => array($objectRef->case_id, 'Positive'));
-      $daoCase = CRM_Core_DAO::executeQuery($caseQry, $caseParams);
-      if ($daoCase->fetch()) {
-        /*
-         * strip Core_DAO::VALUE_SEPARATORs from case_type
-         */
-        $typeParts = explode(CRM_Core_DAO::VALUE_SEPARATOR, $daoCase->case_type_id);
-        if (isset($typeParts[1])) {
-          $typeId = $typeParts[1];
-        }
-        /*
-         * reform open case subject if necessary
-         */
-        _threepeasReformOpenCaseSubject($objectRef->case_id, $typeId, $objectId, $objectRef->subject);
-        
-        if (isset($threepeasConfig->caseTypes[$typeId])) {
-          if (empty($daoCase->start_date)) {
-            $caseStartDate = date('Ymd');
-          } else {
-            $caseStartDate = date('Ymd', strtotime($daoCase->start_date));
+      if (isset($objectRef->case_id)) {
+        CRM_Threepeas_BAO_PumProject::createCountryProjectForCase($objectRef->case_id);
+
+        $caseQry = 'SELECT case_type_id, start_date FROM civicrm_case WHERE id = %1';
+        $caseParams = array(1 => array($objectRef->case_id, 'Positive'));
+        $daoCase = CRM_Core_DAO::executeQuery($caseQry, $caseParams);
+        if ($daoCase->fetch()) {
+          /*
+           * strip Core_DAO::VALUE_SEPARATORs from case_type
+           */
+          $typeParts = explode(CRM_Core_DAO::VALUE_SEPARATOR, $daoCase->case_type_id);
+          if (isset($typeParts[1])) {
+            $typeId = $typeParts[1];
           }
-          $actContactQry = 'SELECT contact_id FROM civicrm_activity_contact WHERE '
-            . 'activity_id = %1 AND record_type_id = %2';
-          $actContactParams = array(
-            1 => array($objectId, 'Positive'),
-            2 => array($threepeasConfig->actTargetRecordType, 'Positive'));
-          $daoActContact = CRM_Core_DAO::executeQuery($actContactQry, $actContactParams);
-          if ($daoActContact->fetch()) {
-            CRM_Threepeas_BAO_PumCaseRelation::createDefaultCaseRoles($objectRef->case_id,
-              $daoActContact->contact_id, $caseStartDate, $typeId);
+          /*
+           * reform open case subject if necessary
+           */
+          _threepeasReformOpenCaseSubject($objectRef->case_id, $typeId, $objectId, $objectRef->subject);
+
+          if (isset($threepeasConfig->caseTypes[$typeId])) {
+            if (empty($daoCase->start_date)) {
+              $caseStartDate = date('Ymd');
+            } else {
+              $caseStartDate = date('Ymd', strtotime($daoCase->start_date));
+            }
+            $actContactQry = 'SELECT contact_id FROM civicrm_activity_contact WHERE '
+              . 'activity_id = %1 AND record_type_id = %2';
+            $actContactParams = array(
+              1 => array($objectId, 'Positive'),
+              2 => array($threepeasConfig->actTargetRecordType, 'Positive'));
+            $daoActContact = CRM_Core_DAO::executeQuery($actContactQry, $actContactParams);
+            if ($daoActContact->fetch()) {
+              CRM_Threepeas_BAO_PumCaseRelation::createDefaultCaseRoles($objectRef->case_id,
+                $daoActContact->contact_id, $caseStartDate, $typeId);
+            }
           }
         }
       }
