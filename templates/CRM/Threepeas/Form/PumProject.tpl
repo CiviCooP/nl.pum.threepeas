@@ -179,7 +179,7 @@
           {/if}
           <div class="crm-section">
             <div class="label">{$form.expected_results.label}</div>
-            <div class="content">{$form.expected_results.value}</div>
+            <div class="content">{$form.expected_results.html}</div>
             <div class="clear"></div>
           </div>  
           <div class="crm-section">
