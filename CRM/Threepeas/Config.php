@@ -11,6 +11,10 @@ class CRM_Threepeas_Config {
    */
   static private $_singleton = NULL;
   /*
+   * case status for Error
+   */
+  protected $caseErrorStatusId = NULL;
+  /*
    * contact sub_type id for Customer and Country
    */
   public $customerContactType = NULL;
@@ -103,6 +107,9 @@ class CRM_Threepeas_Config {
     $this->setActTargetRecordType();
     $this->setSectorTree();
     $this->assessmentRepActTypeId = $this->setActivityTypeId('Assessment Project Request by Rep');
+  }
+  public function getCaseErrorStatusId() {
+    return $this->caseErrorStatusId;
   }
   public function getCapCaseTypeId() {
     return $this->capCaseTypeId;
@@ -287,6 +294,9 @@ class CRM_Threepeas_Config {
       $apiCaseStatus = civicrm_api3('OptionValue', 'Get', array('option_group_id' => $this->caseStatusOptionGroupId));
       foreach ($apiCaseStatus['values'] as $caseStatusId => $caseStatus) {
         $this->caseStatus[$caseStatus['value']] = $caseStatus['label'];
+        if ($caseStatus['name'] == 'Error') {
+          $this->caseErrorStatusId = $caseStatus['value'];
+        }
       }
     } catch (CiviCRM_API3_Exception $ex) {
       $this->caseStatus = array();

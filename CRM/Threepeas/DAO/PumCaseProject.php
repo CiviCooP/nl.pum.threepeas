@@ -10,7 +10,8 @@
  * Licensed to PUM <http://www.pum.nl> and CiviCRM under the AGPL-3.0
  */
 class CRM_Threepeas_DAO_PumCaseProject extends CRM_Core_DAO {
-  
+  static $_export = null;
+
   /**
    * static instance to hold the field values
    *
@@ -77,6 +78,28 @@ class CRM_Threepeas_DAO_PumCaseProject extends CRM_Core_DAO {
     }
     return self::$_fieldKeys;
   }
-  
-  
+  /**
+   * returns the list of fields that can be exported
+   *
+   * @access public
+   * return array
+   * @static
+   */
+  static function &export($prefix = false)
+  {
+    if (!(self::$_export)) {
+      self::$_export = array();
+      $fields = self::fields();
+      foreach($fields as $name => $field) {
+        if (CRM_Utils_Array::value('export', $field)) {
+          if ($prefix) {
+            self::$_export['activity'] = & $fields[$name];
+          } else {
+            self::$_export[$name] = & $fields[$name];
+          }
+        }
+      }
+    }
+    return self::$_export;
+  }
 }

@@ -792,4 +792,37 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     }
     return $hasRestrictions;
   }
+
+  /**
+   * Method to get the (first) relation contact id with label for case
+   * @param int $caseId
+   * @param string $relationLabel
+   * @return int $relationContactId
+   * @throw Exception when error in API
+   * @access public
+   * @static
+   */
+  public static function getRelationContactIdByCaseId($caseId, $relationLabel) {
+    $relationContactId = NULL;
+    if (empty($caseId) || empty($relationLabel)) {
+      return $relationContactId;
+    }
+    $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
+    $relationshipParams = array(
+      'is_active' => 1,
+      'relationship_type_id' => $caseRelationConfig->getRelationshipTypeId($relationLabel),
+      'case_id' => $caseId);
+    try {
+      $relationshipData = civicrm_api3('Relationship', 'Get', $relationshipParams);
+      if (!empty($relationshipData)) {
+        foreach ($relationshipData['values'] as $relationShip) {
+          $relationContactId = $relationShip['contact_id_b'];
+          break;
+        }
+      }
+    } catch (CiviCRM_API3_Exception $ex) {
+      return $relationContactId;
+    }
+    return $relationContactId;
+  }
 }
