@@ -292,8 +292,9 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     }
     $saveProject['start_date'] = CRM_Utils_Date::processDate($values['start_date']);
     $saveProject['end_date'] = CRM_Utils_Date::processDate($values['end_date']);
-    $saveProject['is_active'] = 1;
-    if (isset($values['is_active'])) {
+    if (empty($values['is_active'])) {
+      $saveProject['is_active'] = 0;
+    } else {
       $saveProject['is_active'] = $values['is_active'];
     }
     $result = CRM_Threepeas_BAO_PumProject::add($saveProject);
