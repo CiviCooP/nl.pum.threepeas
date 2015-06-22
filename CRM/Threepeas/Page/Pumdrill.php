@@ -14,6 +14,7 @@ require_once 'CRM/Core/Page.php';
 class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
   function run() {
     $entity = CRM_Utils_Request::retrieve('pumEntity', 'String', $this);
+    $context = CRM_Utils_Request::retrieve('context', 'String');
     $this->assign('entity', $entity);
     $session = CRM_Core_Session::singleton();
     $doneUrl = $session->readUserContext();
@@ -43,9 +44,9 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
       );
       $this->assign('productLabel', $productLabel);
       if (!isset($project[$projectId]['customer_id']) && isset($project[$projectId]['country_id'])) {
-        $drillRows = $this->buildProjectRows($projectId, $project[$projectId]['country_id']);
+        $drillRows = $this->buildProjectRows($projectId, $project[$projectId]['country_id'], $context);
       } else {
-        $drillRows = $this->buildProjectRows($projectId, $project[$projectId]['customer_id']);
+        $drillRows = $this->buildProjectRows($projectId, $project[$projectId]['customer_id'], $context);
       }
     }
     $this->assign('drillData', $drillRows);            
@@ -176,9 +177,9 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
    * @return array $drillRows
    * @access private
    */
-  private function buildProjectRows($projectId, $customerId) {
+  private function buildProjectRows($projectId, $customerId, $context) {
     $threepeasConfig = CRM_Threepeas_Config::singleton();
-    if (!empty($customerId)) {
+    if (!empty($customerId) && $context != 'disabled') {
       $caseUrl = CRM_Utils_System::url('civicrm/case/add', 'reset=1&action=add&cid='.$customerId.'&context=case&pid='.$projectId, true);
       $this->assign('caseUrl', $caseUrl);
     } 

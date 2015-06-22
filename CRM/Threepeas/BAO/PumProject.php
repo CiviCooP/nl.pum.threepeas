@@ -143,10 +143,14 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     }
     $canBeDeleted = TRUE;
     /*
-     * can not delete if any cases for project
+     * can not delete if any cases for project or any contributions for project
      */
     $projectCases = CRM_Threepeas_BAO_PumCaseProject::getValues(array('project_id' => $projectId));
-    if (!empty($projectCases)) {
+    $projectDonations = CRM_Threepeas_BAO_PumDonorLink::getValues(array(
+      'entity' => 'Project',
+      'entity_id' => $projectId));
+
+    if (!empty($projectCases) || !empty($projectDonations)) {
       $canBeDeleted = FALSE;
     }
     return $canBeDeleted;

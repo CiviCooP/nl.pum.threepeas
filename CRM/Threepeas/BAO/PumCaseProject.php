@@ -89,7 +89,7 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
       $pumCaseProject->project_id = $projectId;
       $pumCaseProject->find();
       while ($pumCaseProject->fetch()) {
-        $pumCaseProject->delete;
+        $pumCaseProject->delete();
       }
     }
   }
@@ -126,5 +126,14 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
         self::add(array('id' => $pumCaseProject->id, 'is_active' => 0));
       }
     }
+  }
+  public static function countCasesForProject($projectId) {
+    $numberCases = 0;
+    if (!empty($projectId)) {
+      $pumCaseProject = new CRM_Threepeas_BAO_PumCaseProject();
+      $pumCaseProject->project_id = $projectId;
+      $numberCases = $pumCaseProject->count();
+    }
+    return $numberCases;
   }
 }

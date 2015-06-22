@@ -48,4 +48,16 @@
     <title>DeleteCaseRoles</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/disabledprojectslist</path>
+    <page_callback>CRM_Threepeas_Page_DisabledProjectsList</page_callback>
+    <title>DisabledProjectsList</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/deletedisabledpumproject</path>
+    <page_callback>CRM_Threepeas_Form_DisabledPumProject</page_callback>
+    <title>DisabledPumProject</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

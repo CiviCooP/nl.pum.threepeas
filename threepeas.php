@@ -137,7 +137,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
         'attributes' => array (
             'label'      => 'List Programmes',
             'name'       => 'List Programmes',
-            'url'        => 'civicrm/programmelist',
+            'url'        => CRM_Utils_System::url('civicrm/programmelist', 'reset=1', true),
             'operator'   => null,
             'separator'  => 0,
             'parentID'   => $maxKey+1,
@@ -184,7 +184,21 @@ function threepeas_civicrm_navigationMenu( &$params ) {
           'active'     => 1
         ),
         'child' => null
-      )));
+      ),
+      '5' => array (
+        'attributes' => array (
+          'label'      => 'List Disabled Projects',
+          'name'       => 'List Disabled Projects',
+          'url'        => CRM_Utils_System::url('civicrm/disabledprojectslist', 'reset=1', true),
+          'operator'   => null,
+          'separator'  => 0,
+          'permission' => 'administer CiviCRM',
+          'parentID'   => $maxKey+1,
+          'navID'      => 5,
+          'active'     => 1
+    ),
+    'child' => null
+  )));
 }
 /**
  * Implementation of hook civicrm_tabs to add a tab for Projects for 
