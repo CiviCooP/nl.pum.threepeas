@@ -57,6 +57,10 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       throw new Exception('Params can not be empty when adding or updating a PumProject');
     }
     $pumProject = new CRM_Threepeas_BAO_PumProject();
+    if (isset($params['id'])) {
+      $pumProject->id = $params['id'];
+      $pumProject->find(true);
+    }
     $fields = self::fields();
     foreach ($params as $paramKey => $paramValue) {
       if (isset($fields[$paramKey])) {

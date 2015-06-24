@@ -290,8 +290,16 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       unset($saveProject['customer_id']);
       unset($saveProject['country_id']);
     }
-    $saveProject['start_date'] = CRM_Utils_Date::processDate($values['start_date']);
-    $saveProject['end_date'] = CRM_Utils_Date::processDate($values['end_date']);
+    if (!empty($saveProject['start_date'])) {
+      $saveProject['start_date'] = CRM_Utils_Date::processDate($values['start_date']);
+    } else {
+      $saveProject['start_date'] = '';
+    }
+    if (!empty($saveProject['end_date'])) {
+      $saveProject['end_date'] = CRM_Utils_Date::processDate($values['end_date']);
+    } else {
+      $saveProject['end_date'] = '';
+    }
     if (empty($values['is_active'])) {
       $saveProject['is_active'] = 0;
     } else {
@@ -466,11 +474,15 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
         $defaults['country_id'] = CRM_Threepeas_Utils::getContactName($defaults['country_id']);
       }
     }
-    if (isset($defaults['start_date'])) {
+    if (isset($defaults['start_date']) && $defaults['start_date'] != '0000-00-00') {
       list($defaults['start_date']) = CRM_Utils_Date::setDateDefaults($defaults['start_date']);
+    } else {
+      list($defaults['start_date']) = '';
     }
-    if (isset($defaults['end_date'])) {
+    if (isset($defaults['end_date']) && $defaults['end_date'] != '0000-00-00') {
       list($defaults['end_date']) = CRM_Utils_Date::setDateDefaults($defaults['end_date']);
+    }else {
+      list($defaults['end_date']) = '';
     }
     foreach ($this->linkedDonationEntityIds as $donationEntityId) {
       $defaults['new_link'][] = $donationEntityId;
