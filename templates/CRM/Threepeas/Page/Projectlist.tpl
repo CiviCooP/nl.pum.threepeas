@@ -2,7 +2,7 @@
   <div id="help">
     The existing Projects are listed below. You can add, edit, drill down or delete them from this screen. 
   </div>
-  {if $addUrl ne ''}
+  {if $addUrl ne '' and $requestType == 'Country'}
     <div class="action-link">
       <a class="button new-option" href="{$addUrl}">
         <span><div class="icon add-icon"></div>New Country Project</span>
@@ -16,7 +16,7 @@
           <th class="sorting-disabled" rowspan="1" colspan="1">Title</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Parent Programme</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Project Customer/Country</th>
-          {if $request_type != 'Country'}
+          {if $requestType != 'Country'}
             <th class="sorting-disabled" rowspan="1" colspan="1">Project Manager</th>
             <th class="sorting-disabled" rowspan="1" colspan="1">Sector Coordinator</th>
             <th class="sorting-disabled" rowspan="1" colspan="1">Representative</th>
@@ -45,7 +45,7 @@
             {else}
               <td>{$project.customer_name}</td>
             {/if}
-            {if $request_type != 'Country'}
+            {if $requestType != 'Country'}
               <td>{$project.projectmanager_name}</td>
               <td>{$project.sector_coordinator}</td>
               <td>{$project.representative}</td>
@@ -76,7 +76,7 @@
       </tbody>
     </table>    
   </div>
-  {if $addUrl ne ''}
+  {if $addUrl ne '' and $requestType == 'Country'}
     <div class="action-link">
       <a class="button new-option" href="{$addUrl}">
         <span><div class="icon add-icon"></div>New Country Project</span>

@@ -164,7 +164,7 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     CRM_Utils_System::setTitle(ts('List of Projects'));    
     $this->assign('addUrl', CRM_Utils_System::url('civicrm/pumproject', 'action=add', true));
     $this->requestType = CRM_Utils_Request::retrieve('type', 'String');
-    $this->assign('request_type', $this->requestType);
+    $this->assign('requestType', $this->requestType);
     $this->requestId = CRM_Utils_Request::retrieve('cid', 'Positive');
     $threepeasConfig = CRM_Threepeas_Config::singleton();
     $this->countryType = $threepeasConfig->countryContactType;
