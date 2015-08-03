@@ -1253,14 +1253,16 @@ function _threepeasCustomerContributionStatus(&$form) {
  */
 function _threepeasValidateCaseFaDonorForm($fields, &$errors) {
   $threepeasConfig = CRM_Threepeas_Config::singleton();
-  $caseType = $threepeasConfig->caseTypes[$fields['case_type_id']];
-  $donorLinkConfig = CRM_Threepeas_DonorLinkConfig::singleton();
-  if (in_array($caseType, $donorLinkConfig->getDonationCaseTypes())) {
-    if ($fields['fa_donor'] == 0) {
-      $errors['fa_donor'] = ts('You have to select a donation for FA');
-    } else {
-      if (!in_array($fields['fa_donor'], $fields['new_link'])) {
-        $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+  if (isset($fields['case_type_id'])) {
+    $caseType = $threepeasConfig->caseTypes[$fields['case_type_id']];
+    $donorLinkConfig = CRM_Threepeas_DonorLinkConfig::singleton();
+    if (in_array($caseType, $donorLinkConfig->getDonationCaseTypes())) {
+      if ($fields['fa_donor'] == 0) {
+        $errors['fa_donor'] = ts('You have to select a donation for FA');
+      } else {
+        if (!in_array($fields['fa_donor'], $fields['new_link'])) {
+          $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+        }
       }
     }
   }
