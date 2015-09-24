@@ -30,6 +30,8 @@ class CRM_Threepeas_Config {
    * country action plan (used in case CP-AP)
    */
   public $projectCustomGroupId = NULL;
+  protected $projectCustomTableName = NULL;
+  protected $projectCustomFields = array();
   /*
    * case type and status option group id
    */
@@ -87,7 +89,10 @@ class CRM_Threepeas_Config {
     $this->setCountryCustomField('civicrm_country_id');
     $this->setCountryCustomTable('pumCountry');
     
-    $this->projectCustomGroupId = $this->setCustomGroupId('Projectinformation');    
+    $projectCustomGroup = $this->setCustomGroup('Projectinformation');
+    $this->projectCustomGroupId = $projectCustomGroup['id'];
+    $this->projectCustomTableName = $projectCustomGroup['table_name'];
+    $this->projectCustomFields = $this->setCustomFields($this->projectCustomGroupId);
     
     $this->setCaseOptionGroupId();
     $this->setProjectOptionGroupId();
@@ -107,6 +112,12 @@ class CRM_Threepeas_Config {
     $this->setActTargetRecordType();
     $this->setSectorTree();
     $this->assessmentRepActTypeId = $this->setActivityTypeId('Assessment Project Request by Rep');
+  }
+  public function getProjectCustomFields() {
+    return $this->projectCustomFields;
+  }
+  public function getProjectCustomGroupTableName() {
+    return $this->projectCustomTableName;
   }
   public function getCaseErrorStatusId() {
     return $this->caseErrorStatusId;
@@ -230,20 +241,19 @@ class CRM_Threepeas_Config {
   /** Functio to set the custom group id
   *
   * @param string $name
-  * @return int $customGroupId
+  * @return array $customGroupId
   * @throws Exception when error from API
   */
-  private function setCustomGroupId($name) {
+  private function setCustomGroup($name) {
     if (!empty($name)) {
-      $customGroupParams = array('name' => $name, 'return' => 'id');
+      $customGroupParams = array('name' => $name);
       try {
-        $customGroupId = civicrm_api3('CustomGroup', 'Getvalue', $customGroupParams);
+        return civicrm_api3('CustomGroup', 'Getsingle', $customGroupParams);
       } catch (CiviCRM_API3_Exception $ex) {
-        throw new Exception(ts('Could not find a custom group with name '
-          .$name.', error from API CustomGroup Getvalue: ').$ex->getMessage());
+        throw new Exception(ts('Could not find a unique custom group with name '
+          .$name.', error from API CustomGroup Getsingle: ').$ex->getMessage());
       }
     }
-    return $customGroupId;
   }
   private function setCaseOptionGroupId() {
     try {
@@ -430,6 +440,23 @@ class CRM_Threepeas_Config {
     } catch (CiviCRM_API3_Exception $ex) {
       $this->actTargetRecordType = NULL;
       throw new Exception(ts('Could not find an option value with name Activity Targets in group activity_contacts, error from API OptionValue Getvalue : ') . $ex->getMessage());
+    }
+  }
+
+  /**
+   * Method to set custom fields array
+   *
+   * @param int $customGroupId
+   * @return array
+   * @throws API_Exception when error from API CustomField Get
+   */
+  private function setCustomFields($customGroupId) {
+    try {
+      $customFields = civicrm_api3("CustomField", "Get", array('custom_group_id' => $customGroupId));
+      return $customFields['values'];
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new API_Exception("Could not find custom fields for custom group id ".$customGroupId
+        .", error from API CustomField Get: ".$ex->getMessage());
     }
   }
 }

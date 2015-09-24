@@ -136,4 +136,23 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
     }
     return $numberCases;
   }
+
+  /**
+   * Method to get projectId with CaseId
+   *
+   * @param $caseId
+   * @return bool
+   * @access public
+   * @static
+   */
+  public static function getProjectIdWithCaseId($caseId) {
+    $pumCaseProject = new CRM_Threepeas_BAO_PumCaseProject();
+    $pumCaseProject->case_id = $caseId;
+    $pumCaseProject->find();
+    if ($pumCaseProject->fetch()) {
+      return $pumCaseProject->project_id;
+    } else {
+      return FALSE;
+    }
+  }
 }

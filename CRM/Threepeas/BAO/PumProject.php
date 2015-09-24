@@ -625,4 +625,92 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     }
     return $result;
   }
+
+  public static function createProjectFromWebform($caseId) {
+    $config = CRM_Threepeas_Config::singleton();
+    /*
+     * retrieve project data from custom group Project Information
+     */
+    $customQuery = "SELECT * FROM ".$config->getProjectCustomGroupTableName()." WHERE entity_id = %1";
+    $customParams = array(1 => array($caseId, 'Integer'));
+    $customData = CRM_Core_DAO::executeQuery($customQuery, $customParams);
+    $projectParams = self::setProjectParamsFromWebform($caseId, $customData);
+    $createdProject = self::add($projectParams);
+    $projectCaseParams = array(
+      'case_id' => $caseId,
+      'project_id' => $createdProject['id'],
+      'is_active' => 1);
+    CRM_Threepeas_BAO_PumCaseProject::add($projectCaseParams);
+  }
+
+  /**
+   * Method to set params for project coming from custom data dao
+   *
+   * @param int $caseId
+   * @param object $dao
+   * @return array
+   * @access private
+   * @static
+   */
+  private static function setProjectParamsFromWebform($caseId, $dao) {
+    $fields = array("reason", "activities", "expected_results");
+    $params = array(
+      'is_active' => 1,
+      'customer_id' => CRM_Threepeas_Utils::getCaseClientId($caseId)
+    );
+    foreach ($fields as $field) {
+      $daoPropertyName = self::getColumnNameForCustomField($field);
+      if (isset($dao->$daoPropertyName)) {
+        $params[$field] = $dao->$daoPropertyName;
+      }
+    }
+    return $params;
+  }
+
+  /**
+   * Method to get column name for project custom field name
+   *
+   * @param $fieldName
+   * @return string|bool
+   * @access private
+   * @static
+   */
+  private static function getColumnNameForCustomField($fieldName) {
+    $config = CRM_Threepeas_Config::singleton();
+    $projectCustomFields = $config->getProjectCustomFields();
+    foreach ($projectCustomFields as $customFieldId => $customField) {
+      if ($fieldName == $customField['name']) {
+        return $customField['column_name'];
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * Method to update project with custom data from webform
+   *
+   * @param $caseId
+   * @param $customDataParams
+   * @throws Exception
+   */
+  public static function updateProjectWithCustomData($caseId, $customDataParams) {
+    if (!empty($caseId)) {
+      $projectParams = array();
+      $projectParams['id'] = CRM_Threepeas_BAO_PumCaseProject::getProjectIdWithCaseId($caseId);
+      $fields = array("reason", "activities", "expected_results");
+      foreach ($fields as $field) {
+        $columnName = self::getColumnNameForCustomField($field);
+        foreach ($customDataParams as $customData) {
+          if ($customData['column_name'] == $columnName) {
+            if ($field == "activities") {
+              $projectParams['work_description'] = $customData['value'];
+            } else {
+              $projectParams[$field] = $customData['value'];
+            }
+          }
+        }
+      }
+      self::add($projectParams);
+    }
+  }
 }

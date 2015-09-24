@@ -287,84 +287,6 @@ function _threepeasAddProjectTab($contactId, $customerType, $projectWeight = 0) 
     'count'     => $projectCount);
   return $projectTab;
 }
-
-/**
- * Implementation of hook_civicrm_custom
- * - automatically create project in table civicrm_project when custom group
- *   Projectinformation gets new record. Created based on webform Projectrequest
- * 
- * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
- * @date 23 Apr 2014
- * @param string $op
- * @param int $groupID
- * @param int $entityID
- * @param array $params
- */
-function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
-  /*
-   * if groupID = PUM project custom group and option is create, create
-   * pum project
-   */
-  $threepeasConfig = CRM_Threepeas_Config::singleton();
-  /*
-   * project request from webform
-   */
-  if ($groupID == $threepeasConfig->projectCustomGroupId && $op == 'create') {
-    /*
-     * only add project if case projectintake is NOT created from CiviCRM UI
-     */
-    if (isset($GLOBALS['pum_project_ignore']) && $GLOBALS['pum_project_ignore'] == 1) {
-      $GLOBALS['pum_project_ignore'] = 0;
-    } else {
-      $pumProject = _threepeasSetProject($params);
-      /*
-       * retrieve case for subject and client
-       */ 
-      $apiCase = civicrm_api3('Case', 'Getsingle', array('case_id' => $entityID));
-      if (isset($apiCase['client_id'][1])) {
-        $pumProject['customer_id'] = $apiCase['client_id'][1];
-      }
-      $pumProject['is_active'] = 1;
-      $createdProject = CRM_Threepeas_BAO_PumProject::add($pumProject);
-      $pumCaseProject = array('case_id' => $entityID, 'project_id' => $createdProject['id'], 'is_active' => 1);
-      CRM_Threepeas_BAO_PumCaseProject::add($pumCaseProject);
-    } 
-  }
-}
-/**
- * Function to set basic data for pum project
- * 
- * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
- * @date 23 Apr 2014
- * @param array $params
- * @return array $result
- */
-function _threepeasSetProject($params) {
-  $result = array();
-  $usedCustomFields = array('reason', 'activities', 'expected_results');
-  $threepeasConfig = CRM_Threepeas_Config::singleton();
-  $customFields = civicrm_api3('CustomField', 'Get', array('custom_group_id' => $threepeasConfig->projectCustomGroupId));
-  foreach ($customFields['values'] as $customFieldId => $customField) {
-    if (in_array($customField['name'], $usedCustomFields)) {
-      foreach ($params as $param) {
-        if ($param['custom_field_id'] == $customFieldId) {
-          switch($customField['name']) {
-            case "activities":
-              $result['work_description'] = trim($param['value']);
-              break;
-            case "expected_results":
-              $result['expected_results'] = trim($param['value']);
-              break;
-            case "reason":
-              $result['reason'] = trim($param['value']);
-              break;
-          }
-        }
-      }
-    }
-  }
-  return $result;
-}
 /**
  * Implementation of hook civicrm_buildForm
  * 
@@ -832,6 +754,15 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
     }
     
     if ($objectRef->activity_type_id == $threepeasConfig->openCaseActTypeId) {
+
+      /*
+       * issue 2858 create project for projectintake at open case activity instead of civicrm_custom_hook
+       */
+      $caseType = civicrm_api3("Case", "Getvalue", array("id" => $objectRef->case_id, "return" => "case_type_id"));
+      if ($threepeasConfig->caseTypes[$caseType] == "Projectintake") {
+        CRM_Threepeas_BAO_PumProject::createProjectFromWebform($objectRef->case_id);
+      }
+
       /*
        * issue 838 create country project
        */
@@ -1427,4 +1358,16 @@ function _threepeasRetrieveCaseIdFromUrl($url) {
     }
   }
   return $caseId;
+}
+function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
+  /*
+   * if groupID = PUM project custom group and option is create, update project record
+   */
+  $threepeasConfig = CRM_Threepeas_Config::singleton();
+  /*
+   * project request from webform
+   */
+  if ($groupID == $threepeasConfig->projectCustomGroupId && $op == 'create') {
+    CRM_Threepeas_BAO_PumProject::updateProjectWithCustomData($entityID, $params);
+  }
 }
