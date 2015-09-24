@@ -444,4 +444,36 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
       return FALSE;
     }
   }
+
+  /**
+   * Method to get case donor id
+   *
+   * @param int $caseId
+   * @return int|bool
+   * @access public
+   * @static
+   */
+  public static function getCaseFADonor($caseId) {
+    if (empty($caseId)) {
+      return FALSE;
+    }
+    $donationLink = new CRM_Threepeas_BAO_PumDonorLink();
+    $donationLink->donation_entity = 'Contribution';
+    $donationLink->entity = 'Case';
+    $donationLink->is_fa_donor = 1;
+    $donationLink->entity_id = $caseId;
+    $donationLink->find(true);
+    if (empty($donationLink->donation_entity_id)) {
+      return FALSE;
+    }
+    $contributionParams = array(
+      'id' => $donationLink->donation_entity_id,
+      'return' => 'contact_id');
+    try {
+      $donorId = civicrm_api3('Contribution', 'Getvalue', $contributionParams);
+      return $donorId;
+    } catch (CiviCRM_API3_Exception $ex) {
+      return FALSE;
+    }
+  }
 }

@@ -825,4 +825,39 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     }
     return $relationContactId;
   }
+
+  /**
+   * Method to get the representative for a case (assumption is only one per case)
+   *
+   * @param int $caseId
+   * @return int|boolean
+   * @throws Exception when relation ship type expert not found
+   * @access public
+   * @static
+   */
+  public static function getCaseRepresentative($caseId) {
+    if (empty($caseId)) {
+      return FALSE;
+    }
+    $relationshipTypeParams = array(
+      'name_a_b' => 'Representative is',
+      'return' => 'id');
+    try {
+      $repRelationshipTypeId = civicrm_api3('RelationshipType', 'Getvalue', $relationshipTypeParams);
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception(ts('Could not find relationship type Representative is, error from API RelationshipType Getvalue: '
+        .$ex->getMessage()));
+    }
+    $relationshipParams = array(
+      'relationship_type_id' => $repRelationshipTypeId,
+      'case_id' => $caseId,
+      'is_active' => 1,
+      'return' => 'contact_id_b');
+    try {
+      $representativeId = civicrm_api3('Relationship', 'Getvalue', $relationshipParams);
+      return $representativeId;
+    } catch (CiviCRM_API3_Exception $ex) {
+      return FALSE;
+    }
+  }
 }
