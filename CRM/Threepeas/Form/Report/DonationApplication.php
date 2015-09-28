@@ -52,7 +52,7 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     . "ON {$this->_aliases['civicrm_contribution']}.contact_id = {$this->_aliases['civicrm_contact']}.id";
     $this->_from .= 
       " LEFT JOIN civicrm_donor_link donor_link_civireport ON {$this->_aliases['civicrm_contribution']}.
-        id = donor_link_civireport.donation_entity_id AND donor_link_civireport.donation_entity = 
+        id = donor_link_civireport.donation_entity_id AND donor_link_civireport.donation_entity =
         'Contribution' AND donor_link_civireport.is_active = 1";
   }
 
@@ -350,6 +350,10 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     $this->_columnHeaders['linked_customer'] = array('title' => ts('Linked Customer'), 'type' => 2);
     $this->_columnHeaders['linked_start_date'] = array('title' => ts('Start Date'), 'type' => 2);
     $this->_columnHeaders['linked_end_date'] = array('title' => ts('End Date'), 'type' => 2);
+    // issue 3013 add pum case data
+    $this->_columnHeaders['pum_case_country'] = array('title' => ts('Case Country Code'), 'type' => 2);
+    $this->_columnHeaders['pum_case_sequence'] = array('title' => ts('PUM Case Number'), 'type' => 2);
+    $this->_columnHeaders['pum_case_type'] = array('title' => ts('PUM Case Type'), 'type' => 2);
   }
   /*
    * Function to modify the display of rows
@@ -398,9 +402,10 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     $rows = $displayRows;
   }
   /**
-   * Fucntion to set Entity values for Programme, Project or Case
+   * Function to set Entity values for Programme, Project or Case
    */
   private function setEntityValues(&$row) {
+    $pumCaseTable = CRM_Threepeas_Utils::getCustomGroup("PUM_Case_number");
     switch ($row['civicrm_donor_link_entity']) {
       case 'Case':
         $caseData = civicrm_api3('Case', 'Getsingle', array('id' => $row['civicrm_donor_link_entity_id']));
@@ -412,6 +417,15 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
           }
           if (!empty($caseData['end_date'])) {
             $row['linked_end_date'] = date('d-m-Y', strtotime($caseData['end_date']));
+          }
+          // issue 3103 add pum case data
+          if (method_exists("CRM_Businessdsa_Utils", "getPumCaseData")) {
+            $pumCaseData = CRM_Businessdsa_Utils::getPumCaseData($row['civicrm_donor_link_entity_id']);
+            if (!empty($pumCaseData)) {
+              $row['pum_case_country'] = $pumCaseData['Case_country'];
+              $row['pum_case_sequence'] = $pumCaseData['Case_sequence'];
+              $row['pum_case_type'] = $pumCaseData['Case_type'];
+            }
           }
         }
         break;
