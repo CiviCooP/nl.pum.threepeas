@@ -408,26 +408,28 @@ class CRM_Threepeas_Form_Report_DonationApplication extends CRM_Report_Form {
     $pumCaseTable = CRM_Threepeas_Utils::getCustomGroup("PUM_Case_number");
     switch ($row['civicrm_donor_link_entity']) {
       case 'Case':
-        $caseData = civicrm_api3('Case', 'Getsingle', array('id' => $row['civicrm_donor_link_entity_id']));
-        foreach ($caseData['client_id'] as $clientId) {
-          $row['linked_customer'] = civicrm_api3('Contact', 'Getvalue', array('id' => $clientId, 'return' => 'display_name'));
-          $customerUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$clientId, $this->_absoluteUrl);
-          if (!empty($caseData['start_date'])) {
-            $row['linked_start_date'] = date('d-m-Y', strtotime($caseData['start_date']));
-          }
-          if (!empty($caseData['end_date'])) {
-            $row['linked_end_date'] = date('d-m-Y', strtotime($caseData['end_date']));
-          }
-          // issue 3103 add pum case data
-          if (method_exists("CRM_Businessdsa_Utils", "getPumCaseData")) {
-            $pumCaseData = CRM_Businessdsa_Utils::getPumCaseData($row['civicrm_donor_link_entity_id']);
-            if (!empty($pumCaseData)) {
-              $row['pum_case_country'] = $pumCaseData['Case_country'];
-              $row['pum_case_sequence'] = $pumCaseData['Case_sequence'];
-              $row['pum_case_type'] = $pumCaseData['Case_type'];
+        try {
+          $caseData = civicrm_api3('Case', 'Getsingle', array('id' => $row['civicrm_donor_link_entity_id']));
+          foreach ($caseData['client_id'] as $clientId) {
+            $row['linked_customer'] = civicrm_api3('Contact', 'Getvalue', array('id' => $clientId, 'return' => 'display_name'));
+            $customerUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=' . $clientId, $this->_absoluteUrl);
+            if (!empty($caseData['start_date'])) {
+              $row['linked_start_date'] = date('d-m-Y', strtotime($caseData['start_date']));
+            }
+            if (!empty($caseData['end_date'])) {
+              $row['linked_end_date'] = date('d-m-Y', strtotime($caseData['end_date']));
+            }
+            // issue 3103 add pum case data
+            if (method_exists("CRM_Businessdsa_Utils", "getPumCaseData")) {
+              $pumCaseData = CRM_Businessdsa_Utils::getPumCaseData($row['civicrm_donor_link_entity_id']);
+              if (!empty($pumCaseData)) {
+                $row['pum_case_country'] = $pumCaseData['Case_country'];
+                $row['pum_case_sequence'] = $pumCaseData['Case_sequence'];
+                $row['pum_case_type'] = $pumCaseData['Case_type'];
+              }
             }
           }
-        }
+        } catch (CiviCRM_API3_Exception $ex) {}
         break;
       case 'Project':
         $projectData = CRM_Threepeas_BAO_PumProject::getValues(array('id' => $row['civicrm_donor_link_entity_id']));
