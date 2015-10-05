@@ -97,6 +97,11 @@
     {/if}
     <td class="crm-case-caseview-case_subject label">
       <span class="crm-case-summary-label">{ts}Subject{/ts}:</span>&nbsp;{$caseDetails.case_subject}
+
+      {* issue 2882 add button to edit subject *}
+      <a title="Change case subject" href="{$pumSubjectUrl}"><span class="icon edit-icon"></span>
+      {* end issue 2882 *}
+
     </td>
     <td class="crm-case-caseview-case_type label">
       <span class="crm-case-summary-label">{ts}Type{/ts}:</span>&nbsp;{$caseDetails.case_type}&nbsp;<a href="{crmURL p='civicrm/case/activity' q="action=add&reset=1&cid=`$contactId`&caseid=`$caseId`&selectedChild=activity&atype=`$changeCaseTypeId`"}" title="{ts}Change case type (creates activity record){/ts}"><span class="icon edit-icon"></span></a>

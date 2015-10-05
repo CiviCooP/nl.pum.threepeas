@@ -60,4 +60,10 @@
     <title>DisabledPumProject</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/pumeditcasesubject</path>
+    <page_callback>CRM_Threepeas_Form_EditCaseSubject</page_callback>
+    <title>EditCaseSubject</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

@@ -297,8 +297,9 @@ function _threepeasAddProjectTab($contactId, $customerType, $projectWeight = 0) 
 function threepeas_civicrm_buildForm($formName, &$form) {
   switch ($formName) {
     case 'CRM_Case_Form_CaseView':
-      _threepeasAddProjectElementCaseView($form);
       $caseId = $form->getVar('_caseID');
+      $form->assign('pumSubjectUrl', CRM_Utils_System::url('civicrm/pumeditcasesubject', 'reset=1&case_id='.$caseId, true));
+      _threepeasAddProjectElementCaseView($form);
       $caseType = $form->getVar('_caseType');
       _threepeasAddDonorLinkToCaseView($caseId, $caseType, $form, $defaults);
       if (!empty($defaults)) {
