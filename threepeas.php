@@ -532,9 +532,10 @@ function _threepeasCreateOptionGroup($name) {
  * @param int $contributionId
  */
 function _threepeasAddDonorLinkElements($action, &$form, $contributionId) {
-  $programmeList = _threepeasGetDonorLinkProgrammeList($contributionId);
-  $projectList = _threepeasGetDonorLinkProjectList($contributionId);
-  $caseList = _threepeasGetDonorLinkCaseList($contributionId);
+
+  $programmeList = _threepeasGetDonorLinkProgrammeList($contributionId, $action);
+  $projectList = _threepeasGetDonorLinkProjectList($contributionId, $action);
+  $caseList = _threepeasGetDonorLinkCaseList($contributionId, $action);
   $form->addElement('text', 'programmeCount', ts('Current Linked Programmes'));
   $form->addElement('select', 'programmeSelect', ts('Link to Programme :'), $programmeList);
   $form->addElement('text', 'projectCount', ts('Current Linked Projects'));
@@ -552,20 +553,23 @@ function _threepeasAddDonorLinkElements($action, &$form, $contributionId) {
  * Function to retrieve programmeList for contribution donor link
  *
  * @param int $contributionId
+ * @param int $action
  */
-function _threepeasGetDonorLinkProgrammeList($contributionId) {
+function _threepeasGetDonorLinkProgrammeList($contributionId, $action) {
   /*
    * get all programmes from config
    */
   $threepeasConfig = CRM_Threepeas_Config::singleton();
   $allPrograms = $threepeasConfig->activeProgrammeList;
   /*
-   * remove entries that are already linked to contribution
+   * remove entries that are already linked to contribution if action is not add
    */
-  $params = array('entity' => 'Programme', 'donation_entity_id' => $contributionId, 'is_active' => 1);
-  $linkedPrograms = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
-  foreach ($linkedPrograms as $linkedProgram) {
-    unset($allPrograms[$linkedProgram['entity_id']]);
+  if ($action != CRM_Core_Action::ADD) {
+    $params = array('entity' => 'Programme', 'donation_entity_id' => $contributionId, 'is_active' => 1);
+    $linkedPrograms = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($linkedPrograms as $linkedProgram) {
+      unset($allPrograms[$linkedProgram['entity_id']]);
+    }
   }
   return $allPrograms;
 }
@@ -573,20 +577,23 @@ function _threepeasGetDonorLinkProgrammeList($contributionId) {
  * Function to retrieve projectlist for contribution donor link
  *
  * @param int $contributionId
+ * @param int $action
  */
-function _threepeasGetDonorLinkProjectList($contributionId) {
+function _threepeasGetDonorLinkProjectList($contributionId, $action) {
   /*
    * get all projects from config
    */
   $threepeasConfig = CRM_Threepeas_Config::singleton();
   $allProjects = $threepeasConfig->activeProjectList;
   /*
-   * remove entries that are already linked to contribution
+   * remove entries that are already linked to contribution if action is not add
    */
-  $params = array('entity' => 'Project', 'donation_entity_id' => $contributionId, 'is_active' => 1);
-  $linkedProjects = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
-  foreach ($linkedProjects as $linkedProject) {
-    unset($allProjects[$linkedProject['entity_id']]);
+  if ($action != CRM_Core_Action::ADD) {
+    $params = array('entity' => 'Project', 'donation_entity_id' => $contributionId, 'is_active' => 1);
+    $linkedProjects = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($linkedProjects as $linkedProject) {
+      unset($allProjects[$linkedProject['entity_id']]);
+    }
   }
   return $allProjects;
 }
@@ -594,20 +601,23 @@ function _threepeasGetDonorLinkProjectList($contributionId) {
  * Function to retrieve caselist for contribution donor link
  *
  * @param int $contributionId
+ * @param int $action
  */
-function _threepeasGetDonorLinkCaseList($contributionId) {
+function _threepeasGetDonorLinkCaseList($contributionId, $action) {
   /*
    * get all cases from config
    */
   $threepeasConfig = CRM_Threepeas_Config::singleton();
   $allCases = $threepeasConfig->activeCaseList;
   /*
-   * remove entries that are already linked to contribution
+   * remove entries that are already linked to contribution if action is not add
    */
-  $params = array('entity' => 'Case', 'donation_entity_id' => $contributionId, 'is_active' => 1);
-  $linkedCases = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
-  foreach ($linkedCases as $linkedCase) {
-    unset($allCases[$linkedCase['entity_id']]);
+  if ($action != CRM_Core_Action::ADD) {
+    $params = array('entity' => 'Case', 'donation_entity_id' => $contributionId, 'is_active' => 1);
+    $linkedCases = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
+    foreach ($linkedCases as $linkedCase) {
+      unset($allCases[$linkedCase['entity_id']]);
+    }
   }
   return $allCases;
 }
