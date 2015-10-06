@@ -356,21 +356,19 @@ class CRM_Threepeas_Config {
       }
     }
     $this->activeProjectList[0] = '- select -';
-    asort($this->activeProjectList);
   }
   /**
    * Function to get all active cases
    */
   private function setActiveCaseList() {
+    $this->activeCaseList[0] = '- select -';
     $query = 'SELECT a.id, a.subject, b.label FROM civicrm_case a '
       . 'LEFT JOIN civicrm_option_value b ON a.case_type_id = b.value AND option_group_id = '
-      .$this->caseTypeOptionGroupId.' WHERE is_deleted = 0';
+      .$this->caseTypeOptionGroupId.' WHERE is_deleted = 0 ORDER BY a.subject';
     $dao = CRM_Core_DAO::executeQuery($query);
     while ($dao->fetch()) {
       $this->activeCaseList[$dao->id] = $dao->subject.' ('.$dao->label.')';
     }
-    $this->activeCaseList[0] = '- select -';
-    asort($this->activeCaseList);
   }
   /**
    * Function to get a group ID with the CiviCRM API and store it in property
