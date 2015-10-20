@@ -438,4 +438,44 @@ class CRM_Threepeas_Utils {
         API OptionGroup Getvalue: ' . $ex->getMessage());
     }
   }
+
+  /**
+   * Method to sort a project array on title
+   *
+   * @param array $a
+   * @param array $b
+   * @return int
+   * @access public
+   * @static
+   */
+  public static function sortProjectByTitle($a, $b) {
+    if ($a['title'] == $b['title']) {
+      return 0;
+    }
+    if ($b['title'] > $a['title']) {
+      return -1;
+    } else {
+      return 1;
+    }
+  }
+
+  /**
+   * Method to sort a (project or programme) array on title
+   *
+   * @param array $a
+   * @param array $b
+   * @return int
+   * @access public
+   * @static
+   */
+  public static function sortArrayByTitle($a, $b) {
+    if ($a['title'] == $b['title']) {
+      return 0;
+    }
+    if ($b['title'] > $a['title']) {
+      return -1;
+    } else {
+      return 1;
+    }
+  }
 }
