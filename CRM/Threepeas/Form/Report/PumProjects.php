@@ -794,7 +794,6 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
     if (!empty($clauses)) {
       return implode(' AND ', $clauses);
     }
-
     return NULL;
   }
 
