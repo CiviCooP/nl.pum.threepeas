@@ -469,6 +469,9 @@ class CRM_Threepeas_Utils {
    * @static
    */
   public static function sortArrayByTitle($a, $b) {
+    if (!isset($a['title']) || !isset($b['title'])) {
+      return 0;
+    }
     if ($a['title'] == $b['title']) {
       return 0;
     }
