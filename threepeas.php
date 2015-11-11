@@ -772,6 +772,13 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       if ($objectRef->case_id) {
         $caseType = civicrm_api3("Case", "Getvalue", array("id" => $objectRef->case_id, "return" => "case_type_id"));
         if ($threepeasConfig->caseTypes[$caseType] == "Projectintake") {
+          /*
+           * issue 2993 remove tag NewCustomer from case customer
+           */
+          if (method_exists('CRM_Threepeas_NewCustomer', 'removeTagOnFirstProjectintake')) {
+            CRM_Threepeas_NewCustomer::removeTagOnFirstProjectintake($objectRef->case_id);
+          }
+
           CRM_Threepeas_BAO_PumProject::createProjectFromWebform($objectRef->case_id);
         }
       }
