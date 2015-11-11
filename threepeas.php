@@ -259,10 +259,12 @@ function threepeas_civicrm_summary($contactId, &$content) {
       'return' => 'contact_sub_type'
     );
     $contactData = civicrm_api3('Contact', 'Getvalue', $contactParams);
-    foreach ($contactData as $contactSubType) {
-      if ($contactSubType == 'Expert') {
-        CRM_Core_Region::instance('page-body')->add(array(
-          'template' => 'CRM/Threepeas/Page/ExpertCases.tpl'));
+    if (is_array($contactData)) {
+      foreach ($contactData as $contactSubType) {
+        if ($contactSubType == 'Expert') {
+          CRM_Core_Region::instance('page-body')->add(array(
+            'template' => 'CRM/Threepeas/Page/ExpertCases.tpl'));
+        }
       }
     }
   } catch (CiviCRM_API3_Exception $ex) {}
