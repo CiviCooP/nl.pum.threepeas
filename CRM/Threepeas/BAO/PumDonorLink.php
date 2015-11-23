@@ -346,8 +346,8 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
    */
   protected static function setFinancialTypeParam($caseType, &$params) {
     $donorLinkConfig = CRM_Threepeas_DonorLinkConfig::singleton();
-    if (!empty($case_type)) {
-      if ($case_type == 'Grant') {
+    if (!empty($caseType)) {
+      if ($caseType == 'Grant') {
         $params['financial_type_id'] = $donorLinkConfig->getGrantDonationFinancialTypeId();
       } else {
         $params['financial_type_id'] = $donorLinkConfig->getDonationFinancialTypeId();
@@ -375,7 +375,7 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink {
      * add required contributions to option list
      */
     foreach ($contributions['values'] as $contribution) {
-      if (self::contributionIsApplicable($contribution['id']) == TRUE) {
+      if (self::contributionIsApplicable($contribution['id'])) {
         if (isset($activeContributionStatus[$contribution['contribution_status_id']])) {
           $optionText = $contribution['display_name'] . ' (type ' . $contribution['financial_type'] . ')';
           $optionContributions[$contribution['contribution_id']] = $optionText;
