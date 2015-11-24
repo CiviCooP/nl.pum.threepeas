@@ -450,6 +450,7 @@ class CRM_Threepeas_CaseRelationConfig {
       'authorised_contact' => 'Has authorised',
       'ceo' => 'CEO',
       'cfo' => 'CFO',
+      'counsellor' => 'Counsellor',
       'country_coordinator' => 'Country Coordinator is',
       'grant_coordinator' => 'Grant Coordinator',
       'project_officer' => 'Project Officer for',
