@@ -486,8 +486,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
    * @access public
    * @static
    */
-  public static function getUserRoles($params)
-  {
+  public static function getUserRoles($params) {
     $myRoles = array();
     $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
     $relationTypes = $caseRelationConfig->getRelationshipTypes();
