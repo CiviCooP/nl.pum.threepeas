@@ -24,6 +24,7 @@ class CRM_Threepeas_CaseRelationConfig {
   protected $pumCfo = NULL;
   protected $ceoRelationshipTypeId = NULL;
   protected $cfoRelationshipTypeId = NULL;
+  protected $counsellorRelationshipTypeId = NULL;
   /*
    * activity and case status completed
    */
@@ -60,6 +61,17 @@ class CRM_Threepeas_CaseRelationConfig {
     $this->setCaseStatusCompleted();
     $this->setCaseStatusError();
     $this->setExpertCaseTypes();
+    $this->counsellorRelationshipTypeId = civicrm_api3('RelationshipType', 'Getvalue',
+      array('name_a_b' => 'Counsellor', 'return' => 'id'));
+  }
+
+  /**
+   * Getter for counsellor relationship type id
+   *
+   * @return mixed
+   */
+  public function getCounsellorRelationshipTypeId() {
+    return $this->counsellorRelationshipTypeId;
   }
   /**
    * Function to get the expert case types
