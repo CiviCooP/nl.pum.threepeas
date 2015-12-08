@@ -221,11 +221,54 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
       $caseHtml = '<a href="'.$caseUrl.'">'.$caseType.'</a>';
       
       $row['type'] = $caseHtml;
-      $row['start_date'] = $case['start_date'];
-      $row['end_date'] = $case['end_date'];
+
+      // issue 2507 Erik Hommel 8 dec 2015 <erik.hommel@civicoop.org>
+      if ($threepeasConfig->caseTypes[$case['case_type']] == "Projectintake") {
+        $row['start_date'] = $case['start_date'];
+        $row['end_date'] = $case['end_date'];
+      } else {
+        $mainActivityDates = $this->getMainActivityDates($caseId);
+        $row['start_date'] = $mainActivityDates['start_date'];
+        $row['end_date'] = $mainActivityDates['end_date'];
+      }
+
       $row['status'] = CRM_Utils_Array::value($case['case_status'], $threepeasConfig->caseStatus);
       $drillRows[] = $row;
     }
     return $drillRows;
+  }
+
+  /**
+   * Method to get start and end date of main activity custom group
+   *
+   * @param $caseId
+   * @return array
+   * @throws CiviCRM_API3_Exception
+   */
+  private function getMainActivityDates($caseId) {
+    $mainActivtityDates = array(
+      'start_date' => "",
+      'end_date' => "");
+    $maCustomGroup = civicrm_api3('CustomGroup', 'Getsingle', array('name' => 'main_activity_info'));
+    if ($maCustomGroup) {
+      $maCustomFields = civicrm_api3('CustomField', 'Get', array('custom_group_id' => $maCustomGroup['id']));
+      foreach ($maCustomFields['values'] as $customFieldId => $customField) {
+        if ($customField['name'] == 'main_activity_start_date') {
+          $startDateColumn = $customField['column_name'];
+        }
+        if ($customField['name'] == 'main_activity_end_date') {
+          $endDateColumn = $customField['column_name'];
+        }
+      }
+      $query = 'SELECT '.$startDateColumn.' AS start_date, '.$endDateColumn.' AS end_date FROM '
+        .$maCustomGroup['table_name'].' WHERE entity_id = %1';
+      $params = array(1 => array($caseId, 'Integer'));
+      $dao = CRM_Core_DAO::executeQuery($query, $params);
+      if ($dao->fetch()) {
+        $mainActivtityDates['start_date'] = $dao->start_date;
+        $mainActivtityDates['end_date'] = $dao->end_date;
+      }
+    }
+    return $mainActivtityDates;
   }
 }

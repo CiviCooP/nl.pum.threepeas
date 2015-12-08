@@ -36,8 +36,8 @@
             <td>{$row.objective}</td>
             <td>{$row.client}</td>
             <td>{$row.expert}</td>
-            <td>{$row.start_date}</td>
-            <td>{$row.end_date}</td>
+            <td>{$row.start_date|crmDate}</td>
+            <td>{$row.end_date|crmDate}</td>
             <td>{$row.status}</td>
             <td>
               <span>
