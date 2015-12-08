@@ -108,6 +108,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * Function to set View Elements
    */
   function setViewElements() {
+    $this->assign('editUrl', CRM_Utils_System::url('civicrm/pumproject', "action=update&pid=".$this->_id, true));
     $this->add('text', 'title', ts('Title'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'programme_id', ts('Programme'), array('size' => CRM_Utils_Type::HUGE));
     $this->add('text', 'customer_id', ts('Customer or Country'), array('size' => CRM_Utils_Type::HUGE));

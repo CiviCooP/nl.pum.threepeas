@@ -57,3 +57,14 @@
     </div>
   {/if}
 </div>
+{literal}
+  <script type="text/javascript">
+    cj('#_qf_PumProject_next-top').click(function() {
+      CRM.alert('Top Geklikt!');
+    });
+    cj('#_qf_PumProject_next-bottom').on("click", goToEdit);
+    function goToEdit {
+      window.location.href="http://www.civicoop.org";
+    }
+  </script>
+{/literal}

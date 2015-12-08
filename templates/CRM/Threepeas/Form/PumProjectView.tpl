@@ -78,3 +78,11 @@
   <div class="content">{$form.is_active.value}</div>
   <div class="clear"></div>
 </div>
+{if $permission = 6}
+  <div class="action-link">
+    <a id="project-edit-button" class="button new-option" href="{$editUrl}">
+      <span><div class="icon edit-icon"></div>Edit this Project</span>
+    </a>
+  </div>
+{/if}
+
