@@ -573,7 +573,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   }
   /**
    * Function to set defaults for Country Coordinator, Project Officer, 
-   * Represenative and Sector Coordinator
+   * Representative and Sector Coordinator
    *
    * @param array $project
    * @param array $defaults
