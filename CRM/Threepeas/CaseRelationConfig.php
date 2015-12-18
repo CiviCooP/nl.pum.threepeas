@@ -248,14 +248,16 @@ class CRM_Threepeas_CaseRelationConfig {
    */
   protected function setCeoCfo() {
     $params[1] = array($this->getEmployeeRelationshipTypeId(), 'Integer');
+    $params[2] = array(1, 'Integer');
     $sql = "SELECT c.job_title, c.id as contact_id, c.display_name
             FROM civicrm_contact c
              INNER JOIN civicrm_relationship r ON r.contact_id_a = c.id
              WHERE (c.job_title = 'CEO' or c.job_title = 'CFO')
+             AND contact_id_b = %2
              and r.relationship_type_id = %1
              and r.is_active = 1
              and (r.start_date IS NULL or r.start_date <= NOW())
-             and (r.end_date IS NULL or r.end_date >= NOW())
+             and (r.end_date IS NULL or r.end_date >end_date= NOW())
 ";
     $dao = CRM_Core_DAO::executeQuery($sql, $params);
     while($dao->fetch()) {
