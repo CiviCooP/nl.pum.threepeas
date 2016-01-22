@@ -343,19 +343,38 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * 
    * @param int $contactId
    * @return int $sectorCoordinatorId
-   * @access protected
+   * @access public
    * @static
    */
-  protected static function getSectorCoordinatorId($contactId) {
-    $sectorCoordinatorId = 0;
-    $contactTags = self::getContactTags($contactId);
-    foreach ($contactTags as $contactTag) {
-      if (self::isSectorTag($contactTag['tag_id']) == TRUE) {
-        $sectorCoordinatorId = self::getEnhancedTagCoordinator($contactTag['tag_id']);
-      }
+  public static function getSectorCoordinatorId($contactId) {
+    $sector = self::getSectorForContactId($contactId);
+    $sectorCoordinatorId = CRM_Contactsegment_BAO_ContactSegment::getRoleContactActiveOnDate('Sector Coordinator', $sector, date('Ymd'));
+    if (!$sectorCoordinatorId) {
+      $sectorCoordinatorId = 0;
     }
     return $sectorCoordinatorId;
   }
+
+  /**
+   * Method to find sector for contact (assumption is there is only one, first one found is returned)
+   *
+   * @param $contactId
+   * @return int
+   * @access public
+   * @static
+   */
+  public static function getSectorForContactId($contactId) {
+    $sector = 0;
+    $contactSegments = civicrm_api3('ContactSegment', 'Get', array('contact_id' => $contactId, 'is_active' => 1));
+    foreach ($contactSegments['values'] as $contactSegment) {
+      $segmentParent = civicrm_api3('Segment', 'Getvalue', array('id' => $contactSegment['segment_id'], 'return' => 'parent_id'));
+      if ($segmentParent == 0) {
+        $sector = $contactSegment['segment_id'];
+      }
+    }
+    return $sector;
+  }
+
   /**
    * Function to get recruitment team member from customer
    * (temp not used)
@@ -398,6 +417,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @static
    */
   protected static function isSectorTag($tagId) {
+    // TODO: can be removed for contact segment, where used?
     if (empty($tagId)) {
       return FALSE;
     }
@@ -609,6 +629,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @static
    */
   public static function isContactSectorCoordinatorFor($contactId) {
+    // TODO: refactor function to contact segment
     $result = array();
     $sectorParams = array(
       'is_active' => 1,

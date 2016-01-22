@@ -587,7 +587,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
         $caseRoleId = $project['country_id'];
       }
       $countryCoordinatorId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'country_coordinator');
-      $sectorCoordinatorId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'sector_coordinator');
+      $sectorCoordinatorId = CRM_Threepeas_BAO_PumCaseRelation::getSectorCoordinatorId($caseRoleId);
       $projectOfficerId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'project_officer');
       $representativeId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'representative');
       $authorisedId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'authorised_contact');
