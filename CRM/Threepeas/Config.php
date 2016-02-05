@@ -19,6 +19,7 @@ class CRM_Threepeas_Config {
    */
   public $customerContactType = NULL;
   public $countryContactType = NULL;
+  public $expertContactType = NULL;
   /*
    * custom field for country key and custom table
    */
@@ -86,6 +87,7 @@ class CRM_Threepeas_Config {
   function __construct() {    
     $this->setCustomerContactType('Customer');
     $this->setCountryContactType('Country');
+    $this->setExpertContactType('Expert');
     $this->setCountryCustomField('civicrm_country_id');
     $this->setCountryCustomTable('pumCountry');
     
@@ -206,6 +208,9 @@ class CRM_Threepeas_Config {
   }
   private function setCountryContactType($countryContactType) {
     $this->countryContactType = $countryContactType;
+  }
+  private function setExpertContactType($expertContactType) {
+    $this->expertContactType = $expertContactType;
   }
   private function setCountryCustomTable($name) {
     try {

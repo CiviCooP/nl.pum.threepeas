@@ -243,6 +243,8 @@ function threepeas_civicrm_pageRun(&$page) {
   if ($pageName == 'CRM_Contact_Page_View_Summary') {
     $contactId = $page->getVar('_contactId');
     $page->assign('countExpertCases', CRM_Threepeas_BAO_PumCaseRelation::getExpertNumberOfCases($contactId));
+    $page->assign('sectorCoordinator',
+      CRM_Threepeas_Utils::getContactName(CRM_Threepeas_BAO_PumCaseRelation::getSectorCoordinatorForExpert($contactId)));
   }
 }
 
@@ -263,7 +265,7 @@ function threepeas_civicrm_summary($contactId, &$content) {
       foreach ($contactData as $contactSubType) {
         if ($contactSubType == 'Expert') {
           CRM_Core_Region::instance('page-body')->add(array(
-            'template' => 'CRM/Threepeas/Page/ExpertCases.tpl'));
+            'template' => 'CRM/Threepeas/Page/ExpertData.tpl'));
         }
       }
     }

@@ -356,7 +356,9 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
 
   /**
-   * Method to find sector for contact (assumption is there is only one, first one found is returned)
+   * Method to find sector for contact
+   * if extension nl.pum.mainsector is installed it will look for the one with is_main if the contact is expert,
+   * else it will pick the first parent
    *
    * @param $contactId
    * @return int
@@ -365,14 +367,26 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    */
   public static function getSectorForContactId($contactId) {
     $sector = 0;
-    $contactSegments = civicrm_api3('ContactSegment', 'Get', array('contact_id' => $contactId, 'is_active' => 1));
-    foreach ($contactSegments['values'] as $contactSegment) {
-      $segmentParent = civicrm_api3('Segment', 'Getvalue', array('id' => $contactSegment['segment_id'], 'return' => 'parent_id'));
-      if ($segmentParent == 0) {
-        $sector = $contactSegment['segment_id'];
+    if (class_exists('CRM_Mainsector_MainSector')) {
+      if (CRM_Threepeas_Utils::contactIsExpert($contactId)) {
+        $query = 'SELECT segment_id FROM civicrm_contact_segment WHERE contact_id = %1 AND role_value = %2 and is_main = %3';
+        $params = array(
+          1 => array($contactId, 'Integer'),
+          2 => array('Expert', 'String'),
+          3 => array(1, 'Integer')
+        );
+        return CRM_Core_DAO::singleValueQuery($query, $params);
       }
+    } else {
+      $contactSegments = civicrm_api3('ContactSegment', 'Get', array('contact_id' => $contactId, 'is_active' => 1));
+      foreach ($contactSegments['values'] as $contactSegment) {
+        $segmentParent = civicrm_api3('Segment', 'Getvalue', array('id' => $contactSegment['segment_id'], 'return' => 'parent_id'));
+        if ($segmentParent == 0) {
+          $sector = $contactSegment['segment_id'];
+        }
+      }
+      return $sector;
     }
-    return $sector;
   }
 
   /**
@@ -881,5 +895,24 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     } catch (CiviCRM_API3_Exception $ex) {
       return FALSE;
     }
+  }
+
+  /**
+   * Method to get sector coordinator contact id for expert
+   *
+   * @param $contactId
+   * @return mixed
+   * @access public
+   * @static
+   */
+  public static function getSectorCoordinatorForExpert($contactId) {
+    $sector = self::getSectorForContactId($contactId);
+    $params = array(
+      'is_active' => 1,
+      'role_value' => 'Sector Coordinator',
+      'segment_id' => $sector,
+      'return' => 'contact_id'
+    );
+    return civicrm_api3('ContactSegment', 'Getvalue', $params);
   }
 }
