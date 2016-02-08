@@ -913,6 +913,10 @@ class CRM_Threepeas_BAO_PumCaseRelation {
       'segment_id' => $sector,
       'return' => 'contact_id'
     );
-    return civicrm_api3('ContactSegment', 'Getvalue', $params);
+    try {
+      return civicrm_api3('ContactSegment', 'Getvalue', $params);
+    } catch (Exception $e) {
+      return false;
+    }
   }
 }
