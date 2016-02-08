@@ -367,23 +367,12 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    */
   public static function getSectorForContactId($contactId) {
     $sector = 0;
-    if (class_exists('CRM_Mainsector_MainSector')) {
-      if (CRM_Threepeas_Utils::contactIsExpert($contactId)) {
-        $query = 'SELECT segment_id FROM civicrm_contact_segment WHERE contact_id = %1 AND role_value = %2 and is_main = %3';
-        $params = array(
-          1 => array($contactId, 'Integer'),
-          2 => array('Expert', 'String'),
-          3 => array(1, 'Integer')
-        );
-        return CRM_Core_DAO::singleValueQuery($query, $params);
-      }
-    } else {
-      $contactSegments = civicrm_api3('ContactSegment', 'Get', array('contact_id' => $contactId, 'is_active' => 1));
-      foreach ($contactSegments['values'] as $contactSegment) {
-        $segmentParent = civicrm_api3('Segment', 'Getvalue', array('id' => $contactSegment['segment_id'], 'return' => 'parent_id'));
-        if ($segmentParent == 0) {
-          $sector = $contactSegment['segment_id'];
-        }
+    $contactSegments = civicrm_api3('ContactSegment', 'Get',
+      array('contact_id' => $contactId, 'is_active' => 1, 'is_main' => 1));
+    foreach ($contactSegments['values'] as $contactSegment) {
+      $segmentParent = civicrm_api3('Segment', 'Getvalue', array('id' => $contactSegment['segment_id'], 'return' => 'parent_id'));
+      if ($segmentParent == 0) {
+        $sector = $contactSegment['segment_id'];
       }
       return $sector;
     }
@@ -906,17 +895,21 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @static
    */
   public static function getSectorCoordinatorForExpert($contactId) {
-    $sector = self::getSectorForContactId($contactId);
-    $params = array(
-      'is_active' => 1,
-      'role_value' => 'Sector Coordinator',
-      'segment_id' => $sector,
-      'return' => 'contact_id'
-    );
-    try {
-      return civicrm_api3('ContactSegment', 'Getvalue', $params);
-    } catch (Exception $e) {
-      return false;
+    $sectors = civicrm_api3('ContactSegment', 'Get', array('contact_id' => $contactId, 'is_main' => 1));
+    foreach ($sectors['values'] as $contactSegmentId => $contactSegment) {
+      if (isset($contactSegment['segment_id']) && !empty($contactSegment['segment_id'])) {
+        $params = array(
+          'is_active' => 1,
+          'role_value' => 'Sector Coordinator',
+          'segment_id' => $contactSegment['segment_id'],
+          'return' => 'contact_id'
+        );
+        try {
+          return civicrm_api3('ContactSegment', 'Getvalue', $params);
+        } catch (CiviCRM_API3_Exception $ex) {
+        }
+      }
     }
+    return FALSE;
   }
 }
