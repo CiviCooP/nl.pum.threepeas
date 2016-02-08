@@ -244,8 +244,9 @@ function threepeas_civicrm_pageRun(&$page) {
     $contactId = $page->getVar('_contactId');
     $page->assign('countExpertCases', CRM_Threepeas_BAO_PumCaseRelation::getExpertNumberOfCases($contactId));
     $sectorCoordinatorId = CRM_Threepeas_BAO_PumCaseRelation::getSectorCoordinatorForExpert($contactId);
-    if ($$sectorCoordinatorId) {
-      $page->assign('sectorCoordinator', CRM_Threepeas_Utils::getContactName($sectorCoordinatorId));
+    if ($sectorCoordinatorId) {
+      $page->assign('sectorCoordinator', "<a href=".CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='
+          .$sectorCoordinatorId, true).">".CRM_Threepeas_Utils::getContactName($sectorCoordinatorId)."</a>");
     }
   }
 }
