@@ -27,7 +27,6 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     $caseRoles = $caseRelationConfig->getCaseTypeRelations($caseType);
     foreach ($caseRoles as $caseRoleLabel => $caseRoleActive) {
       if ($caseRoleActive == 1) {
-        $methodName =
         $caseRoleId = self::callCaseRoleMethod($caseRoleLabel, $clientId);
         self::createCaseRelation($caseId, $clientId, $caseRoleId, $caseStartDate, $caseRoleLabel);
       }
@@ -366,15 +365,35 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @static
    */
   public static function getSectorForContactId($contactId) {
-    $sector = 0;
-    $contactSegments = civicrm_api3('ContactSegment', 'Get',
-      array('contact_id' => $contactId, 'is_active' => 1, 'is_main' => 1));
-    foreach ($contactSegments['values'] as $contactSegment) {
-      $segmentParent = civicrm_api3('Segment', 'Getvalue', array('id' => $contactSegment['segment_id'], 'return' => 'parent_id'));
-      if ($segmentParent == 0) {
-        $sector = $contactSegment['segment_id'];
+    // get sector based on role
+    if (CRM_Threepeas_Utils::contactIsExpert($contactId) == TRUE) {
+      $params = array(
+        'contact_id' => $contactId,
+        'is_active' => 1,
+        'is_main' => 1,
+        'role_value' => "Expert");
+      $contactSegments = civicrm_api3('ContactSegment', 'Get', $params);
+    } elseif (CRM_Threepeas_Utils::contactIsCustomer($contactId) == TRUE) {
+        $params = array(
+          'contact_id' => $contactId,
+          'is_active' => 1,
+          'role_value' => "Customer");
+      $contactSegments = civicrm_api3('ContactSegment', 'Get', $params);
+    } else {
+      $params = array('contact_id' => $contactId, 'is_active' => 1);
+      $contactSegments = civicrm_api3('ContactSegment', 'Get', $params);
+      foreach ($contactSegments['values'] as $key => $contactSegment) {
+        if ($contactSegment['role_value'] == "Expert" || $contactSegment['role_value'] == "Customer") {
+          unset($contactSegments[$key]);
+        }
       }
-      return $sector;
+    }
+
+    if (isset($contactSegments['values']) && !empty($contactSegments['values'])) {
+      $result = $contactSegments['values'];
+      return $contactSegments['values'][key($result)]['segment_id'];
+    } else {
+      return NULL;
     }
   }
 

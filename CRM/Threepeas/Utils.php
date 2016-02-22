@@ -67,6 +67,35 @@ class CRM_Threepeas_Utils {
   }
 
   /**
+   * Function to check if contact is custmoer
+   *
+   * @param int $contactId
+   * @return boolean
+   * @access public
+   * @static
+   */
+  public static function contactIsCustomer($contactId) {
+    if (empty($contactId)) {
+      return FALSE;
+    }
+    try {
+      $contactData = civicrm_api3('Contact', 'Getsingle', array('contact_id' => $contactId));
+      if (isset($contactData['contact_sub_type']) && !empty($contactData['contact_sub_type'])) {
+        $threepeasConfig = CRM_Threepeas_Config::singleton();
+        foreach ($contactData['contact_sub_type'] as $contactSubType) {
+          if ($contactSubType == $threepeasConfig->customerContactType) {
+            return TRUE;
+          }
+        }
+      } else {
+        return FALSE;
+      }
+    } catch (CiviCRM_API3_Exception $ex) {
+      return FALSE;
+    }
+  }
+
+  /**
    * Function to get custom group if exists
    *
    * @param string $customGroupName
