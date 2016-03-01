@@ -34,8 +34,8 @@ class CRM_Threepeas_Form_Report_PumProjects extends CRM_Report_Form {
     $this->setCountrySelect();
     $this->setUserSelect();
     $session = CRM_Core_Session::singleton();
-    $userContextUrl = CRM_Utils_Request::retrieve('q', 'String');
-    $session->pushUserContext(CRM_Utils_System::url($userContextUrl, 'reset=1', true));
+    $request = CRM_Utils_Request::exportValues();
+    $session->pushUserContext(CRM_Utils_System::url($request['q'], 'reset=1', true));
     $this->setCriteriaColumns();
     $this->_groupFilter = FALSE;
     $this->_tagFilter = FALSE;
