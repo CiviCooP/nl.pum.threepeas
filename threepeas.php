@@ -764,13 +764,7 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
    */
   if ($objectName =='Activity' && $op == 'create') {
     $threepeasConfig = CRM_Threepeas_Config::singleton();
-    /*
-     * issue 810 attach sector coordinator after Assessment Rep
-     */
-    if ($objectRef->activity_type_id == $threepeasConfig->getAssessmentRepActTypeId()) {
-      CRM_Threepeas_BAO_PumCaseRelation::setSectorCoordinatorFromActivity($objectRef);
-    }
-    
+
     if ($objectRef->activity_type_id == $threepeasConfig->openCaseActTypeId) {
 
       /*

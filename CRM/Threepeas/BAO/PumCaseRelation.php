@@ -33,27 +33,6 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     }
   }
   /**
-   * Function to set sector coordinator role for case from activity
-   * 
-   * @param obj $objectRef
-   * @throws Exception when $objectRef is not an object
-   * @access public
-   * @static
-   */
-  public static function setSectorCoordinatorFromActivity($objectRef) {
-    if (!is_object($objectRef)) {
-      throw new Exception('Function set_sector_coordinator_assessment_rep in '
-        . 'CRM_Threepeas_BAO_PumCaseRelation expects object as param.');
-    }
-    $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
-    if (isset($objectRef->status_id) && $objectRef->status_id =
-      $caseRelationConfig->getActivityStatusCompleted()) {
-      if (isset($objectRef->case_id) && !empty($objectRef->case_id)) {
-        self::setSectorCoordinatorForCase($objectRef->case_id);
-      }
-    }
-  }
-  /**
    * Function to get coordinator/rep/etc.
    * 
    * @param int $contactId
@@ -65,20 +44,6 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   public static function getRelationId($contactId, $caseRoleLabel) {
     $caseRoleId = self::callCaseRoleMethod($caseRoleLabel, $contactId);
     return $caseRoleId;
-  }
-  /**
-   * Function to set sector coordinator for case
-   * 
-   * @param int $caseId
-   * @access protected
-   * @static
-   */
-  protected static function setSectorCoordinatorForCase($caseId) {
-    $clientId = CRM_Threepeas_Utils::getCaseClientId($caseId);
-    $sectorCoordinatorId = self::getSectorCoordinatorId($clientId);
-    $caseStartDate = self::getCaseStartDate($caseId);
-    self::createCaseRelation($caseId, $clientId, $sectorCoordinatorId, $caseStartDate,
-      'sector_coordinator');
   }
   /**
    * Function to get start_date fo case
