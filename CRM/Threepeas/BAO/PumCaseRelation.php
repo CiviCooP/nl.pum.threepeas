@@ -113,7 +113,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @access protected
    * @static
    */
-  protected static function createCaseRelation($caseId, $contactIdA, $contactIdB,
+  public static function createCaseRelation($caseId, $contactIdA, $contactIdB,
     $startDate, $caseRoleLabel) {
     if (!empty($contactIdA) && !empty($contactIdB)) {
       $params = self::setCaseRelationParams($caseId, $contactIdA, $contactIdB,
