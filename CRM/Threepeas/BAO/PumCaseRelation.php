@@ -27,7 +27,6 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     $caseRoles = $caseRelationConfig->getCaseTypeRelations($caseType);
     foreach ($caseRoles as $caseRoleLabel => $caseRoleActive) {
       if ($caseRoleActive == 1) {
-        $methodName =
         $caseRoleId = self::callCaseRoleMethod($caseRoleLabel, $clientId);
         self::createCaseRelation($caseId, $clientId, $caseRoleId, $caseStartDate, $caseRoleLabel);
       }
