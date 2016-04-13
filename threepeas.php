@@ -335,6 +335,20 @@ function threepeas_civicrm_buildForm($formName, &$form) {
     case 'CRM_Case_Form_Activity':
       _threepeasCustomerContributionStatus($form);
       break;
+    case 'CRM_Threepeas_Form_PumProject':
+      $defaults = array();
+      CRM_Threepeas_BAO_PumDonorLink::showNonApplicableDonations('Project', $form, $defaults);
+      if (!empty($defaults)) {
+        $form->setDefaults($defaults);
+      }
+      break;
+    case 'CRM_Threepeas_Form_PumProgramme':
+      $defaults = array();
+      CRM_Threepeas_BAO_PumDonorLink::showNonApplicableDonations('Programme', $form, $defaults);
+      if (!empty($defaults)) {
+        $form->setDefaults($defaults);
+      }
+      break;
   }
 }
 /**
@@ -1006,7 +1020,7 @@ function _threepeasProcessCaseDonorLink($values) {
       $caseId = $values['case_id'];
     }
     if (!empty($caseId)) {
-      CRM_Threepeas_BAO_PumDonorLink::deleteByEntityId('Case', $caseId);
+      CRM_Threepeas_BAO_PumDonorLink::deleteApplicableByEntityId('Case', $caseId);
       foreach ($values['new_link'] as $newLink) {
         $params = array(
           'donation_entity' => 'Contribution', 
@@ -1034,7 +1048,7 @@ function _threepeasCaseDonationLinks($values, $caseId) {
   /*
    * if update, delete all current donor links for case
    */
-  CRM_Threepeas_BAO_PumDonorLink::deleteByEntityId('Case', $caseId);
+  CRM_Threepeas_BAO_PumDonorLink::deleteApplicableByEntityId('Case', $caseId);
   /*
    * add new donor links
    */
@@ -1152,10 +1166,10 @@ function _threepeasReformOpenCaseSubject($caseId, $caseTypeId, $activityId, $sub
  */
 function threepeas_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
   if ($formName == 'CRM_Case_Form_CaseView') {
-    _threepeasValidateCaseFaDonorView($fields, $errors);
+    _threepeasValidateCaseFaDonorView($fields, $errors, $form->_defaultValues);
   }
   if ($formName == 'CRM_Case_Form_Case') {
-    _threepeasValidateCaseFaDonorForm($fields, $errors);
+    _threepeasValidateCaseFaDonorForm($fields, $errors, $form->_defaultValues);
   }
 }
 
@@ -1203,6 +1217,7 @@ function _threepeasCustomerContributionStatus(&$form) {
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @param array $fields
  * @param array $errors
+ * @return array
  */
 function _threepeasValidateCaseFaDonorForm($fields, &$errors) {
   $threepeasConfig = CRM_Threepeas_Config::singleton();
@@ -1210,34 +1225,57 @@ function _threepeasValidateCaseFaDonorForm($fields, &$errors) {
     $caseType = $threepeasConfig->caseTypes[$fields['case_type_id']];
     $donorLinkConfig = CRM_Threepeas_DonorLinkConfig::singleton();
     if (in_array($caseType, $donorLinkConfig->getDonationCaseTypes())) {
-      if ($fields['fa_donor'] == 0) {
+      if ($fields['fa_donor'] == 0 && empty($fields['not_applicable_fa_donor'])) {
         $errors['fa_donor'] = ts('You have to select a donation for FA');
       } else {
-        if (!in_array($fields['fa_donor'], $fields['new_link'])) {
+        if (!in_array($fields['fa_donor'], $fields['new_link']) && empty($fields['not_applicable_fa_donor'])) {
           $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
         }
       }
     }
   }
-  return;
+  return array();
 }
 /**
  * Function to validate the fa donor in the view (has to be in selected linked donors)
  * issue 937
  * 
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+ *
  * @param array $fields
  * @param array $errors
+ * @param array $defaults
+ * @return array
  */
-function _threepeasValidateCaseFaDonorView($fields, &$errors) {
-  if ($fields['fa_donor'] == 0) {
-    $errors['fa_donor'] = ts('You have to select a donation for FA');
+function _threepeasValidateCaseFaDonorView($fields, &$errors, $defaults) {
+  // check if there is a not applicable fa donor
+  $notAppFaDonor = 0;
+  if (isset($fields['not_applicable_fa_donor'])) {
+    $notAppFaDonor = $fields['not_applicable_fa_donor'];
   } else {
-    if (!in_array($fields['fa_donor'], $fields['new_link'])) {
-      $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+    if (isset($defaults['not_applicable_fa_donor'])) {
+      $notAppFaDonor = $defaults['not_applicable_fa_donor'];
     }
   }
-  return;
+  // get newLink from fields or defaults
+  $newLink = array();
+  if (isset($fields['new_link'])) {
+    $newLink = $fields['new_link'];
+  } else {
+    if (isset($defaults['new_link'])) {
+      $newLink = $defaults['new_link'];
+    }
+  }
+  if ($fields['fa_donor'] == 0 && empty($notAppFaDonor)) {
+    $errors['fa_donor'] = ts('You have to select a donation for FA');
+    return $errors;
+  } else {
+    if (!in_array($fields['fa_donor'], $newLink) && empty($notAppFaDonor)) {
+      $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+      return $errors;
+    }
+  }
+  return array();
 }
 /**
  * Function to add the donation link parts to case view
@@ -1249,14 +1287,17 @@ function _threepeasValidateCaseFaDonorView($fields, &$errors) {
  */
 function _threepeasAddDonorLinkToCaseView($caseId, $caseType, &$form, &$defaults) {
   $donorLinkConfig = CRM_Threepeas_DonorLinkConfig::singleton();
+  $defaults = array();
   if (in_array($caseType, $donorLinkConfig->getDonationCaseTypes())) {
     $form->assign('donor_link_flag', 1);
     $contributionsList = CRM_Threepeas_BAO_PumDonorLink::getContributionsList('Case', $caseType);
     _threepeasAddDonorLinkList($contributionsList, $form);
     _threepeasAddDonorLinkCaseSaveButton($form);
     $currentContributions = _threepeasGetContributionsCase($caseId, $caseType);
-    foreach ($currentContributions as $currentContributions) {
-      $defaults['new_link'][] = $currentContributions['donation_entity_id'];
+    foreach ($currentContributions as $currentContribution) {
+      if (CRM_Threepeas_BAO_PumDonorLink::contributionIsApplicable($currentContribution['donation_entity_id']) == TRUE) {
+        $defaults['new_link'][] = $currentContribution['donation_entity_id'];
+      }
     }
     $faDonation = _threepeasGetFaDonation($caseId);
     foreach ($faDonation as $donationValues) {
@@ -1264,6 +1305,12 @@ function _threepeasAddDonorLinkToCaseView($caseId, $caseType, &$form, &$defaults
     }
     if (isset($faDonationId)) {
       $defaults['fa_donor'] = _threepeasSetFaDefault($faDonationId);
+    }
+    // issue 3266 show donations that are linked but no longer applicable
+    // (Erik Hommel (CiviCooP) erik.hommel@civicoop.org 12 Apr 2016
+    CRM_Threepeas_BAO_PumDonorLink::showNonApplicableCaseDonations($caseId, $form, $defaults);
+    if (!empty($defaults)) {
+      $form->setDefaults($defaults);
     }
   } else {
     $form->assign('donor_link_flag', 0);

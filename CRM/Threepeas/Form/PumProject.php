@@ -377,11 +377,11 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * Function to validate the fa donor
    */
   static function validate_fa_donor($fields) {
-    if ($fields['fa_donor'] == 0) {
+    if ($fields['fa_donor'] == 0 && empty($fields['not_applicable_fa_donor'])) {
       $errors['fa_donor'] = ts('You have to select a donation for FA');
       return $errors;
     } else {
-      if (!in_array($fields['fa_donor'], $fields['new_link'])) {
+      if (!in_array($fields['fa_donor'], $fields['new_link']) && empty($fields['not_applicable_fa_donor'])) {
         $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
         return $errors;
       }
@@ -489,7 +489,9 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       list($defaults['end_date']) = '';
     }
     foreach ($this->linkedDonationEntityIds as $donationEntityId) {
-      $defaults['new_link'][] = $donationEntityId;
+      if (CRM_Threepeas_BAO_PumDonorLink::contributionIsApplicable($donationEntityId)) {
+        $defaults['new_link'][] = $donationEntityId;
+      }
     }
     $faDonor = $this->setDefaultFaDonor($this->_id);
     if (!empty($faDonor)) {
@@ -525,30 +527,43 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * @param array $values
    */
   function saveDonorLink($projectId, $values) {
-    /*
-     * if update, delete all current donor links for project
-     */
+    // if update, delete all current donor links for project
     if ($this->_action == CRM_Core_Action::UPDATE) {
-      CRM_Threepeas_BAO_PumDonorLink::deleteByEntityId('Project', $projectId);
+      CRM_Threepeas_BAO_PumDonorLink::deleteApplicableByEntityId('Project', $projectId);
     }
-    /*
-     * add new donor links
-     */
+    // add new donor links
     foreach ($values['new_link'] as $newLink) {
-      $params = array(
-        'donation_entity' => 'Contribution', 
-        'donation_entity_id' => $newLink,
-        'entity' => 'Project',
-        'entity_id' => $projectId,
-        'is_active' => 1);
       if ($newLink == $values['fa_donor']) {
-        $params['is_fa_donor'] = 1;
+        $faDonor = TRUE;
       } else {
-        $params['is_fa_donor'] = 0;
+        $faDonor = FALSE;
       }
-      CRM_Threepeas_BAO_PumDonorLink::add($params);
+      $this->addDonorLink($projectId, $newLink, $faDonor);
     }
   }
+
+  /**
+   * Method to create donor link record
+   * @param $projectId
+   * @param $linkId
+   * @param $faDonor
+   * @throws Exception
+   */
+  private function addDonorLink($projectId, $linkId, $faDonor) {
+    $params = array(
+      'donation_entity' => 'Contribution',
+      'donation_entity_id' => $linkId,
+      'entity' => 'Project',
+      'entity_id' => $projectId,
+      'is_active' => 1);
+    if ($faDonor) {
+      $params['is_fa_donor'] = 1;
+    } else {
+      $params['is_fa_donor'] = 0;
+    }
+    CRM_Threepeas_BAO_PumDonorLink::add($params);
+  }
+
 /**
    * Function to set default values
    * 

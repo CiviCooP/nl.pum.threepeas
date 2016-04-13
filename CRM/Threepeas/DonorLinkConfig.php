@@ -22,6 +22,7 @@ class CRM_Threepeas_DonorLinkConfig {
   protected $financialTypeIds = array();
   protected $donationFinancialType = NULL;
   protected $grantCaseType = NULL;
+  protected $grantCaseTypeId = NULL;
   protected $donationCaseTypes = NULL;
   /*
    * properties for custom field donation applicable (issue 1566)
@@ -51,6 +52,16 @@ class CRM_Threepeas_DonorLinkConfig {
   function __construct() {
     $this->defaultContributionId = 4;
     $this->grantCaseType = 'Grant';
+    try {
+      $caseTypeOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue', array('name' => 'case_type', 'return' => 'id'));
+      try {
+        $this->grantCaseTypeId = civicrm_api3('OptionValue', 'Getvalue', 
+          array('option_group_id' => $caseTypeOptionGroupId, 'name' => $this->grantCaseType, 'return' => 'value'));
+      } catch (CiviCRM_API3_Exception $ex) {}
+    } catch (CiviCRM_API3_Exception $ex) {
+      throw new Exception('Could not find option group with name case_type in '.__METHOD__.', 
+      contact your system administator. Error from API OptionGroup Getvalue: '.$ex->getMessage());
+    }
     $this->setContributionStatus();
     $this->grantDonationFinancialType = 'Grant Donation';
     $this->donationFinancialType = 'Donation';
@@ -137,6 +148,16 @@ class CRM_Threepeas_DonorLinkConfig {
    */
   public function getGrantCaseType() {
     return $this->grantCaseType;
+  }
+
+  /**
+   * Function to get grant case type id
+   * 
+   * @return string
+   * @access public
+   */
+  public function getGrantCaseTypeId() {
+    return $this->grantCaseTypeId;
   }
 
   /**
