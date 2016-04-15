@@ -1052,19 +1052,21 @@ function _threepeasCaseDonationLinks($values, $caseId) {
   /*
    * add new donor links
    */
-  foreach ($values['new_link'] as $newLink) {
-    $params = array(
-      'donation_entity' => 'Contribution', 
-      'donation_entity_id' => $newLink,
-      'entity' => 'Case',
-      'entity_id' => $caseId,
-      'is_active' => 1);
-    if (isset($values['fa_donor']) && $newLink == $values['fa_donor']) {
-      $params['is_fa_donor'] = 1;
-    } else {
-      $params['is_fa_donor'] = 0;
+  if (isset($values['new_link']) && !empty($values['new_link'])) {
+    foreach ($values['new_link'] as $newLink) {
+      $params = array(
+        'donation_entity' => 'Contribution',
+        'donation_entity_id' => $newLink,
+        'entity' => 'Case',
+        'entity_id' => $caseId,
+        'is_active' => 1);
+      if (isset($values['fa_donor']) && $newLink == $values['fa_donor']) {
+        $params['is_fa_donor'] = 1;
+      } else {
+        $params['is_fa_donor'] = 0;
+      }
+      CRM_Threepeas_BAO_PumDonorLink::add($params);
     }
-    CRM_Threepeas_BAO_PumDonorLink::add($params);
   }
 }
 /**
