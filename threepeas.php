@@ -1059,7 +1059,7 @@ function _threepeasCaseDonationLinks($values, $caseId) {
       'entity' => 'Case',
       'entity_id' => $caseId,
       'is_active' => 1);
-    if ($newLink == $values['fa_donor']) {
+    if (isset($values['fa_donor']) && $newLink == $values['fa_donor']) {
       $params['is_fa_donor'] = 1;
     } else {
       $params['is_fa_donor'] = 0;
@@ -1266,13 +1266,15 @@ function _threepeasValidateCaseFaDonorView($fields, &$errors, $defaults) {
       $newLink = $defaults['new_link'];
     }
   }
-  if ($fields['fa_donor'] == 0 && empty($notAppFaDonor)) {
-    $errors['fa_donor'] = ts('You have to select a donation for FA');
-    return $errors;
-  } else {
-    if (!in_array($fields['fa_donor'], $newLink) && empty($notAppFaDonor)) {
-      $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+  if (isset($fields['fa_donor'])) {
+    if ($fields['fa_donor'] == 0 && empty($notAppFaDonor)) {
+      $errors['fa_donor'] = ts('You have to select a donation for FA');
       return $errors;
+    } else {
+      if (!in_array($fields['fa_donor'], $newLink) && empty($notAppFaDonor)) {
+        $errors['fa_donor'] = ts('You have to use a linked donation as the donation for FA');
+        return $errors;
+      }
     }
   }
   return array();
