@@ -395,48 +395,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     }
     return $coordinatorId;
   }
-  /**
-   * Function to determine if tag is a sector tag
-   * 
-   * @param int $tagId
-   * @return boolean
-   * @access protected
-   * @static
-   */
-  protected static function isSectorTag($tagId) {
-    // TODO: can be removed for contact segment, where used?
-    if (empty($tagId)) {
-      return FALSE;
-    }
-    $threepeasConfig = CRM_Threepeas_Config::singleton();
-    $sectorTree = $threepeasConfig->getSectorTree();
-    if (in_array($tagId, $sectorTree)) {
-      return TRUE;
-    } else {
-      return FALSE;
-    }
-  }
-  /**
-   * Function to get contact tags for contact
-   * 
-   * @param int $contactId
-   * @return array
-   * @throws Exception when error from API EntityTag Get
-   * @access protected
-   * @static
-   */
-  protected static function getContactTags($contactId) {
-    $params = array(
-      'entity_table' => 'civicrm_contact',
-      'entity_id' => $contactId,
-      'options' => array('limit' => 99999));
-    try {
-      $contactTags = civicrm_api3('EntityTag', 'Get', $params);
-    } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Error retrieving contact tags with API EntityTag Get: '.$ex->getMessage());
-    }
-    return $contactTags['values'];
-  }
+
   /**
    * Function to get authorised contact from customer
    * 
@@ -449,6 +408,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     $authorisedContactId = self::getDefaultRelation('authorised_contact', $contactId);
     return $authorisedContactId;
   }
+
   /**
    * Function to get grant coordinator from customer or country if not on customer
    * 
