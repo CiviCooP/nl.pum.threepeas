@@ -243,6 +243,11 @@ function threepeas_civicrm_pageRun(&$page) {
   if ($pageName == 'CRM_Contact_Page_View_Summary') {
     $contactId = $page->getVar('_contactId');
     $page->assign('countExpertCases', CRM_Threepeas_BAO_PumCaseRelation::getExpertNumberOfCases($contactId));
+    $sectorCoordinatorId = CRM_Threepeas_BAO_PumCaseRelation::getSectorCoordinatorForExpert($contactId);
+    if ($sectorCoordinatorId) {
+      $page->assign('sectorCoordinator', "<a href=".CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='
+          .$sectorCoordinatorId, true).">".CRM_Threepeas_Utils::getContactName($sectorCoordinatorId)."</a>");
+    }
   }
 }
 
@@ -263,7 +268,7 @@ function threepeas_civicrm_summary($contactId, &$content) {
       foreach ($contactData as $contactSubType) {
         if ($contactSubType == 'Expert') {
           CRM_Core_Region::instance('page-body')->add(array(
-            'template' => 'CRM/Threepeas/Page/ExpertCases.tpl'));
+            'template' => 'CRM/Threepeas/Page/ExpertData.tpl'));
         }
       }
     }
@@ -773,13 +778,7 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
    */
   if ($objectName =='Activity' && $op == 'create') {
     $threepeasConfig = CRM_Threepeas_Config::singleton();
-    /*
-     * issue 810 attach sector coordinator after Assessment Rep
-     */
-    if ($objectRef->activity_type_id == $threepeasConfig->getAssessmentRepActTypeId()) {
-      CRM_Threepeas_BAO_PumCaseRelation::setSectorCoordinatorFromActivity($objectRef);
-    }
-    
+
     if ($objectRef->activity_type_id == $threepeasConfig->openCaseActTypeId) {
 
       /*

@@ -33,27 +33,6 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     }
   }
   /**
-   * Function to set sector coordinator role for case from activity
-   * 
-   * @param obj $objectRef
-   * @throws Exception when $objectRef is not an object
-   * @access public
-   * @static
-   */
-  public static function setSectorCoordinatorFromActivity($objectRef) {
-    if (!is_object($objectRef)) {
-      throw new Exception('Function set_sector_coordinator_assessment_rep in '
-        . 'CRM_Threepeas_BAO_PumCaseRelation expects object as param.');
-    }
-    $caseRelationConfig = CRM_Threepeas_CaseRelationConfig::singleton();
-    if (isset($objectRef->status_id) && $objectRef->status_id =
-      $caseRelationConfig->getActivityStatusCompleted()) {
-      if (isset($objectRef->case_id) && !empty($objectRef->case_id)) {
-        self::setSectorCoordinatorForCase($objectRef->case_id);
-      }
-    }
-  }
-  /**
    * Function to get coordinator/rep/etc.
    * 
    * @param int $contactId
@@ -65,20 +44,6 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   public static function getRelationId($contactId, $caseRoleLabel) {
     $caseRoleId = self::callCaseRoleMethod($caseRoleLabel, $contactId);
     return $caseRoleId;
-  }
-  /**
-   * Function to set sector coordinator for case
-   * 
-   * @param int $caseId
-   * @access protected
-   * @static
-   */
-  protected static function setSectorCoordinatorForCase($caseId) {
-    $clientId = CRM_Threepeas_Utils::getCaseClientId($caseId);
-    $sectorCoordinatorId = self::getSectorCoordinatorId($clientId);
-    $caseStartDate = self::getCaseStartDate($caseId);
-    self::createCaseRelation($caseId, $clientId, $sectorCoordinatorId, $caseStartDate,
-      'sector_coordinator');
   }
   /**
    * Function to get start_date fo case
@@ -148,7 +113,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @access protected
    * @static
    */
-  protected static function createCaseRelation($caseId, $contactIdA, $contactIdB,
+  public static function createCaseRelation($caseId, $contactIdA, $contactIdB,
     $startDate, $caseRoleLabel) {
     if (!empty($contactIdA) && !empty($contactIdB)) {
       $params = self::setCaseRelationParams($caseId, $contactIdA, $contactIdB,
@@ -342,19 +307,61 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * 
    * @param int $contactId
    * @return int $sectorCoordinatorId
-   * @access protected
+   * @access public
    * @static
    */
-  protected static function getSectorCoordinatorId($contactId) {
-    $sectorCoordinatorId = 0;
-    $contactTags = self::getContactTags($contactId);
-    foreach ($contactTags as $contactTag) {
-      if (self::isSectorTag($contactTag['tag_id']) == TRUE) {
-        $sectorCoordinatorId = self::getEnhancedTagCoordinator($contactTag['tag_id']);
-      }
+  public static function getSectorCoordinatorId($contactId) {
+    $sector = self::getSectorForContactId($contactId);
+    $sectorCoordinatorId = CRM_Contactsegment_BAO_ContactSegment::getRoleContactActiveOnDate('Sector Coordinator', $sector, date('Ymd'));
+    if (!$sectorCoordinatorId) {
+      $sectorCoordinatorId = 0;
     }
     return $sectorCoordinatorId;
   }
+
+  /**
+   * Method to find sector for contact
+   * if extension nl.pum.mainsector is installed it will look for the one with is_main if the contact is expert,
+   * else it will pick the first parent
+   *
+   * @param $contactId
+   * @return int
+   * @access public
+   * @static
+   */
+  public static function getSectorForContactId($contactId) {
+    // get sector based on role
+    if (CRM_Threepeas_Utils::contactIsExpert($contactId) == TRUE) {
+      $params = array(
+        'contact_id' => $contactId,
+        'is_active' => 1,
+        'is_main' => 1,
+        'role_value' => "Expert");
+      $contactSegments = civicrm_api3('ContactSegment', 'Get', $params);
+    } elseif (CRM_Threepeas_Utils::contactIsCustomer($contactId) == TRUE) {
+        $params = array(
+          'contact_id' => $contactId,
+          'is_active' => 1,
+          'role_value' => "Customer");
+      $contactSegments = civicrm_api3('ContactSegment', 'Get', $params);
+    } else {
+      $params = array('contact_id' => $contactId, 'is_active' => 1);
+      $contactSegments = civicrm_api3('ContactSegment', 'Get', $params);
+      foreach ($contactSegments['values'] as $key => $contactSegment) {
+        if ($contactSegment['role_value'] == "Expert" || $contactSegment['role_value'] == "Customer") {
+          unset($contactSegments[$key]);
+        }
+      }
+    }
+
+    if (isset($contactSegments['values']) && !empty($contactSegments['values'])) {
+      $result = $contactSegments['values'];
+      return $contactSegments['values'][key($result)]['segment_id'];
+    } else {
+      return NULL;
+    }
+  }
+
   /**
    * Function to get recruitment team member from customer
    * (temp not used)
@@ -388,47 +395,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     }
     return $coordinatorId;
   }
-  /**
-   * Function to determine if tag is a sector tag
-   * 
-   * @param int $tagId
-   * @return boolean
-   * @access protected
-   * @static
-   */
-  protected static function isSectorTag($tagId) {
-    if (empty($tagId)) {
-      return FALSE;
-    }
-    $threepeasConfig = CRM_Threepeas_Config::singleton();
-    $sectorTree = $threepeasConfig->getSectorTree();
-    if (in_array($tagId, $sectorTree)) {
-      return TRUE;
-    } else {
-      return FALSE;
-    }
-  }
-  /**
-   * Function to get contact tags for contact
-   * 
-   * @param int $contactId
-   * @return array
-   * @throws Exception when error from API EntityTag Get
-   * @access protected
-   * @static
-   */
-  protected static function getContactTags($contactId) {
-    $params = array(
-      'entity_table' => 'civicrm_contact',
-      'entity_id' => $contactId,
-      'options' => array('limit' => 99999));
-    try {
-      $contactTags = civicrm_api3('EntityTag', 'Get', $params);
-    } catch (CiviCRM_API3_Exception $ex) {
-      throw new Exception('Error retrieving contact tags with API EntityTag Get: '.$ex->getMessage());
-    }
-    return $contactTags['values'];
-  }
+
   /**
    * Function to get authorised contact from customer
    * 
@@ -441,6 +408,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     $authorisedContactId = self::getDefaultRelation('authorised_contact', $contactId);
     return $authorisedContactId;
   }
+
   /**
    * Function to get grant coordinator from customer or country if not on customer
    * 
@@ -608,6 +576,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @static
    */
   public static function isContactSectorCoordinatorFor($contactId) {
+    // TODO: refactor function to contact segment
     $result = array();
     $sectorParams = array(
       'is_active' => 1,
@@ -859,5 +828,32 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     } catch (CiviCRM_API3_Exception $ex) {
       return FALSE;
     }
+  }
+
+  /**
+   * Method to get sector coordinator contact id for expert
+   *
+   * @param $contactId
+   * @return mixed
+   * @access public
+   * @static
+   */
+  public static function getSectorCoordinatorForExpert($contactId) {
+    $sectors = civicrm_api3('ContactSegment', 'Get', array('contact_id' => $contactId, 'is_main' => 1));
+    foreach ($sectors['values'] as $contactSegmentId => $contactSegment) {
+      if (isset($contactSegment['segment_id']) && !empty($contactSegment['segment_id'])) {
+        $params = array(
+          'is_active' => 1,
+          'role_value' => 'Sector Coordinator',
+          'segment_id' => $contactSegment['segment_id'],
+          'return' => 'contact_id'
+        );
+        try {
+          return civicrm_api3('ContactSegment', 'Getvalue', $params);
+        } catch (CiviCRM_API3_Exception $ex) {
+        }
+      }
+    }
+    return FALSE;
   }
 }
