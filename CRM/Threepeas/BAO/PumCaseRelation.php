@@ -576,19 +576,14 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @static
    */
   public static function isContactSectorCoordinatorFor($contactId) {
-    // TODO: refactor function to contact segment
     $result = array();
-    $sectorParams = array(
-      'is_active' => 1,
-      'coordinator_id' => $contactId);
-    $sectorTags = CRM_Enhancedtags_BAO_TagEnhanced::getValues($sectorParams);
-    foreach ($sectorTags as $sectorTag) {
-      $entityTagParams = array(
-        'entity_table' => 'civicrm_contact',
-        'tag_id' => $sectorTag['tag_id']);
-      $entityTags = civicrm_api3('EntityTag', 'Get', $entityTagParams);
-      foreach ($entityTags['values'] as $entityTag) {
-        $result[] = $entityTag['entity_id'];
+    $segment_roles = civicrm_api3('OptionGroup', 'getvalue', array('name' => 'civicoop_segment_role', 'return' => 'id'));
+    $sc_role_value = civicrm_api3('OptionValue', 'getvalue', array('name' => 'sector_coordinator', 'option_group_id' => $segment_roles, 'return' => 'value'));
+    $sectors = civicrm_api3('ContactSegment', 'get', array('role_value' => $sc_role_value, 'contact_id' => $contactId, 'is_active' => true));
+    foreach($sectors['values'] as $sector) {
+      $contact_segments = civicrm_api3('ContactSegment', 'get', array('segment_id' => $sector['segment_id'], 'is_active' => true, 'options.limit' => 9999));
+      foreach($contact_segments['values'] as $contact_segment) {
+        $result[] = $contact_segment['contact_id'];
       }
     }
     return $result;
