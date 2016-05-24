@@ -17,6 +17,7 @@ class CRM_Threepeas_Page_DeleteCaseRoles extends CRM_Core_Page {
   function run() {
     $caseId  = CRM_Utils_Type::escape($_POST['case_id'], 'Integer');
     $relType = CRM_Utils_Type::escape($_POST['rel_type'], 'Integer');
+    $relId = CRM_Utils_Type::escape($_POST['rel_id'], 'Integer');
     $result['status'] = null;
 
     if (method_exists('CRM_Businessdsa_BAO_BusinessDsa', 'canExpertBeRemovedFromCase')) {
@@ -28,10 +29,11 @@ class CRM_Threepeas_Page_DeleteCaseRoles extends CRM_Core_Page {
         CRM_Utils_System::civiExit();
       }
     }
-    $sql = "DELETE FROM civicrm_relationship WHERE case_id=%1 AND relationship_type_id=%2";
+    $sql = "DELETE FROM civicrm_relationship WHERE case_id=%1 AND relationship_type_id=%2 and id = %3";
     $sqlParams = array(
       1 => array($caseId, 'Integer'),
-      2 => array($relType, 'Integer')
+      2 => array($relType, 'Integer'),
+      3 => array($relId, 'Integer'),
     );
     CRM_Core_DAO::executeQuery($sql, $sqlParams);
     echo json_encode($result);

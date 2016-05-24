@@ -206,11 +206,12 @@
     cj('.case-role-delete').click(function(){
       var caseID = cj(this).attr('case_id');
       var relType  = cj(this).attr('rel_type');
+      var relId  = cj(this).attr('rel_id');
 
       CRM.confirm(function() {
         var postUrl = {/literal}"{crmURL p='civicrm/ajax/pumdelcaserole' h=0 }"{literal};
         cj.post( postUrl, {
-          rel_type: relType, case_id: caseID, key: {/literal}"{crmKey name='civicrm/ajax/delcaserole'}"{literal}},
+          rel_type: relType, rel_id: relId, case_id: caseID, key: {/literal}"{crmKey name='civicrm/ajax/delcaserole'}"{literal}},
           function(data) {
             if (data.status == 'pum-not-to-be-removed') {
               var errorMsg = 'You can not remove the Expert, there is still a payable credit business dsa on the case';
@@ -237,7 +238,7 @@
     }
     var count   = 0;
     var columns = '';
-    var sourceUrl = {/literal}"{crmURL p='civicrm/ajax/caseroles' h=0 q='snippet=4&caseID='}{$caseID}"{literal};
+    var sourceUrl = {/literal}"{crmURL p='civicrm/ajax/pumcaseroles' h=0 q='snippet=4&caseID='}{$caseID}"{literal};
     sourceUrl = sourceUrl + '&cid={/literal}{$contactID}{literal}';
     sourceUrl = sourceUrl + '&userID={/literal}{$userID}{literal}';
 

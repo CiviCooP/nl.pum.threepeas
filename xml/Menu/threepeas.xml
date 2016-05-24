@@ -43,6 +43,11 @@
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
+    <path>civicrm/ajax/pumcaseroles</path>
+    <page_callback>CRM_Threepeas_Page_GetCaseRoles::getCaseRoles</page_callback>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
     <path>civicrm/ajax/pumdelcaserole</path>
     <page_callback>CRM_Threepeas_Page_DeleteCaseRoles</page_callback>
     <title>DeleteCaseRoles</title>
