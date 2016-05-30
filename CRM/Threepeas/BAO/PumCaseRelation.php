@@ -110,19 +110,43 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @param int $contactIdB
    * @param date $startDate
    * @param string $caseRoleLabel
+   * @param bool $endCurrentRelationship
+   *   When the relationship type already exists then this would end it.
    * @access protected
    * @static
    */
   public static function createCaseRelation($caseId, $contactIdA, $contactIdB,
-    $startDate, $caseRoleLabel) {
+    $startDate, $caseRoleLabel, $endCurrentRelationship=false) {
     if (!empty($contactIdA) && !empty($contactIdB)) {
       $params = self::setCaseRelationParams($caseId, $contactIdA, $contactIdB,
         $startDate, $caseRoleLabel);
+      if ($endCurrentRelationship) {
+        self::endCurrentRelationship($params);
+      }
       if (self::caseRelationExists($params) == FALSE) {
         self::createRelationshipRecord($params);
       }
     }
   }
+
+  /**
+   * Ends the current relationship on a case.
+   * @param $params
+   */
+  protected static function endCurrentRelationship($params) {
+    $relationshipParams['contact_id_a'] = $params['contact_id_a'];
+    $relationshipParams['case_id'] = $params['case_id'];
+    $relationshipParams['relationship_type_id'] = $params['relationship_type_id'];
+    $relationshipParams['return'] = 'id';
+
+    try {
+      $relationshipId = civicrm_api3('Relationship', 'getvalue', $relationshipParams);
+      civicrm_api3('Relationship', 'delete', array('id' => $relationshipId));
+    } catch (Exception $e) {
+      // Do nothing.
+    }
+  }
+
   /**
    * Function to check if the to be created case relation already exists
    * 
