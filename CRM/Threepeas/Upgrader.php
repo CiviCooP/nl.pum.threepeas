@@ -123,6 +123,7 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
     }
     return TRUE;    
   }
+  
   /**
    * Upgrade 2201 - add projectplan field to civicrm_project (issue 916)
    */
@@ -132,6 +133,36 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
       if (!CRM_Core_DAO::checkFieldExists('civicrm_project', 'projectplan')) {
         CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_project ADD COLUMN '
           . 'projectplan TEXT AFTER expected_results');
+      }
+    }
+    return TRUE;    
+  }
+  
+  /**
+   * Upgrade 2300 - add columns for my pum projects report (issue 3287) to civicrm_project
+   */
+  public function upgrade_2300() {
+    $this->ctx->log->info('Applying update 2300 (add issue 3287 columns to civicrm_project');
+    if (CRM_Core_DAO::checkTableExists('civicrm_project')) {
+      // sector coordinator
+      if (!CRM_Core_DAO::checkFieldExists('civicrm_project', 'sector_coordinator_id')) {
+        CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_project ADD COLUMN '
+          . 'sector_coordinator_id INT(11) DEFAULT NULL AFTER projectmanager_id');
+      }
+      // project officer
+      if (!CRM_Core_DAO::checkFieldExists('civicrm_project', 'project_officer_id')) {
+        CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_project ADD COLUMN '
+          . 'project_officer_id INT(11) DEFAULT NULL AFTER projectmanager_id');
+      }
+      // country coordinator
+      if (!CRM_Core_DAO::checkFieldExists('civicrm_project', 'country_coordinator_id')) {
+        CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_project ADD COLUMN '
+          . 'country_coordinator_id INT(11) DEFAULT NULL AFTER projectmanager_id');
+      }
+      // anamon
+      if (!CRM_Core_DAO::checkFieldExists('civicrm_project', 'anamon_id')) {
+        CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_project ADD COLUMN '
+          . 'anamon_id INT(11) DEFAULT NULL AFTER projectmanager_id');
       }
     }
     return TRUE;    

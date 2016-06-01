@@ -47,15 +47,15 @@
             {/if}
             {if $requestType != 'Country'}
               <td>{$project.projectmanager_name}</td>
-              <td>{$project.sector_coordinator}</td>
+              <td>{$project.sector_coordinator_name}</td>
               <td>{$project.representative}</td>
               <td>{$project.authorised_contact}</td>
-              <td>{$project.anamon}</td>           
+              <td>{$project.anamon_name}</td>
             {else}
               <td colspan="5">&nbsp;</td>
             {/if}
-            <td>{$project.country_coordinator}</td>
-            <td>{$project.project_officer}</td>            
+            <td>{$project.country_coordinator_name}</td>
+            <td>{$project.project_officer_name}</td>
             <td>{$project.start_date|crmDate}</td>
             <td>{$project.end_date|crmDate}</td>
             <td>{$project.is_active}</td>

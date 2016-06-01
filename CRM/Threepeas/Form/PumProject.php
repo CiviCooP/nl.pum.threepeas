@@ -604,20 +604,17 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       if (isset($project['country_id']) || !empty($project['country_id'])) {
         $caseRoleId = $project['country_id'];
       }
-      $countryCoordinatorId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'country_coordinator');
-      $sectorCoordinatorId = CRM_Threepeas_BAO_PumCaseRelation::getSectorCoordinatorId($caseRoleId);
-      $projectOfficerId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'project_officer');
       $representativeId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'representative');
       $authorisedId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'authorised_contact');
-      
-      if (!empty($sectorCoordinatorId)) {
-        $defaults['sector_coordinator'] = civicrm_api3('Contact', 'Getvalue', array('id' => $sectorCoordinatorId, 'return' => 'display_name'));     
+
+      if (!empty($project['sector_coordinator_id'])) {
+        $defaults['sector_coordinator'] = CRM_Threepeas_Utils::getContactName($project['sector_coordinator_id']);
       }
-      if (!empty($countryCoordinatorId)) {
-        $defaults['country_coordinator'] = civicrm_api3('Contact', 'Getvalue', array('id' => $countryCoordinatorId, 'return' => 'display_name'));     
+      if (!empty($project['country_coordinator_id'])) {
+        $defaults['country_coordinator'] = CRM_Threepeas_Utils::getContactName($project['country_coordinator_id']);
       }
-      if (!empty($projectOfficerId)) {
-        $defaults['project_officer'] = civicrm_api3('Contact', 'Getvalue', array('id' => $projectOfficerId, 'return' => 'display_name'));
+      if (!empty($project['project_officer_id'])) {
+        $defaults['project_officer'] = CRM_Threepeas_Utils::getContactName($project['project_officer_id']);
       }
       if (!empty($representativeId)) {
         $defaults['representative'] = civicrm_api3('Contact', 'Getvalue', array('id' => $representativeId, 'return' => 'display_name'));
