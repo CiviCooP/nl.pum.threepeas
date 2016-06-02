@@ -250,7 +250,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @access protected
    * @static
    */
-  protected static function getCountryCoordinatorId($clientId) {
+  public static function getCountryCoordinatorId($clientId) {
     if (CRM_Threepeas_Utils::contactIsCountry($clientId) == FALSE) {
       $countryId = self::getCustomerCountry($clientId);
     } else {
@@ -271,7 +271,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @access protected
    * @static
    */
-  protected static function getAnamonId($clientId) {
+  public static function getAnamonId($clientId) {
     $countryId = self::getCustomerCountry($clientId);
     if (!empty($countryId)) {
       $anamonId = self::getDefaultRelation('anamon', $countryId);
@@ -288,7 +288,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @access protected
    * @static
    */
-  protected static function getProjectOfficerId($clientId) {
+  public static function getProjectOfficerId($clientId) {
     if (CRM_Threepeas_Utils::contactIsCountry($clientId) == FALSE) {
       $countryId = self::getCustomerCountry($clientId);
     } else {
