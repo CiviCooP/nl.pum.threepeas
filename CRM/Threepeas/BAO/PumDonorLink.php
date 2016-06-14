@@ -598,7 +598,7 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink
         $nonApplicableDonations[] = $contribution['display_name'];
       }
     }
-    if (isset($defaults['not_applicable_fa_donor'])) {
+    if (isset($defaults['not_applicable_fa_donor']) && $form->elementExists('fa_donor')) {
       $editFaElement = $form->getElement('fa_donor');
       $editFaElement->freeze();
     }
