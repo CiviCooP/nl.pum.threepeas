@@ -42,12 +42,14 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     $displayRow['title'] = $this->getProjectTitle($dao->title);
     $this->processProjectType($dao->customer_id, $dao->country_id, $displayRow);
     $displayRow['projectmanager_name'] = $dao->projectmanager_name;
+    $displayRow['anamon_name'] = $dao->anamon_name;
+    $displayRow['country_coordinator_name'] = $dao->country_coordinator_name;
+    $displayRow['project_officer_name'] = $dao->project_officer_name;
+    $displayRow['sector_coordinator_name'] = $dao->sector_coordinator_name;
     $displayRow['is_active'] = CRM_Threepeas_Utils::setIsActive($dao->is_active);
     $displayRow['start_date'] = CRM_Threepeas_Utils::setProjectDate($dao->start_date);
     $displayRow['end_date'] = CRM_Threepeas_Utils::setProjectDate($dao->end_date);
     $displayRow['actions'] = $this->setRowActions($dao);
-        
-    $this->getProjectRelations($displayRow['contact_id'], $displayRow);
     return $displayRow;
   }
 
@@ -66,36 +68,6 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     } else {
       $displayRow['contact_id'] = $customerId;
       $displayRow['customer_name'] = CRM_Threepeas_Utils::getContactName($customer_id);
-    }
-  }
-
-  /**
-   * Function to get the relations for the project
-   * @param int $contactId
-   * @param array $displayRow
-   * @access protected
-   */
-  protected function getProjectRelations($contactId, &$displayRow) {
-    foreach ($this->relations as $relationLabel => $isActive) {
-      if ($isActive == 1) {
-        $relationId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($contactId , $relationLabel);
-        $displayRow[$relationLabel] = $this->getRelationName($relationId);
-      }
-    }
-  }
-
-  /**
-   * Function to get the name of a relation
-   * 
-   * @param int $relationId
-   * @return string
-   * @access protected
-   */
-  protected function getRelationName($relationId) {
-    if (empty($relationId)) {
-      return '';
-    } else {
-      return CRM_Threepeas_Utils::getContactName($relationId);
     }
   }
 
@@ -180,10 +152,16 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
    */
   protected function getDaoProjects() {
     $params = array();
-    $query = 'SELECT a.*, b.title AS programme_title, c.display_name AS projectmanager_name
+    $query = 'SELECT a.*, b.title AS programme_title, pm.display_name AS projectmanager_name,
+      ana.display_name AS anamon_name, cc.display_name AS country_coordinator_name, po.display_name AS project_officer_name,
+      sc.display_name AS sector_coordinator_name
       FROM civicrm_project a
       LEFT JOIN civicrm_programme b ON a.programme_id = b.id
-      LEFT JOIN civicrm_contact c ON a.projectmanager_id = c.id';
+      LEFT JOIN civicrm_contact pm ON a.projectmanager_id = pm.id
+      LEFT JOIN civicrm_contact ana ON a.anamon_id = ana.id
+      LEFT JOIN civicrm_contact cc ON a.country_coordinator_id = cc.id
+      LEFT JOIN civicrm_contact po ON a.project_officer_id = po.id
+      LEFT JOIN civicrm_contact sc ON a.sector_coordinator_id = sc.id';
     switch ($this->requestType) {
       case $this->countryType:
         $query .= ' WHERE a.country_id = %1';

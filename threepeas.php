@@ -762,6 +762,10 @@ function _threepeasAddProjectElementCaseView(&$form) {
  *           post on Case Create does not have client yet)
  */
 function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  // issue 3287 act on relationship to set anamon, project officer, country coordinator and sector coordinator for project
+  if ($objectName == 'Relationship') {
+    CRM_Threepeas_Relationship::post($op, $objectId, $objectRef);
+  }
   /*
    * issue 116
    */

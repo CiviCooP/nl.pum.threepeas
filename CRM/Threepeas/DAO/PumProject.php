@@ -85,6 +85,22 @@ class CRM_Threepeas_DAO_PumProject extends CRM_Core_DAO {
           'name' => 'projectmanager_id',
           'type' => CRM_Utils_Type::T_INT
         ),
+        'anamon_id' => array(
+          'name' => 'anamon_id',
+          'type' => CRM_Utils_Type::T_INT
+        ),
+        'country_coordinator_id' => array(
+          'name' => 'country_coordinator_id',
+          'type' => CRM_Utils_Type::T_INT
+        ),
+        'project_officer_id' => array(
+          'name' => 'project_officer_id',
+          'type' => CRM_Utils_Type::T_INT
+        ),
+        'sector_coordinator_id' => array(
+          'name' => 'sector_coordinator_id',
+          'type' => CRM_Utils_Type::T_INT
+        ),
         'start_date' => array(
           'name' => 'start_date',
           'type' => CRM_Utils_Type::T_DATE,
@@ -123,6 +139,10 @@ class CRM_Threepeas_DAO_PumProject extends CRM_Core_DAO {
         'customer_id'           =>  'customer_id',
         'country_id'            =>  'country_id',
         'projectmanager_id'     =>  'projectmanager_id',
+        'anamon_id'             =>  'anamon_id',
+        'country_coordinator_id'=>  'country_coordinator_id',
+        'project_officer_id'    =>  'project_officer_id',
+        'sector_coordinator_id' =>  'sector_coordinator_id',
         'start_date'            =>  'start_date',
         'end_date'              =>  'end_date',
         'is_active'             =>  'is_active'
