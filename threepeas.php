@@ -788,7 +788,7 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       /*
        * issue 2858 create project for projectintake at open case activity instead of civicrm_custom_hook
        */
-      if ($objectRef->case_id) {
+      if (isset($objectRef->case_id) && $objectRef->case_id) {
         $caseType = civicrm_api3("Case", "Getvalue", array("id" => $objectRef->case_id, "return" => "case_type_id"));
         if ($threepeasConfig->caseTypes[$caseType] == "Projectintake") {
           /*
