@@ -584,18 +584,20 @@ class CRM_Threepeas_BAO_PumDonorLink extends CRM_Threepeas_DAO_PumDonorLink
    * @param $form
    * @param $defaults
    */
-  public static function showNonApplicableDonations($entity, &$form, &$defaults)
-  {
+  public static function showNonApplicableDonations($entity, &$form, &$defaults) {
     $nonApplicableDonations = array();
-    $donations = self::getDonations(array('entity' => $entity, 'entity_id' => $form->_id, 'is_active' => 1));
-    foreach ($donations as $donationId => $donation) {
-      if ($donation['donation_entity'] == "Contribution" &&
-        self::contributionIsApplicable($donation['donation_entity_id']) == FALSE) {
-        $contribution = civicrm_api3('Contribution', 'Getsingle', array('id' => $donation['donation_entity_id']));
-        if ($donation['is_fa_donor'] == 1) {
-          $defaults['not_applicable_fa_donor'] = $contribution['display_name'];
+    if (isset($form->_id)) {
+      $donations = self::getDonations(array('entity' => $entity, 'entity_id' => $form->_id, 'is_active' => 1));
+      foreach ($donations as $donationId => $donation) {
+        if ($donation['donation_entity'] == "Contribution" &&
+          self::contributionIsApplicable($donation['donation_entity_id']) == FALSE
+        ) {
+          $contribution = civicrm_api3('Contribution', 'Getsingle', array('id' => $donation['donation_entity_id']));
+          if ($donation['is_fa_donor'] == 1) {
+            $defaults['not_applicable_fa_donor'] = $contribution['display_name'];
+          }
+          $nonApplicableDonations[] = $contribution['display_name'];
         }
-        $nonApplicableDonations[] = $contribution['display_name'];
       }
     }
     if (isset($defaults['not_applicable_fa_donor']) && $form->elementExists('fa_donor')) {
