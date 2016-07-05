@@ -56,6 +56,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
       $this->_id = CRM_Utils_Request::retrieve('pid', 'Integer', $this);
       $this->projectType = CRM_Threepeas_BAO_PumProject::getProjectType($this->_id);
     }
+    $config = CRM_Core_Config::singleton();
     $session = CRM_Core_Session::singleton();
     $userContext = $session->readUserContext();
     /*

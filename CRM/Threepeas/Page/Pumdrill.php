@@ -19,10 +19,6 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
     $session = CRM_Core_Session::singleton();
     $config = CRM_Core_Config::singleton();
     $doneUrl = $session->readUserContext();
-    // set doneUrl to My PUM Projects report if equal to userFrameWork (meaning not set)
-    if ($doneUrl == $config->userFrameworkBaseURL) {
-      $doneUrl = $this->getReportUrl();
-    }
     $this->assign('doneUrl', $doneUrl);
     if ($entity == "programme") {
       $programmeId = CRM_Utils_Request::retrieve('pid', 'Positive', $this);
@@ -275,19 +271,5 @@ class CRM_Threepeas_Page_Pumdrill extends CRM_Core_Page {
       }
     }
     return $mainActivtityDates;
-  }
-
-  /**
-   * Issue 3287 - return either the URL of My PUM Projects or the CiviCRM start page as the url for when the done button is clicked
-   *
-   */
-  private function getReportUrl() {
-    $instanceId = CRM_Core_DAO::singleValueQuery('SELECT id FROM civicrm_report_instance WHERE report_id = %1',
-      array(1 => array('nl.pum.casereports/pumprojects', 'String')));
-    if (!empty($instanceId)) {
-      return CRM_Utils_System::url('civicrm/report/instance/'.$instanceId, 'reset=1', true);
-    } else {
-      return CRM_Utils_System::url('civicrm/dashboard/', 'reset=1', true);
-    }
   }
 }
