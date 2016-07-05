@@ -235,7 +235,9 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   function setProgrammeList() {
     $activeProgrammes = CRM_Threepeas_BAO_PumProgramme::getValues(array('is_active' => 1));
     foreach ($activeProgrammes as $programmeId => $programme) {
-      $this->programmes[$programmeId] = $programme['title'];
+      if (isset($programme['title'])) {
+        $this->programmes[$programmeId] = $programme['title'];
+      }
     }
     $this->programmes[0] = '- select -';
     asort($this->programmes);
