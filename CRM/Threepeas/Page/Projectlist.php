@@ -46,6 +46,17 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     $displayRow['country_coordinator_name'] = $dao->country_coordinator_name;
     $displayRow['project_officer_name'] = $dao->project_officer_name;
     $displayRow['sector_coordinator_name'] = $dao->sector_coordinator_name;
+    // get rep and authorised contact
+    if (isset($dao->customer_id) && !empty($dao->customer_id)) {
+      $caseRoleId = $dao->customer_id;
+    }
+    if (isset($dao->country_id) || !empty($dao->country_id)) {
+      $caseRoleId = $dao->country_id;
+    }
+    $representativeId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'representative');
+    $authorisedId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'authorised_contact');
+    $displayRow['representative'] = CRM_Threepeas_Utils::getContactName($representativeId);
+    $displayRow['authorised_contact'] = CRM_Threepeas_Utils::getContactName($authorisedId);
     $displayRow['is_active'] = CRM_Threepeas_Utils::setIsActive($dao->is_active);
     $displayRow['start_date'] = CRM_Threepeas_Utils::setProjectDate($dao->start_date);
     $displayRow['end_date'] = CRM_Threepeas_Utils::setProjectDate($dao->end_date);
