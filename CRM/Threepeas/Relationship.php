@@ -56,22 +56,26 @@ class CRM_Threepeas_Relationship {
    * @static
    */
   public static function post($op, $objectId, $objectRef) {
-    $relationShip = new CRM_Threepeas_Relationship($op, $objectId, $objectRef);
-    // if valid relationship type
-    if ($relationShip->isValidRelationshipType()) {
-      // process based on operation
-      switch ($relationShip->_relationshipOperation) {
-        case "create":
-          $relationShip->addToProject();
-          $relationShip->addToPumCaseReport();
-          break;
-        case "delete":
-          $relationShip->removeFromProject();
-          $relationShip->removeFromPumCaseReport();
-          break;
-        case "edit":
-          $relationShip->edit();
-          break;
+    // not if coming in from webform
+    $requestValues = CRM_Utils_Request::exportValues();
+    if (!isset($requestValues['form_id'])) {
+      $relationShip = new CRM_Threepeas_Relationship($op, $objectId, $objectRef);
+      // if valid relationship type
+      if ($relationShip->isValidRelationshipType()) {
+        // process based on operation
+        switch ($relationShip->_relationshipOperation) {
+          case "create":
+            $relationShip->addToProject();
+            $relationShip->addToPumCaseReport();
+            break;
+          case "delete":
+            $relationShip->removeFromProject();
+            $relationShip->removeFromPumCaseReport();
+            break;
+          case "edit":
+            $relationShip->edit();
+            break;
+        }
       }
     }
   }
