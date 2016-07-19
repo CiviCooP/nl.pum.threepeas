@@ -2,11 +2,14 @@
 /**
  * Class to deal with Relationship related to project
  * (issue 3287 http://redmine.pum.nl/issues/3287)
+ * and to projectintake
+ * (issue 3498 http://redmine.pum.nl/issues/3498)
  *
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @date 2 June 2016
  */
 class CRM_Threepeas_Relationship {
+
   private $_validRelations = array();
   private $_relationshipData = NULL;
   private $_relationshipOperation = NULL;
@@ -36,14 +39,16 @@ class CRM_Threepeas_Relationship {
           .', contact your system administrator. Error from API RelationshipType Getvalue: '.$ex->getMessage());
       }
     }
-    $this->_validCaseSubTypes = array('Customer', 'Country');
     $this->_relationshipOperation = $op;
     $this->_relationshipId = $objectId;
     $this->_relationshipData = $objectRef;
+    $this->_validCaseSubTypes = array('Customer', 'Country');
   }
 
   /**
-   * Method to get the tag id for new customer
+   * Method to process post hook for Relationship 
+   * - update anamon_id, country_coordinator_id, project_officer_id sector_coordinator_id in 
+   *   civicrm_pum_case_reports
    *
    * @throws Exception when error from API
    * @return int
@@ -54,17 +59,15 @@ class CRM_Threepeas_Relationship {
     $relationShip = new CRM_Threepeas_Relationship($op, $objectId, $objectRef);
     // if valid relationship type
     if ($relationShip->isValidRelationshipType()) {
-
-      //temp print message
-      //$relationShip->printMessage();
-
       // process based on operation
       switch ($relationShip->_relationshipOperation) {
         case "create":
           $relationShip->addToProject();
+          $relationShip->addToPumCaseReport();
           break;
         case "delete":
           $relationShip->removeFromProject();
+          $relationShip->removeFromPumCaseReport();
           break;
         case "edit":
           $relationShip->edit();
@@ -80,8 +83,10 @@ class CRM_Threepeas_Relationship {
   private function edit() {
     if ($this->_relationshipData->is_active == 1) {
       $this->addToProject();
+      $this->addToPumCaseReport();
     } else {
       $this->removeFromProject();
+      $this->removeFromPumCaseReport();
     }
   }
 
@@ -90,61 +95,56 @@ class CRM_Threepeas_Relationship {
    *
    * @access private
    */
-  private function removeFromProject() {
-    // only if contact a is valid contact sub type (Country or Customer) and end date is valid
-    if ($this->isValidCaseSubType() && $this->isValidEndDate()) {
-      // get all projects for customer or country
-      $projects = CRM_Threepeas_BAO_PumProject::getContactProjects($this->_relationshipData->contact_id_a);
-      foreach ($projects as $project) {
-        $query = 'UPDATE civicrm_project SET '.$this->_validRelations[$this->_relationshipData->relationship_type_id]['column']
-          .' = null WHERE id = %1';
+  private function removeFromPumCaseReport() {
+    // only if end date is valid and case_id is set
+    if (isset($this->_relationshipData->case_id) && !empty($this->_relationshipData->case_id)) {
+      if ($this->isValidEndDate()) {
+        $query = 'UPDATE civicrm_pum_case_reports SET ' . $this->_validRelations[$this->_relationshipData->relationship_type_id]['column']
+          . ' = NULL WHERE case_id = %1';
         $params = array(
-          1 => array($project['id'], 'Integer'));
+          1 => array($this->_relationshipData->case_id, 'Integer'));
         CRM_Core_DAO::executeQuery($query, $params);
       }
     }
   }
 
   /**
-   * Method to add role to project
+   * Method to add role to pum case reports
    *
    * @access private
    */
-  private function addToProject() {
-    // only if contact a is valid contact sub type (Country or Customer) and start date is valid
-    if ($this->isValidCaseSubType() && $this->isValidStartDate()) {
-      // get all projects for customer or country
-      $projects = CRM_Threepeas_BAO_PumProject::getContactProjects($this->_relationshipData->contact_id_a);
-      foreach ($projects as $project) {
-        $query = 'UPDATE civicrm_project SET '.$this->_validRelations[$this->_relationshipData->relationship_type_id]['column']
-          .' = %1 WHERE id = %2';
+  private function addToPumCaseReport() {
+    // only if start date is valid and case_id is set
+    if (isset($this->_relationshipData->case_id) && !empty($this->_relationshipData->case_id)) {
+      if ($this->isValidStartDate()) {
+        if ($this->pumCaseAlreadyExists()) {
+          $query = 'UPDATE civicrm_pum_case_reports SET ' . $this->_validRelations[$this->_relationshipData->relationship_type_id]['column']
+            . ' = %1 WHERE case_id = %2';
+        } else {
+          $query = 'INSERT INTO civicrm_pum_case_reports SET ' . $this->_validRelations[$this->_relationshipData->relationship_type_id]['column']
+            . ' = %1 WHERE case_id = %2';
+        }
         $params = array(
           1 => array($this->_relationshipData->contact_id_b, 'Integer'),
-          2 => array($project['id'], 'Integer'));
+          2 => array($this->_relationshipData->case_id, 'Integer'));
         CRM_Core_DAO::executeQuery($query, $params);
       }
     }
   }
 
   /**
-   * Method to determine if contact sub type is valid for processing relationship into project
-   *
+   * Method to check if pum case report record already exists
    * @return bool
-   * @access private
    */
-  private function isValidCaseSubType() {
-    if (isset($this->_relationshipData->contact_id_a)) {
-      try {
-        $contactSubTypes = civicrm_api3('Contact', 'Getvalue',
-          array('id' => $this->_relationshipData->contact_id_a, 'return' => 'contact_sub_type'));
-        foreach ($contactSubTypes as $contactSubType) {
-          if (in_array($contactSubType, $this->_validCaseSubTypes)) {
-            return TRUE;
-          }
-        }
-      } catch (CiviCRM_API3_Exception $ex) {}
+  private function pumCaseAlreadyExists() {
+    $countQuery = "SELECT COUNT(*) FROM civicrm_pum_case_reports WHERE case_id = %1";
+    $count = CRM_Core_DAO::singleValueQuery($countQuery, 
+      array(1 => array($this->_relationshipData->case_id, 'Integer')));
+    if ($count > 0) {
+      return TRUE;
+    } else {
+      return FALSE;
     }
-    return FALSE;
   }
 
   /**
@@ -191,5 +191,68 @@ class CRM_Threepeas_Relationship {
     } else {
       return FALSE;
     }
+  }
+  /**
+   * Method to remove role from project
+   *
+   * @access private
+   */
+  private function removeFromProject() {
+    if (!isset($this->_relationshipData->case_id) || empty($this->_relationshipData->case_id)) {
+      // only if contact a is valid contact sub type (Country or Customer) and end date is valid
+      if ($this->isValidCaseSubType() && $this->isValidEndDate()) {
+        // get all projects for customer or country
+        $projects = CRM_Threepeas_BAO_PumProject::getContactProjects($this->_relationshipData->contact_id_a);
+        foreach ($projects as $project) {
+          $query = 'UPDATE civicrm_project SET ' . $this->_validRelations[$this->_relationshipData->relationship_type_id]['column']
+            . ' = NULL WHERE id = %1';
+          $params = array(
+            1 => array($project['id'], 'Integer'));
+          CRM_Core_DAO::executeQuery($query, $params);
+        }
+      }
+    }
+  }
+  /**
+   * Method to add role to project
+   *
+   * @access private
+   */
+  private function addToProject() {
+    if (!isset($this->_relationshipData->case_id) || empty($this->_relationshipData->case_id)) {
+      // only if contact a is valid contact sub type (Country or Customer) and start date is valid
+      if ($this->isValidCaseSubType() && $this->isValidStartDate()) {
+        // get all projects for customer or country
+        $projects = CRM_Threepeas_BAO_PumProject::getContactProjects($this->_relationshipData->contact_id_a);
+        foreach ($projects as $project) {
+          $query = 'UPDATE civicrm_project SET ' . $this->_validRelations[$this->_relationshipData->relationship_type_id]['column']
+            . ' = %1 WHERE id = %2';
+          $params = array(
+            1 => array($this->_relationshipData->contact_id_b, 'Integer'),
+            2 => array($project['id'], 'Integer'));
+          CRM_Core_DAO::executeQuery($query, $params);
+        }
+      }
+    }
+  }
+  /**
+   * Method to determine if contact sub type is valid for processing relationship into project
+   *
+   * @return bool
+   * @access private
+   */
+  private function isValidCaseSubType() {
+    if (isset($this->_relationshipData->contact_id_a)) {
+      try {
+        $contactSubTypes = civicrm_api3('Contact', 'Getvalue',
+          array('id' => $this->_relationshipData->contact_id_a, 'return' => 'contact_sub_type'));
+        foreach ($contactSubTypes as $contactSubType) {
+          if (in_array($contactSubType, $this->_validCaseSubTypes)) {
+            return TRUE;
+          }
+        }
+      } catch (CiviCRM_API3_Exception $ex) {}
+    }
+    return FALSE;
   }
 }
