@@ -56,26 +56,22 @@ class CRM_Threepeas_Relationship {
    * @static
    */
   public static function post($op, $objectId, $objectRef) {
-    // not if coming in from webform
-    $requestValues = CRM_Utils_Request::exportValues();
-    if (!isset($requestValues['form_id'])) {
-      $relationShip = new CRM_Threepeas_Relationship($op, $objectId, $objectRef);
-      // if valid relationship type
-      if ($relationShip->isValidRelationshipType()) {
-        // process based on operation
-        switch ($relationShip->_relationshipOperation) {
-          case "create":
-            $relationShip->addToProject();
-            $relationShip->addToPumCaseReport();
-            break;
-          case "delete":
-            $relationShip->removeFromProject();
-            $relationShip->removeFromPumCaseReport();
-            break;
-          case "edit":
-            $relationShip->edit();
-            break;
-        }
+    $relationShip = new CRM_Threepeas_Relationship($op, $objectId, $objectRef);
+    // if valid relationship type
+    if ($relationShip->isValidRelationshipType()) {
+      // process based on operation
+      switch ($relationShip->_relationshipOperation) {
+        case "create":
+          $relationShip->addToProject();
+          $relationShip->addToPumCaseReport();
+          break;
+        case "delete":
+          $relationShip->removeFromProject();
+          $relationShip->removeFromPumCaseReport();
+          break;
+        case "edit":
+          $relationShip->edit();
+          break;
       }
     }
   }
@@ -125,8 +121,8 @@ class CRM_Threepeas_Relationship {
           $query = 'UPDATE civicrm_pum_case_reports SET ' . $this->_validRelations[$this->_relationshipData->relationship_type_id]['column']
             . ' = %1 WHERE case_id = %2';
         } else {
-          $query = 'INSERT INTO civicrm_pum_case_reports SET ' . $this->_validRelations[$this->_relationshipData->relationship_type_id]['column']
-            . ' = %1 WHERE case_id = %2';
+          $query = 'INSERT INTO civicrm_pum_case_reports (`' . $this->_validRelations[$this->_relationshipData->relationship_type_id]['column'].'`, `case_id`)
+            VALUES(%1, %2)';
         }
         $params = array(
           1 => array($this->_relationshipData->contact_id_b, 'Integer'),
