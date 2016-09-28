@@ -60,6 +60,12 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     if (isset($params['id'])) {
       $pumProject->id = $params['id'];
       $pumProject->find(true);
+      // pre hook if edit
+      $op = "edit";
+      self::storeValues($pumProject, $prePumProject);
+      CRM_Utils_Hook::pre($op, 'PumProject', $pumProject->id, $prePumProject);
+    } else {
+      $op = 'create';
     }
     $fields = self::fields();
     foreach ($params as $paramKey => $paramValue) {
@@ -68,6 +74,8 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       }
     }
     $pumProject->save();
+    // post hook
+    CRM_Utils_Hook::post($op, 'PumProject', $pumProject->id, $pumProject);
     if (!isset($pumProject->title) || empty($pumProject->title)) {
       $pumProject->title = self::generateTitle($pumProject);
       $pumProject->save();
