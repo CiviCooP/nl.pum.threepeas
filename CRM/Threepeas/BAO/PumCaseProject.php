@@ -52,6 +52,11 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
     if (empty($params)) {
       throw new Exception('Params can not be empty when adding or updating a PumCaseProject');
     }
+    if (isset($params['id'])) {
+      $op = 'edit';
+    } else {
+      $op = 'create';
+    }
     $pumCaseProject = new CRM_Threepeas_BAO_PumCaseProject();
     $fields = self::fields();
     foreach ($params as $paramKey => $paramValue) {
@@ -60,6 +65,8 @@ class CRM_Threepeas_BAO_PumCaseProject extends CRM_Threepeas_DAO_PumCaseProject 
       }
     }
     $pumCaseProject->save();
+    // post hook
+    CRM_Utils_Hook::post($op, 'PumCaseProject', $pumCaseProject->id, $pumCaseProject);
     self::storeValues($pumCaseProject, $result);
     return $result;
   }
