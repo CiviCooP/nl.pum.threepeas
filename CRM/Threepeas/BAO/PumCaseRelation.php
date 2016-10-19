@@ -441,7 +441,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @access protected
    * @static
    */
-  protected static function getGrantCoordinatorId($contactId) {
+  public static function getGrantCoordinatorId($contactId) {
     $grantCoordinatorId = self::getDefaultRelation('grant_coordinator', $contactId);
     if (empty($grantCoordinatorId)) {
       $countryId = self::getCustomerCountry($contactId);
@@ -457,7 +457,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @access protected
    * @static
    */
-  protected static function getRepresentativeId($contactId) {
+  public static function getRepresentativeId($contactId) {
     $representativeId = self::getDefaultRelation('representative', $contactId);
     if (empty($representativeId)) {
       $countryId = self::getCustomerCountry($contactId);

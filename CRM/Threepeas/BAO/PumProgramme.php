@@ -121,6 +121,7 @@ class CRM_Threepeas_BAO_PumProgramme extends CRM_Threepeas_DAO_PumProgramme {
     }
     return TRUE;
   }
+
   /**
    * Function to get programme title only with id
    * 
@@ -139,6 +140,29 @@ class CRM_Threepeas_BAO_PumProgramme extends CRM_Threepeas_DAO_PumProgramme {
     $pumProgramme->id = $pumProgrammeId;
     if ($pumProgramme->find(true)) {
       return $pumProgramme->title;
+    } else {
+      return '';
+    }
+  }
+
+  /**
+   * Function to get programme manager id only with id
+   *
+   * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
+   * @date 18 Oct 2016
+   * @param int $pumProgrammeId
+   * @return int $pumProgramme->manager_id
+   * @access public
+   * @static
+   */
+  public static function getProgrammeManagerIdWithId($pumProgrammeId) {
+    if (empty($pumProgrammeId)) {
+      return '';
+    }
+    $pumProgramme = new CRM_Threepeas_BAO_PumProgramme();
+    $pumProgramme->id = $pumProgrammeId;
+    if ($pumProgramme->find(true)) {
+      return $pumProgramme->manager_id;
     } else {
       return '';
     }

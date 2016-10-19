@@ -720,4 +720,26 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       self::add($projectParams);
     }
   }
+
+  /**
+   * Method to return a single project with id
+   *
+   * @param int $projectId
+   * @return array|string|void
+   * @access public
+   * @static
+   */
+  public static function getSingleProjectById($projectId) {
+    if (empty($pumProjectId)) {
+      return '';
+    }
+    $pumProject = new CRM_Threepeas_BAO_PumProject();
+    $pumProject->id = $pumProjectId;
+    if ($pumProject->find(true)) {
+      $row = self::storeValues($pumProject, $row);
+      return $row;
+    } else {
+      return array();
+    }
+  }
 }
