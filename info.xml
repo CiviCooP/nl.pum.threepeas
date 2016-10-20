@@ -8,8 +8,8 @@
     <author>Erik Hommel (CiviCooP)</author>
     <email>helpdesk@civicoop.org</email>
   </maintainer>
-  <releaseDate>2016-07-01</releaseDate>
-  <version>1.14.4</version>
+  <releaseDate>2016-10-20</releaseDate>
+  <version>1.16</version>
   <develStage>stable</develStage>
   <compatibility>
     <ver>4.4</ver>
