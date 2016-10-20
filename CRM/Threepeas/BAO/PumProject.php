@@ -33,6 +33,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       }
     }
     $pumProject->find();
+    $pumProject->orderBy('id');
     while ($pumProject->fetch()) {
       $row = array();
       self::storeValues($pumProject, $row);
@@ -216,6 +217,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     $projectCasesParams = array(
       'is_active' => 1,
       'project_id' => $projectId);
+
     $projectCases = CRM_Threepeas_BAO_PumCaseProject::getValues($projectCasesParams);
     foreach ($projectCases as $projectCase) {
       $result[$projectCase['case_id']] = self::getCaseResultLine($projectCase['case_id']);
