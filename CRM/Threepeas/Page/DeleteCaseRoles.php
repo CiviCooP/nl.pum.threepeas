@@ -36,6 +36,10 @@ class CRM_Threepeas_Page_DeleteCaseRoles extends CRM_Core_Page {
       3 => array($relId, 'Integer'),
     );
     CRM_Core_DAO::executeQuery($sql, $sqlParams);
+    // if case role is deleted and the removed case role is an expert, empty the case report fields
+    // check <https://redmine.pum.nl/issues/3555>
+    CRM_Threepeas_Relationship::removeExpertCaseProjectFields($caseId, $relType);
+
     echo json_encode($result);
     CRM_Utils_System::civiExit();
   }

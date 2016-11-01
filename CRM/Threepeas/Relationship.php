@@ -60,6 +60,10 @@ class CRM_Threepeas_Relationship {
     // if valid relationship type
     if ($relationShip->isValidRelationshipType()) {
       // process based on operation
+      CRM_Core_Error::debug('op', $op);
+      CRM_Core_Error::debug('objectId', $objectId);
+      CRM_Core_Error::debug('objectRef', $objectRef);
+      exit();
       switch ($relationShip->_relationshipOperation) {
         case "create":
           $relationShip->addToProject();
@@ -254,5 +258,20 @@ class CRM_Threepeas_Relationship {
       } catch (CiviCRM_API3_Exception $ex) {}
     }
     return FALSE;
+  }
+
+  /**
+   * Method to remove the case report fields for project if removed case role is expert
+   *
+   * @link https://redmine.pum.nl/issues/3555
+   * @param $caseId
+   * @param $relType
+   */
+  public static function removeExpertCaseProjectFields($caseId, $relType) {
+    $config = CRM_Threepeas_Config::singleton();
+    if ($relType == $config->expertRelationshipTypeId) {
+      $sql = 'UPDATE civicrm_pum_case_reports SET ma_expert_approval = NULL WHERE case_id = %1';
+      CRM_Core_DAO::executeQuery($sql, array(1 => array($caseId, 'Integer')));
+    }
   }
 }
