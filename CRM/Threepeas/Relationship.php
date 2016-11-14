@@ -266,7 +266,8 @@ class CRM_Threepeas_Relationship {
   public static function removeExpertCaseProjectFields($caseId, $relType) {
     $config = CRM_Threepeas_Config::singleton();
     if ($relType == $config->expertRelationshipTypeId) {
-      $sql = 'UPDATE civicrm_pum_case_reports SET ma_expert_approval = NULL WHERE case_id = %1';
+      $sql = 'UPDATE civicrm_pum_case_reports SET ma_expert_approval = NULL , pq_approved_cc = NULL, 
+        pq_approved_sc = NULL, briefing_date = NULL, briefing_status = NULL WHERE case_id = %1';
       CRM_Core_DAO::executeQuery($sql, array(1 => array($caseId, 'Integer')));
     }
   }
