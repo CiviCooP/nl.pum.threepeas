@@ -60,10 +60,6 @@ class CRM_Threepeas_Relationship {
     // if valid relationship type
     if ($relationShip->isValidRelationshipType()) {
       // process based on operation
-      CRM_Core_Error::debug('op', $op);
-      CRM_Core_Error::debug('objectId', $objectId);
-      CRM_Core_Error::debug('objectRef', $objectRef);
-      exit();
       switch ($relationShip->_relationshipOperation) {
         case "create":
           $relationShip->addToProject();
