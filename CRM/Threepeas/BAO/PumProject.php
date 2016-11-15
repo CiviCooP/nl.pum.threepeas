@@ -74,6 +74,12 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
         $pumProject->$paramKey = $paramValue;
       }
     }
+    if (isset($pumProject->customer_id)) {
+      $pumProject->anamon_id = CRM_Threepeas_BAO_PumCaseRelation::getAnamonId($pumProject->customer_id);
+      $pumProject->country_coordinator_id = CRM_Threepeas_BAO_PumCaseRelation::getCountryCoordinatorId($pumProject->customer_id);
+      $pumProject->project_officer_id = CRM_Threepeas_BAO_PumCaseRelation::getProjectOfficerId($pumProject->customer_id);
+      $pumProject->sector_coordinator_id = CRM_Threepeas_BAO_PumCaseRelation::getSectorCoordinatorId($pumProject->customer_id);
+    }
     $pumProject->save();
     // post hook
     CRM_Utils_Hook::post($op, 'PumProject', $pumProject->id, $pumProject);
