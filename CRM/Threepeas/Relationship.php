@@ -28,8 +28,7 @@ class CRM_Threepeas_Relationship {
     $names = array(
       'Anamon' => 'anamon_id',
       'Country Coordinator is' => 'country_coordinator_id',
-      'Project Officer for' => 'project_officer_id',
-      'Sector Coordinator' => 'sector_coordinator_id');
+      'Project Officer for' => 'project_officer_id');
     foreach ($names as $name => $column) {
       try {
         $relTypeId = civicrm_api3('RelationshipType', 'Getvalue', array('name_a_b' => $name, 'return' => 'id'));
@@ -202,12 +201,12 @@ class CRM_Threepeas_Relationship {
       // only if contact a is valid contact sub type (Country or Customer) and end date is valid
       if ($this->isValidCaseSubType() && $this->isValidEndDate()) {
         // get all projects for customer or country
-        $projects = CRM_Threepeas_BAO_PumProject::getContactProjects($this->_relationshipData->contact_id_a);
-        foreach ($projects as $project) {
+        $projects = $this->getAllRelevantProjects();
+        foreach ($projects as $projectId) {
           $query = 'UPDATE civicrm_project SET ' . $this->_validRelations[$this->_relationshipData->relationship_type_id]['column']
             . ' = NULL WHERE id = %1';
           $params = array(
-            1 => array($project['id'], 'Integer'));
+            1 => array($projectId, 'Integer'));
           CRM_Core_DAO::executeQuery($query, $params);
         }
       }
@@ -222,19 +221,59 @@ class CRM_Threepeas_Relationship {
     if (!isset($this->_relationshipData->case_id) || empty($this->_relationshipData->case_id)) {
       // only if contact a is valid contact sub type (Country or Customer) and start date is valid
       if ($this->isValidCaseSubType() && $this->isValidStartDate()) {
-        // get all projects for customer or country
-        $projects = CRM_Threepeas_BAO_PumProject::getContactProjects($this->_relationshipData->contact_id_a);
-        foreach ($projects as $project) {
+        // get all projects for customer or country (all customers that are in a country)!
+        $projects = $this->getAllRelevantProjects();
+        foreach ($projects as $projectId) {
           $query = 'UPDATE civicrm_project SET ' . $this->_validRelations[$this->_relationshipData->relationship_type_id]['column']
             . ' = %1 WHERE id = %2';
           $params = array(
             1 => array($this->_relationshipData->contact_id_b, 'Integer'),
-            2 => array($project['id'], 'Integer'));
+            2 => array($projectId, 'Integer'));
           CRM_Core_DAO::executeQuery($query, $params);
         }
       }
     }
   }
+
+  /**
+   * Method to get all relevant projects for change:
+   * - if relationship was changed or added on customer, only retrieve projects for that specific customer
+   * - if relationship was changed or added on country, retrieve projects for that specific country AND all
+   *   projects for customers in that country
+   *
+   * @return array
+   * @access private
+   */
+  private function getAllRelevantProjects() {
+    $result = array();
+    // first get direct contact projects (either customer or country)
+    $projects = CRM_Threepeas_BAO_PumProject::getContactProjects($this->_relationshipData->contact_id_a);
+    foreach ($projects as $projectId => $projectData) {
+      $result[] = $projectId;
+    }
+    // check if country or customer relationship
+    if (CRM_Threepeas_Utils::contactIsCountry($this->_relationshipData->contact_id_a)) {
+      $countryConfig = CRM_Threepeas_CountryCustomGroup::singleton();
+      $countryTable = $countryConfig->getCountryCustomGroupTable();
+      $countryIdColumn = $countryConfig->getCountryCustomFieldColumnName();
+      $sql = "SELECT ".$countryIdColumn." FROM ".$countryTable." WHERE entity_id = %1";
+      $countryId = CRM_Core_DAO::singleValueQuery($sql, array(1 => array($this->_relationshipData->contact_id_a, 'Integer')));
+      $sql = "SELECT pp.id AS project_id 
+        FROM civicrm_project pp JOIN civicrm_contact cc ON pp.customer_id = cc.id AND cc.contact_sub_type LIKE %1
+        JOIN civicrm_address ad ON cc.id = ad.contact_id AND ad.is_primary = %2
+        WHERE pp.customer_id IS NOT NULL AND ad.country_id = %3";
+      $dao = CRM_Core_DAO::executeQuery($sql, array(
+        1 => array('%Customer%', 'String'),
+        2 => array(1, 'Integer'),
+        3 => array($countryId, 'Integer')
+      ));
+      while ($dao->fetch()) {
+        $result[] = $dao->project_id;
+      }
+    }
+    return $result;
+  }
+
   /**
    * Method to determine if contact sub type is valid for processing relationship into project
    *
