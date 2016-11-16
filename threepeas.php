@@ -766,6 +766,10 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($objectName == 'Relationship') {
     CRM_Threepeas_Relationship::post($op, $objectId, $objectRef);
   }
+
+  if ($objectName == 'ContactSegment') {
+    CRM_Threepeas_ContactSegment::post($op, $objectRef);
+  }
   /*
    * issue 116
    */
