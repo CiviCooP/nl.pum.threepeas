@@ -29,7 +29,7 @@ function civicrm_api3_pum_project_getsingle($params) {
     $returnValues = CRM_Threepeas_BAO_PumProject::getValues(array('id' => $params['project_id']));
     return civicrm_api3_create_success($returnValues, $params, 'PumProject', 'Getsingle');
   } else {
-    throw new API_Exception('Expected 1 records but found '.$recordCount);
+    throw new API_Exception('Parameter project_id is required and can not be empty');
   }
 }
 
