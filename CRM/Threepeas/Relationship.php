@@ -28,7 +28,8 @@ class CRM_Threepeas_Relationship {
     $names = array(
       'Anamon' => 'anamon_id',
       'Country Coordinator is' => 'country_coordinator_id',
-      'Project Officer for' => 'project_officer_id');
+      'Project Officer for' => 'project_officer_id',
+      'Sector Coordinator' => 'sector_coordinator_id');
     foreach ($names as $name => $column) {
       try {
         $relTypeId = civicrm_api3('RelationshipType', 'Getvalue', array('name_a_b' => $name, 'return' => 'id'));
