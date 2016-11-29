@@ -74,6 +74,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
         $pumProject->$paramKey = $paramValue;
       }
     }
+
     if (isset($pumProject->customer_id)) {
       $pumProject->anamon_id = CRM_Threepeas_BAO_PumCaseRelation::getAnamonId($pumProject->customer_id);
       $pumProject->country_coordinator_id = CRM_Threepeas_BAO_PumCaseRelation::getCountryCoordinatorId($pumProject->customer_id);
@@ -655,6 +656,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     $customQuery = "SELECT * FROM ".$config->getProjectCustomGroupTableName()." WHERE entity_id = %1";
     $customParams = array(1 => array($caseId, 'Integer'));
     $customData = CRM_Core_DAO::executeQuery($customQuery, $customParams);
+    $customData->fetch();
     $projectParams = self::setProjectParamsFromWebform($caseId, $customData);
     $createdProject = self::add($projectParams);
     $projectCaseParams = array(
@@ -662,6 +664,7 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
       'project_id' => $createdProject['id'],
       'is_active' => 1);
     CRM_Threepeas_BAO_PumCaseProject::add($projectCaseParams);
+
   }
 
   /**
@@ -682,7 +685,11 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     foreach ($fields as $field) {
       $daoPropertyName = self::getColumnNameForCustomField($field);
       if (isset($dao->$daoPropertyName)) {
-        $params[$field] = $dao->$daoPropertyName;
+        if ($field == "activities") {
+          $params['work_description'] = $dao->$daoPropertyName;
+        } else {
+          $params[$field] = $dao->$daoPropertyName;
+        }
       }
     }
     return $params;
@@ -718,20 +725,23 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
     if (!empty($caseId)) {
       $projectParams = array();
       $projectParams['id'] = CRM_Threepeas_BAO_PumCaseProject::getProjectIdWithCaseId($caseId);
-      $fields = array("reason", "activities", "expected_results");
-      foreach ($fields as $field) {
-        $columnName = self::getColumnNameForCustomField($field);
-        foreach ($customDataParams as $customData) {
-          if ($customData['column_name'] == $columnName) {
-            if ($field == "activities") {
-              $projectParams['work_description'] = $customData['value'];
-            } else {
-              $projectParams[$field] = $customData['value'];
+      if ($projectParams['id']) {
+        $fields = array("reason", "activities", "expected_results");
+        foreach ($fields as $field) {
+          $columnName = self::getColumnNameForCustomField($field);
+          foreach ($customDataParams as $customData) {
+            if ($customData['column_name'] == $columnName) {
+              if ($field == "activities") {
+                $projectParams['work_description'] = $customData['value'];
+              }
+              else {
+                $projectParams[$field] = $customData['value'];
+              }
             }
           }
         }
+        self::add($projectParams);
       }
-      self::add($projectParams);
     }
   }
 
