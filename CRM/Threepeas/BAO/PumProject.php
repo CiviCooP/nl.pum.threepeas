@@ -642,6 +642,12 @@ class CRM_Threepeas_BAO_PumProject extends CRM_Threepeas_DAO_PumProject {
   }
 
   public static function createProjectFromWebform($caseId) {
+    // Check whether a case is already linked to a project.
+    $projectId = CRM_Threepeas_BAO_PumCaseProject::getProjectIdWithCaseId($caseId);
+    if ($projectId) {
+      return;
+    }
+
     $config = CRM_Threepeas_Config::singleton();
     /*
      * retrieve project data from custom group Project Information
