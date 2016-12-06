@@ -428,7 +428,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @access protected
    * @static
    */
-  protected static function getAuthorisedContactId($contactId) {
+  public static function getAuthorisedContactId($contactId) {
     $authorisedContactId = self::getDefaultRelation('authorised_contact', $contactId);
     return $authorisedContactId;
   }
