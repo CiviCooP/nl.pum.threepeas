@@ -112,7 +112,6 @@ class CRM_Threepeas_Config {
     $this->setActiveCaseList();
     $this->openCaseActTypeId = $this->setActivityTypeId('Open Case');
     $this->setActTargetRecordType();
-    $this->setSectorTree();
     $this->assessmentRepActTypeId = $this->setActivityTypeId('Assessment Project Request by Rep');
   }
   public function getProjectCustomFields() {
@@ -137,71 +136,6 @@ class CRM_Threepeas_Config {
   public static function clearSectorTreeFromCache() {
     CRM_Core_BAO_Setting::setItem(false, 'nl.pum.threepeas', 'RM_Threepeas_Config.sectorTree');
     $config = CRM_Threepeas_Config::singleton();
-  }
-
-  /**
-   * This function builds the sectorTree
-   *
-   * Loading the sectorTree from the databases takes quite long. So for performance reasons we store the loaded sectorTree in
-   * a civicrm setting.
-   *
-   * @throws \Exception
-   */
-  private function setSectorTree() {
-    $sectorTree = CRM_Core_BAO_Setting::getItem('nl.pum.threepeas', 'RM_Threepeas_Config.sectorTree');
-    if (!empty($sectorTree)) {
-      $this->sectorTree = unserialize($sectorTree);
-    } else {
-      /*
-       * first check if tag 'Sector' exists
-       */
-      try {
-        $sectorTagId = civicrm_api3('Tag', 'Getvalue', array(
-          'name' => 'Sector',
-          'return' => 'id'
-        ));
-      } catch (CiviCRM_API3_Exception $ex) {
-        throw new Exception(ts('Could not find a Tag called Sector, error from API Tag Getvalue: ') . $ex->getMessage());
-      }
-      $this->sectorTree[] = $sectorTagId;
-      $this->getSectorChildren($sectorTagId);
-      CRM_Core_BAO_Setting::setItem(serialize($this->sectorTree), 'nl.pum.threepeas', 'RM_Threepeas_Config.sectorTree');
-    }
-  }
-  private function getSectorChildren($sectorTagId) {
-    $gotAllChildren = FALSE;
-    $levelChildren = array($sectorTagId);
-    while ($gotAllChildren == FALSE) {
-      foreach ($levelChildren as $levelChildTagId) {
-        $childParams = array(
-          'parent_id' => $levelChildTagId,
-          'is_selectable' => 1, 
-          'options' => array('limit' => 9999));
-        $tagChildren = civicrm_api3('Tag', 'Get', $childParams);
-        $gotAllChildren = $this->gotAllSectorChildren($tagChildren['count']);
-        if ($tagChildren['count'] > 0) {
-          $levelChildren = $this->addSectorChildren($tagChildren['values']);
-        }
-      }
-    }    
-  }
-
-  private function addSectorChildren($tagChildren) {
-    $return = array();
-    foreach($tagChildren as $tagChild) {
-      if (!in_array($tagChild['id'], $this->sectorTree)) {
-        $this->sectorTree[] = $tagChild['id'];
-        $return[] = $tagChild['id'];
-      }
-    }
-    return $return;
-  }
-  private function gotAllSectorChildren($count) {
-    if ($count == 0) {
-      return TRUE;
-    } else {
-      return FALSE;
-    }
   }
   private function setCustomerContactType($customerContactType) {
     $this->customerContactType = $customerContactType;
