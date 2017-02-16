@@ -310,8 +310,8 @@ class CRM_Threepeas_Relationship {
         'name' => 'Customer_dis_agreement_of_Proposed_Expert',
         'return' => 'table_name'
       ));
-      $sql = 'UPDATE civicrm_pum_case_reports SET ma_expert_approval = NULL , pq_approved_cc = NULL, 
-        pq_approved_sc = NULL, briefing_date = NULL, briefing_status = NULL WHERE case_id = %1';
+      $sql = 'UPDATE civicrm_pum_case_reports SET ma_expert_approval = NULL,
+      briefing_date = NULL, briefing_status = NULL WHERE case_id = %1';
       CRM_Core_DAO::executeQuery($sql, array(1 => array($caseId, 'Integer')));
       // in that case, also remove the custom data set holding the value of the previous expert accepted by customer
       $sql = 'DELETE FROM '.$customGroupTableName.' WHERE entity_id = %1';
