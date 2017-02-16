@@ -74,10 +74,6 @@ class CRM_Threepeas_Config {
    */
   public $actTargetRecordType = NULL;  
   /*
-   * protected sectorTree
-   */
-  protected $sectorTree = array();
-  /*
    * protected activity type id for Assessment Project Request by Rep
    */
   protected $assessmentRepActTypeId = NULL;
@@ -126,17 +122,10 @@ class CRM_Threepeas_Config {
   public function getCapCaseTypeId() {
     return $this->capCaseTypeId;
   }
-  public function getSectorTree() {
-    return $this->sectorTree;
-  }
   public function getAssessmentRepActTypeId() {
     return $this->assessmentRepActTypeId;
   }
 
-  public static function clearSectorTreeFromCache() {
-    CRM_Core_BAO_Setting::setItem(false, 'nl.pum.threepeas', 'RM_Threepeas_Config.sectorTree');
-    $config = CRM_Threepeas_Config::singleton();
-  }
   private function setCustomerContactType($customerContactType) {
     $this->customerContactType = $customerContactType;
   }

@@ -866,13 +866,6 @@ function threepeas_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($objectName == 'EntityTag' && $op == 'create') {
     _threepeasRemoveCountryTag($objectId, $objectRef);
   }
-
-  /*
-   * For performance reasons we cache the sectorTree but after changes to tags we should rebuild this sectorTree
-   */
-  if ($objectName == 'Tag') {
-    CRM_Threepeas_Config::clearSectorTreeFromCache();
-  }
 }
 /**
  * Function to delete Tags for Countries
