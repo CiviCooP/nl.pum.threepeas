@@ -503,7 +503,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * @throws Exception when contact for customer not found
    * @throws Exception when contact for country not found
    */
-  protected static function getCustomerCountry($customerId) {
+  public static function getCustomerCountry($customerId) {
     try {
       $contact = civicrm_api3('Contact', 'Getsingle', array('id' => $customerId));
     } catch (CiviCRM_API3_Exception $ex) {
