@@ -509,14 +509,22 @@ class CRM_Threepeas_BAO_PumCaseRelation {
     } catch (CiviCRM_API3_Exception $ex) {
       $countryId = 0;
     }
-    if (isset($contact['country_id'])) {
-      $threepeasConfig = CRM_Threepeas_Config::singleton();
-      $params = array(
-        'custom_'.$threepeasConfig->countryCustomFieldId => $contact['country_id'],
-        'return' => 'id');
-      try {
-        $countryId = civicrm_api3('Contact', 'Getvalue', $params);
-      } catch (CiviCRM_API3_Exception $ex) {
+
+    if (isset($contact['contact_sub_type'][0]) && isset($contact['contact_sub_type'][0]) == 'Country') {
+      $countryId = $contact['contact_id'];
+    } else {
+      if (isset($contact['country_id'])) {
+        $threepeasConfig = CRM_Threepeas_Config::singleton();
+        $params = array(
+          'custom_'.$threepeasConfig->countryCustomFieldId => $contact['country_id'],
+          'return' => 'id'
+        );
+        try {
+          $countryId = civicrm_api3('Contact', 'Getvalue', $params);
+        } catch (CiviCRM_API3_Exception $ex) {
+          $countryId = 0;
+        }
+      } else {
         $countryId = 0;
       }
     }
