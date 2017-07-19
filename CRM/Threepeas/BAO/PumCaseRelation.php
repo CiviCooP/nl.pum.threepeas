@@ -510,7 +510,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
       $countryId = 0;
     }
 
-    if (isset($contact['contact_sub_type'][0]) && isset($contact['contact_sub_type'][0]) == 'Country') {
+    if (isset($contact['contact_sub_type'][0]) && $contact['contact_sub_type'][0] == 'Country') {
       $countryId = $contact['contact_id'];
     } else {
       if (isset($contact['country_id'])) {
