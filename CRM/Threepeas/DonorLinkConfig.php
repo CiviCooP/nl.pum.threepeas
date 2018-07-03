@@ -291,7 +291,7 @@ class CRM_Threepeas_DonorLinkConfig {
    */
   protected function setDonationCaseTypes() {
     $this->donationCaseTypes = array(
-      'Advice', 'Business', 'CTM', 'Grant', 'PDV', 'RemoteCoaching', 'Seminar', 'TravelCase'
+      'Advice', 'Business', 'CTM', 'Grant', 'PDV', 'FactFinding', 'RemoteCoaching', 'Seminar', 'TravelCase'
     );
   }
 
