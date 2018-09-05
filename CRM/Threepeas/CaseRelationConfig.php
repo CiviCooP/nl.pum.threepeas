@@ -451,6 +451,9 @@ class CRM_Threepeas_CaseRelationConfig {
         'cfo' => 0,
         'recruitment_team' => 0,
         'grant_coordinator' => 0),
+      'FactFinding' => array(
+        'country_coordinator' => 1,
+        'project_officer' => 1),
       );
   }
   /**
@@ -479,7 +482,7 @@ class CRM_Threepeas_CaseRelationConfig {
    * @access protected
    */
   protected function setExpertCaseTypes() {
-    $validCaseTypes = array('Advice', 'Business', 'RemoteCoaching', 'Seminar');
+    $validCaseTypes = array('Advice', 'Business', 'RemoteCoaching', 'Seminar', 'FactFinding');
     foreach ($validCaseTypes as $validCaseType) {
       $caseType = CRM_Threepeas_Utils::getCaseTypeWithName($validCaseType);
       $this->expertCaseTypes[] = $caseType['value'];
