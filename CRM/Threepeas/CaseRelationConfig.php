@@ -452,7 +452,9 @@ class CRM_Threepeas_CaseRelationConfig {
         'recruitment_team' => 0,
         'grant_coordinator' => 0),
       'FactFinding' => array(
+        'sector_coordinator' => 1,
         'country_coordinator' => 1,
+        'authorised_contact' => 1,
         'project_officer' => 1),
       );
   }
