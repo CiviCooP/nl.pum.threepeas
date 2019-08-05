@@ -1,11 +1,11 @@
 <?php
 /**
  * Class PumProgramme for form processing of PUM Programme
- * 
+ *
  * @client PUM (http://www.pum.nl)
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @date 16 Apr 2014
- * 
+ *
  * Copyright (C) 2014 Coöperatieve CiviCooP U.A. <http://www.civicoop.org>
  * Licensed to PUM <http://www.pum.nl> and CiviCRM under the AGPL-3.0
  */
@@ -17,13 +17,13 @@ require_once 'CRM/Core/Form.php';
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC43/QuickForm+Reference
  */
 class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
-  
+
   protected $programmeManagers = array();
   protected $linkedDonationEntityIds = array();
-  
+
   /**
    * Function to build the form
-   */  
+   */
   function buildQuickForm() {
     /*
      * retrieve Select List Options
@@ -98,7 +98,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   }
   /**
    * Function to set default values
-   * 
+   *
    * @return array $defaults
    */
   function setDefaultValues() {
@@ -176,7 +176,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   /**
    * Function to build Donation Link Row
    */
-  
+
   /**
    * Function to set Add Elements
    */
@@ -272,7 +272,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
     /*
      * programmeManagers
      */
-    $programmeManagers = civicrm_api3('Contact', 'Get', array('group' => $threepeasConfig->programmeManagersGroupId));
+    $programmeManagers = civicrm_api3('Contact', 'Get', array('group' => $threepeasConfig->programmeManagersGroupId, 'rowCount' => 250));
     foreach ($programmeManagers['values'] as $managerId => $programmeManager) {
       $this->programmeManagers[$managerId] = $programmeManager['sort_name'];
     }
@@ -282,7 +282,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   }
   /**
    * Function to save the programme
-   * 
+   *
    * @return array $result with saved programme data
    */
   function saveProgramme($values) {
@@ -403,7 +403,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   }
   /**
    * Function that executes validation
-   * 
+   *
    * @param array $fields - form values
    * @param array $files
    * @param array $ruleParams
@@ -444,14 +444,14 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   protected function setLinkedDonationEntityIds() {
     if (!empty($this->_id)) {
       $params = array(
-        'entity' => 'Programme', 
-        'entity_id' => $this->_id, 
-        'donation_entity' => 'Contribution', 
+        'entity' => 'Programme',
+        'entity_id' => $this->_id,
+        'donation_entity' => 'Contribution',
         'is_active' => 1);
       $donations = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
       foreach ($donations as $donation) {
         $this->linkedDonationEntityIds[] = $donation['donation_entity_id'];
-      }  
+      }
     }
   }
   /**
@@ -474,7 +474,7 @@ class CRM_Threepeas_Form_PumProgramme extends CRM_Core_Form {
   }
   /**
    * Function to set default fa donor
-   * 
+   *
    * @param int $programmeId
    * @return int $faDonationId
    * @access protected
