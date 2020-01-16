@@ -140,7 +140,7 @@
     <td></td>
   {/if}
 </tr>
-
+  {* Removed for issue #4389
   {if $mergeCases}
     <tr class="crm-case-caseview-form-block-merge_case_id">
       <td colspan='2'><a href="#" onClick='cj("#merge_cases").toggle( ); return false;'>{ts}Merge Case{/ts}</a>
@@ -160,6 +160,7 @@
       </td>
     </tr>
   {/if}
+  *}
 </table>
 
 <div id="view-related-cases">
@@ -851,7 +852,7 @@ function addRole() {
     <div class="clear"></div>
   </div>
 </div>
-    
+
 {literal}
 <script type="text/javascript">
 cj("#manageTags select[multiple]").crmasmSelect({
