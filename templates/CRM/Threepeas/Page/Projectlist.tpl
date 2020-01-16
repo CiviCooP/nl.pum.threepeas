@@ -1,6 +1,7 @@
 <div class="crm-content-block crm-block">
+  {include file="CRM/common/pager.tpl" location="top"}
   <div id="help">
-    The existing Projects are listed below. You can add, edit, drill down or delete them from this screen. 
+    The existing Projects are listed below. You can add, edit, drill down or delete them from this screen.
   </div>
   {if $addUrl ne '' and $requestType == 'Country'}
     <div class="action-link">
@@ -21,12 +22,11 @@
             <th class="sorting-disabled" rowspan="1" colspan="1">Sector Coordinator</th>
             <th class="sorting-disabled" rowspan="1" colspan="1">Representative</th>
             <th class="sorting-disabled" rowspan="1" colspan="1">Authorised</th>
-            <th class="sorting-disabled" rowspan="1" colspan="1">Anamon</th>          
           {else}
             <th class="sorting-disabled" rowspan="1" colspan="5">&nbsp;</th>
           {/if}
           <th class="sorting-disabled" rowspan="1" colspan="1">Country Coordinator</th>
-          <th class="sorting-disabled" rowspan="1" colspan="1">Project Officer</th>          
+          <th class="sorting-disabled" rowspan="1" colspan="1">Project Officer</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Start date</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">End date</th>
           <th class="sorting-disabled" rowspan="1" colspan="1">Enabled</th>
@@ -50,7 +50,6 @@
               <td>{$project.sector_coordinator_name}</td>
               <td>{$project.representative}</td>
               <td>{$project.authorised_contact}</td>
-              <td>{$project.anamon_name}</td>
             {else}
               <td colspan="5">&nbsp;</td>
             {/if}
@@ -70,11 +69,11 @@
           {if $rowClass eq "odd-row"}
             {assign var="rowClass" value="even-row"}
           {else}
-            {assign var="rowClass" value="odd-row"}                        
+            {assign var="rowClass" value="odd-row"}
           {/if}
         {/foreach}
       </tbody>
-    </table>    
+    </table>
   </div>
   {if $addUrl ne '' and $requestType == 'Country'}
     <div class="action-link">
@@ -83,4 +82,5 @@
       </a>
     </div>
   {/if}
+  {include file="CRM/common/pager.tpl" location="bottom"}
 </div>

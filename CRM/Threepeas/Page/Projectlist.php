@@ -1,10 +1,10 @@
 <?php
 /**
  * Page Projectlist to list all projects (PUM)
- * 
+ *
  * @author Erik Hommel <erik.hommel@civicoop.org>
  * @date 17 Feb 2014
- * 
+ *
  * Copyright (C) 2014 Coöperatieve CiviCooP U.A. <http://www.civicoop.org>
  * Licensed to PUM <http://www.pum.nl> under the  AGPL-3.0
  */
@@ -17,9 +17,10 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
   protected $countryType = NULL;
   protected $customerType = NULL;
   protected $relations = array();
-  
+
   function run() {
     $this->setPageConfiguration();
+    $this->initializePager();
     $daoProjects = $this->getDaoProjects();
     $displayProjects = array();
     while($daoProjects->fetch()) {
@@ -31,7 +32,7 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
 
   /**
    * Fucntion to build the display row
-   * 
+   *
    * @param object $dao
    * @return array
    * @access protected
@@ -42,7 +43,6 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     $displayRow['title'] = $this->getProjectTitle($dao->title);
     $this->processProjectType($dao->customer_id, $dao->country_id, $displayRow);
     $displayRow['projectmanager_name'] = $dao->projectmanager_name;
-    $displayRow['anamon_name'] = $dao->anamon_name;
     $displayRow['country_coordinator_name'] = $dao->country_coordinator_name;
     $displayRow['project_officer_name'] = $dao->project_officer_name;
     $displayRow['sector_coordinator_name'] = $dao->sector_coordinator_name;
@@ -66,7 +66,7 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
 
   /**
    * Function to set contact id and name based on type of project
-   * 
+   *
    * @param int $customerId
    * @param int $countryId
    * @param array $displayRow
@@ -98,7 +98,7 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
 
   /**
    * Function to set urls for row
-   * 
+   *
    * @param int $projectId
    * @return array $urls
    * @access protected
@@ -115,7 +115,7 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
   }
   /**
    * Function to set actions for row
-   * 
+   *
    * @param object $dao
    * @return array
    * @access protected
@@ -140,11 +140,11 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
   }
   /**
    * Function to set the page configuration initially
-   * 
+   *
    * @access protected
    */
   protected function setPageConfiguration() {
-    CRM_Utils_System::setTitle(ts('List of Projects'));    
+    CRM_Utils_System::setTitle(ts('List of Projects'));
     $this->assign('addUrl', CRM_Utils_System::url('civicrm/pumproject', 'action=add', true));
     $this->requestType = CRM_Utils_Request::retrieve('type', 'String');
     $this->assign('requestType', $this->requestType);
@@ -156,20 +156,58 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     $this->relations = $caseRelationConfig->getCaseTypeRelations('Projectintake');
   }
   /**
+   * Method to initialize pager
+   *
+   * @access protected
+   */
+  protected function initializePager() {
+    $config = CRM_Threepeas_Config::singleton();
+
+    $query = "SELECT COUNT(*)
+      FROM civicrm_project a
+      LEFT JOIN civicrm_programme b ON a.programme_id = b.id
+      LEFT JOIN civicrm_contact pm ON a.projectmanager_id = pm.id
+      LEFT JOIN civicrm_contact cc ON a.country_coordinator_id = cc.id
+      LEFT JOIN civicrm_contact po ON a.project_officer_id = po.id
+      LEFT JOIN civicrm_contact sc ON a.sector_coordinator_id = sc.id";
+    switch ($this->requestType) {
+      case $this->countryType:
+        $query .= ' WHERE a.country_id = %1';
+        $params = array(1 => array($this->requestId, 'Positive'));
+        break;
+      case $this->customerType:
+        $query .= ' WHERE a.customer_id = %1';
+        $params = array(1 => array($this->requestId, 'Positive'));
+        break;
+    }
+    $params = array(
+      'total' => CRM_Core_DAO::singleValueQuery($query, $params),
+      'rowCount' => 50,
+      'status' => ts('Expense Claim Levels %%StatusMessage%%'),
+      'buttonBottom' => 'PagerBottomButton',
+      'buttonTop' => 'PagerTopButton',
+      'pageID' => $this->get(CRM_Utils_Pager::PAGE_ID),
+    );
+
+    $this->_pager = new CRM_Utils_Pager($params);
+    $this->assign_by_ref('pager', $this->_pager);
+  }
+  /**
    * Function to get projects with as much data as possible
-   * 
+   *
    * @return object DAO
    * @access protected
    */
   protected function getDaoProjects() {
     $params = array();
+    list($offset, $limit) = $this->_pager->getOffsetAndRowCount();
+
     $query = 'SELECT a.*, b.title AS programme_title, pm.display_name AS projectmanager_name,
-      ana.display_name AS anamon_name, cc.display_name AS country_coordinator_name, po.display_name AS project_officer_name,
+      cc.display_name AS country_coordinator_name, po.display_name AS project_officer_name,
       sc.display_name AS sector_coordinator_name
       FROM civicrm_project a
       LEFT JOIN civicrm_programme b ON a.programme_id = b.id
       LEFT JOIN civicrm_contact pm ON a.projectmanager_id = pm.id
-      LEFT JOIN civicrm_contact ana ON a.anamon_id = ana.id
       LEFT JOIN civicrm_contact cc ON a.country_coordinator_id = cc.id
       LEFT JOIN civicrm_contact po ON a.project_officer_id = po.id
       LEFT JOIN civicrm_contact sc ON a.sector_coordinator_id = sc.id';
@@ -184,14 +222,17 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
         break;
     }
     $query .= ' ORDER BY a. start_date DESC';
+    $query .= ' LIMIT %2, %3';
+    $params[2] = array($offset, 'Integer');
+    $params[3] = array($limit, 'Integer');
     return CRM_Core_DAO::executeQuery($query, $params);
   }
   /**
    * Returns an array with extra links (filled from a hook)
-   * 
+   *
    * @param array $project
    * @return array with links e.g. array('<a class="action-item" title="my item" href="link.php">link</a>')
-   * 
+   *
    */
   protected function getHookActions($project) {
     $hooks = CRM_Utils_Hook::singleton();

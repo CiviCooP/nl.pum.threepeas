@@ -11,7 +11,7 @@ class CRM_Threepeas_CaseRelationConfig {
    * singleton pattern
    */
   static private $_singleton = NULL;
-  
+
   protected $caseTypeRelations = NULL;
   /*
    * relationship_type_ids
@@ -38,7 +38,7 @@ class CRM_Threepeas_CaseRelationConfig {
 
   /**
    * Function to return singleton object
-   * 
+   *
    * @return object $_singleton
    * @access public
    * @static
@@ -115,7 +115,7 @@ class CRM_Threepeas_CaseRelationConfig {
 
   /**
    * Function to get all case type relationship settings
-   * 
+   *
    * @return array
    * @access public
    */
@@ -125,7 +125,7 @@ class CRM_Threepeas_CaseRelationConfig {
 
   /**
    * Function to get case type relationship settings for one case type
-   * 
+   *
    * @param string $caseType
    * @return array
    * @access public
@@ -180,7 +180,7 @@ class CRM_Threepeas_CaseRelationConfig {
 
   /**
    * Function to set activity status for completed
-   * 
+   *
    * @throws Exception when option group activity_status not found
    * @throws Exception when activity status completed not found
    * @access protected
@@ -276,7 +276,7 @@ class CRM_Threepeas_CaseRelationConfig {
 
   /**
    * Function to get the Employee Relationship Type Id
-   * 
+   *
    * @return int $relationshipTypeId
    * @throws Exception
    * @access protected
@@ -293,7 +293,7 @@ class CRM_Threepeas_CaseRelationConfig {
   }
   /**
    * Function to get relationship_type_id with civicrm_api3
-   * 
+   *
    * @param string $caseRoleLabel
    * @return integer $relationshipTypeId
    * @throws Exception when no relationship type id with name_a_b found
@@ -314,7 +314,7 @@ class CRM_Threepeas_CaseRelationConfig {
   }
   /**
    * Function to set all case type relationship settings
-   * 
+   *
    * @access protected
    */
   protected function setCaseTypeRelations() {
@@ -402,7 +402,7 @@ class CRM_Threepeas_CaseRelationConfig {
         'country_coordinator' => 1,
         'project_officer' => 1,
         'representative' => 1,
-        'anamon' => 1,
+        'anamon' => 0,
         'ceo' => 0,
         'cfo' => 0,
         'recruitment_team' => 0,
@@ -460,7 +460,7 @@ class CRM_Threepeas_CaseRelationConfig {
   }
   /**
    * Function to set the relationship_type_ids for the case default roles
-   * 
+   *
    * @access protected
    */
   protected function setRelationshipTypes() {
