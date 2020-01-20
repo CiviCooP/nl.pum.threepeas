@@ -41,7 +41,7 @@ function threepeas_civicrm_uninstall() {
 
 /**
  * Implementation of hook_civicrm_enable
- * - populate option values table for PUM projects with PUM projects if 
+ * - populate option values table for PUM projects with PUM projects if
  *   they do not exist yet
  * - check if extension org.civicoop.general.api.country is active
  * - define constant PUMPROJ_CUSTOM_ID
@@ -115,7 +115,7 @@ function threepeas_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
 /**
  * Implementation of hook civicrm_navigationMenu
  * to create a programmes, projects and products menu and menu items
- * 
+ *
  * @param array $params
  */
 function threepeas_civicrm_navigationMenu( &$params ) {
@@ -145,7 +145,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
             'active'     => 1
             ),
         'child' => null
-      ), 
+      ),
       '2' => array (
         'attributes' => array (
           'label'      => 'New Programme',
@@ -171,7 +171,7 @@ function threepeas_civicrm_navigationMenu( &$params ) {
           'active'     => 1
         ),
         'child' => null
-      ), 
+      ),
       '4' => array (
         'attributes' => array (
           'label'      => 'New Country Project',
@@ -201,11 +201,11 @@ function threepeas_civicrm_navigationMenu( &$params ) {
   )));
 }
 /**
- * Implementation of hook civicrm_tabs to add a tab for Projects for 
+ * Implementation of hook civicrm_tabs to add a tab for Projects for
  * contract subtype Customer
- * 
+ *
  * Remove all tabs save Documentation and Project for contact_sub_type Country
- * 
+ *
  * @param array $tabs
  * @param int $contactID
  */
@@ -277,7 +277,7 @@ function threepeas_civicrm_summary($contactId, &$content) {
 
 /**
  * Function to add the project tab to the summary page
- * 
+ *
  * @param int $contactId
  * @param string $customerType
  * @param int $projectWeight
@@ -286,7 +286,7 @@ function threepeas_civicrm_summary($contactId, &$content) {
 function _threepeasAddProjectTab($contactId, $customerType, $projectWeight = 0) {
   $projectCount = CRM_Threepeas_BAO_PumProject::countCustomerProjects($contactId, $customerType);
   $projectUrl = CRM_Utils_System::url('civicrm/projectlist','snippet=1&cid='.$contactId.'&type='.$customerType);
-  $projectTab = array( 
+  $projectTab = array(
     'id'    => 'customerProjects',
     'url'       => $projectUrl,
     'title'     => 'Projects',
@@ -296,7 +296,7 @@ function _threepeasAddProjectTab($contactId, $customerType, $projectWeight = 0) 
 }
 /**
  * Implementation of hook civicrm_buildForm
- * 
+ *
  * add project to CRM_Case_Form_Case and CRM_Case_Form_CaseView
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @date 19 May 2014
@@ -312,6 +312,7 @@ function threepeas_civicrm_buildForm($formName, &$form) {
       if (!empty($defaults)) {
         $form->setDefaults($defaults);
       }
+      _threepeasRemoveActivityReasonDeclineOnStatus($formName,$form);
       break;
     case 'CRM_Contribute_Form_ContributionView':
       CRM_Threepeas_DonorLinkConfig::singleton();
@@ -339,6 +340,9 @@ function threepeas_civicrm_buildForm($formName, &$form) {
       break;
     case 'CRM_Case_Form_Activity':
       _threepeasCustomerContributionStatus($form);
+      if($form->_activityTypeId == CRM_Threepeas_Utils::getActivityTypeWithName('Reason for decline or cancellation')['value']){
+        _threepeasReasonDeclineCancellationSetStatusCompleted($form);
+      }
       break;
     case 'CRM_Threepeas_Form_PumProject':
       $defaults = array();
@@ -356,6 +360,21 @@ function threepeas_civicrm_buildForm($formName, &$form) {
       break;
   }
 }
+
+function _threepeasReasonDeclineCancellationSetStatusCompleted(&$form) {
+  $completedActivityStatus = CRM_Threepeas_Utils::getActivityStatusWithName('Completed');
+  if (empty($completedActivityStatus)) {
+    throw new Exception('Could not find activity status with name Completed');
+  }
+  $completedActivityStatusId = $completedActivityStatus['value'];
+
+  if(empty($form->_defaultValues['subject'])){
+    $defaults['subject'] = 'Reason Decline/Cancellation';
+  }
+  $defaults['status_id'] = $completedActivityStatusId;
+  $form->setDefaults($defaults);
+}
+
 /**
  * Implementation of hook civicrm_postProcess
  */
@@ -425,7 +444,7 @@ function _threepeasProcessDonorLinkData($action, $contributionId, $formValues) {
  * @param array $formValues
  */
 function _threepeasCreateDonorLink($contributionId, $formValues) {
-  $params = array('donation_entity' => 'Contribution', 'donation_entity_id' => $contributionId, 
+  $params = array('donation_entity' => 'Contribution', 'donation_entity_id' => $contributionId,
     'is_active' => 1);
   if (!empty($formValues['programmeSelect'])) {
     $params['entity'] = 'Programme';
@@ -466,7 +485,7 @@ function _threepeasGetLatestContributionId() {
 }
 /**
  * Function to disable CaseProject
- * 
+ *
  * @param int $caseId
  */
 function _threepeasDisableCaseProject($caseId) {
@@ -476,7 +495,7 @@ function _threepeasDisableCaseProject($caseId) {
 }
 /**
  * Function to add CaseProject
- * 
+ *
  * @param array $values
  */
 function _threepeasAddCaseProject($values) {
@@ -496,7 +515,7 @@ function _threepeasAddCaseProject($values) {
 }
 /**
  * Function to retrieve project option values
- * 
+ *
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @date 21 May 2014
  *
@@ -521,7 +540,7 @@ function _threepeasGenerateProjectList() {
 }
 /**
  * Function to create option group if not exist
- * 
+ *
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @param string $name
  * @return int $optionGroupId
@@ -757,7 +776,7 @@ function _threepeasAddProjectElementCaseView(&$form) {
  *             because trash functionality trigger post hook with trash operation
  *             AND delete operation
  *            https://issues.civicrm.org/jira/browse/CRM-9562?jql=text%20~%20%22post%20hook%20contact%20trash%22)
- * 
+ *
  * Issue 86: set default PUM case roles on Open Case activity (because
  *           post on Case Create does not have client yet)
  */
@@ -880,7 +899,7 @@ function _threepeasRemoveCountryTag($tagId, $objectRef) {
     } else {
       $entityId = $refElement[0];
     }
-    if (isset($entity) && $entity == 'civicrm_contact' && 
+    if (isset($entity) && $entity == 'civicrm_contact' &&
       _threepeasContactIsCountry($entityId) == TRUE) {
       $query = 'DELETE FROM civicrm_entity_tag WHERE entity_table = %1 '
         . 'AND entity_id = %2 AND tag_id = %3';
@@ -890,7 +909,7 @@ function _threepeasRemoveCountryTag($tagId, $objectRef) {
         3 => array($tagId, 'Positive'));
       CRM_Core_DAO::executeQuery($query, $params);
     }
-  } 
+  }
 }
 /**
  * Function to delete additional data for contribution
@@ -904,7 +923,7 @@ function _threepeasDeleteContributionEnhancedData($contributionId) {
 }
 /**
  * Function to delete projects for a contact
- * 
+ *
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @param int $contactId
  */
@@ -922,7 +941,7 @@ function _threepeasDeleteProject($contactId) {
       $contact = civicrm_api3('Contact', 'Getsingle', array('contact_id' => $contactId));
       $threepeasConfig = CRM_Threepeas_Config::singleton();
       foreach($contact['contact_sub_type'] as $subType) {
-        if ($subType == $threepeasConfig->countryContactType 
+        if ($subType == $threepeasConfig->countryContactType
           || $subType == $threepeasConfig->customerContactType) {
           $deleteProjects = TRUE;
         }
@@ -932,11 +951,11 @@ function _threepeasDeleteProject($contactId) {
       }
     } catch (CiviCRM_API3_Exception $ex) {
     }
-  }  
+  }
 }
 /**
  * Function to check if the contact is a country (sub type specific for PUM)
- * 
+ *
  * @param int $contactId
  * @return boolean
  */
@@ -962,7 +981,7 @@ function _threepeasContactIsCountry($contactId) {
 }
 /**
  * Function to check if the contact is a customer (sub type specific for PUM)
- * 
+ *
  * @param int $contactId
  * @return boolean
  */
@@ -989,7 +1008,7 @@ function _threepeasContactIsCustomer($contactId) {
 /**
  * Implementation of hook civicrm_alterTemplateFile
  * Use special template for contact sub type Country
- * 
+ *
  * @param string $formName
  * @param object $form
  * @param string $context
@@ -1023,7 +1042,7 @@ function _threepeasProcessCaseDonorLink($values) {
       CRM_Threepeas_BAO_PumDonorLink::deleteApplicableByEntityId('Case', $caseId);
       foreach ($values['new_link'] as $newLink) {
         $params = array(
-          'donation_entity' => 'Contribution', 
+          'donation_entity' => 'Contribution',
           'donation_entity_id' => $newLink,
           'entity' => 'Case',
           'entity_id' => $caseId,
@@ -1082,7 +1101,7 @@ function _threepeasSetDefaultCaseSubject(&$form) {
   if (!empty($currentContact)) {
     $activitySubject = civicrm_api3('Contact', 'Getvalue', array('id' => $currentContact, 'return' => 'display_name'));
   } else {
-    $activitySubject = '{contactName}'; 
+    $activitySubject = '{contactName}';
 
   }
   if (!empty($caseTypeId)) {
@@ -1094,7 +1113,7 @@ function _threepeasSetDefaultCaseSubject(&$form) {
   if (!empty($caseId)) {
     $activitySubject .= '-'.$caseId;
   } else {
-    $activitySubject .= '-{caseId}'; 
+    $activitySubject .= '-{caseId}';
   }
   $defaults['activity_subject'] = $activitySubject;
   $form->setDefaults($defaults);
@@ -1110,7 +1129,7 @@ function _threepeasSetDefaultCaseSubject(&$form) {
 function _threepeasReformCaseSubject($caseId, $subject, $caseTypeId, $contactName = '') {
   if (!empty($subject)) {
     if (!empty($contactName)) {
-      $subject = str_replace('{contactName}', $contactName, $subject);      
+      $subject = str_replace('{contactName}', $contactName, $subject);
     }
     $typeParts = explode(CRM_Core_DAO::VALUE_SEPARATOR, $caseTypeId);
     if (isset($typeParts[1])) {
@@ -1118,7 +1137,7 @@ function _threepeasReformCaseSubject($caseId, $subject, $caseTypeId, $contactNam
     }
     $subject = str_replace('{caseId}', $caseId, $subject);
     $threepeasConfig = CRM_Threepeas_Config::singleton();
-    
+
     $caseType = $threepeasConfig->caseTypes[$caseTypeId];
     $subject = str_replace('{caseType}', $caseType, $subject);
     $query = 'UPDATE civicrm_case SET subject = %1 WHERE id = %2';
@@ -1215,7 +1234,7 @@ function _threepeasCustomerContributionStatus(&$form) {
 /**
  * Function to validate the fa donor in the form (has to be in selected linked donors)
  * issue 937
- * 
+ *
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @param array $fields
  * @param array $errors
@@ -1241,7 +1260,7 @@ function _threepeasValidateCaseFaDonorForm($fields, &$errors) {
 /**
  * Function to validate the fa donor in the view (has to be in selected linked donors)
  * issue 937
- * 
+ *
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  *
  * @param array $fields
@@ -1283,7 +1302,7 @@ function _threepeasValidateCaseFaDonorView($fields, &$errors, $defaults) {
 }
 /**
  * Function to add the donation link parts to case view
- * 
+ *
  * @param int $caseId
  * @param string $caseType
  * @param object $form
@@ -1322,7 +1341,7 @@ function _threepeasAddDonorLinkToCaseView($caseId, $caseType, &$form, &$defaults
 }
 /**
  * Function to add donor link list
- * 
+ *
  * @param array $contributionsList
  * @param object $form
  */
@@ -1338,7 +1357,7 @@ function _threepeasAddDonorLinkList($contributionsList, &$form) {
 }
 /**
  * Function to add Save Donation Link button
- * 
+ *
  * @param object $form
  */
 function _threepeasAddDonorLinkCaseSaveButton(&$form) {
@@ -1361,9 +1380,9 @@ function _threepeasAddDonorLinkCaseSaveButton(&$form) {
 function _threepeasGetContributionsCase($caseId, $caseType) {
   $donorLinkConfig = CRM_Threepeas_DonorLinkConfig::singleton();
   $params = array(
-    'entity' => 'Case', 
+    'entity' => 'Case',
     'entity_id' => $caseId,
-    'donation_entity' => 'Contribution', 
+    'donation_entity' => 'Contribution',
     'is_active' => 1);
   if ($caseType == $donorLinkConfig->getGrantCaseType()) {
     $currentContributions = CRM_Threepeas_BAO_PumDonorLink::getGrantDonations($params);
@@ -1374,7 +1393,7 @@ function _threepeasGetContributionsCase($caseId, $caseType) {
 }
 /**
  * Function to get the FA donation
- * 
+ *
  * @param int $caseId
  * @return array
  */
@@ -1388,7 +1407,7 @@ function _threepeasGetFaDonation($caseId) {
 }
 /**
  * Function to set the fa donation default
- * 
+ *
  * @param int $faDonationId
  * @return array
  */
@@ -1401,7 +1420,7 @@ function _threepeasSetFaDefault($faDonationId) {
 }
 /**
  * Function to add donor link part to case form
- * 
+ *
  * @param object $form
  */
 function _threepeasAddDonorLinkToCase(&$form) {
@@ -1417,7 +1436,7 @@ function _threepeasAddDonorLinkToCase(&$form) {
 }
 /**
  * Function to retrieve the case Id from url (required for issue 1071)
- * 
+ *
  * @param string $url
  * @return int $caseId
  */
@@ -1442,5 +1461,18 @@ function threepeas_civicrm_custom($op, $groupID, $entityID, &$params ) {
    */
   if ($groupID == $threepeasConfig->projectCustomGroupId && $op == 'create') {
     CRM_Threepeas_BAO_PumProject::updateProjectWithCustomData($entityID, $params);
+  }
+}
+function _threepeasRemoveActivityReasonDeclineOnStatus(&$formName,&$form) {
+  if($form->_caseDetails['case_status'] != 'Rejected' && $form->_caseDetails['case_status'] != 'Declined' && $form->_caseDetails['case_status'] != 'Cancelled'){
+    foreach($form->_elements as $key=>$value) {
+      if (!empty($value->_attributes['name']) && $value->_attributes['name']=='activity_type_id') {
+        foreach($value->_options as $opt_key=>$opt_val) {
+          if ($opt_val['text']=='Reason for decline or cancellation') {
+            unset($form->_elements[$key]->_options[$opt_key]);
+          }
+        }
+      }
+    }
   }
 }
