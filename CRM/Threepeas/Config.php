@@ -72,7 +72,7 @@ class CRM_Threepeas_Config {
   /*
    * activity record type for target contacts
    */
-  public $actTargetRecordType = NULL;  
+  public $actTargetRecordType = NULL;
   /*
    * protected activity type id for Assessment Project Request by Rep
    */
@@ -80,29 +80,29 @@ class CRM_Threepeas_Config {
   /**
    * Constructor function
    */
-  function __construct() {    
+  function __construct() {
     $this->setCustomerContactType('Customer');
     $this->setCountryContactType('Country');
     $this->setExpertContactType('Expert');
     $this->setCountryCustomField('civicrm_country_id');
     $this->setCountryCustomTable('pumCountry');
-    
+
     $projectCustomGroup = $this->setCustomGroup('Projectinformation');
     $this->projectCustomGroupId = $projectCustomGroup['id'];
     $this->projectCustomTableName = $projectCustomGroup['table_name'];
     $this->projectCustomFields = $this->setCustomFields($this->projectCustomGroupId);
-    
+
     $this->setCaseOptionGroupId();
     $this->setProjectOptionGroupId();
-    
+
     $this->setGroupId('Programme Managers');
     $this->setGroupId('Projectmanager');
-    
+
     $this->setCaseStatus();
     $this->setCaseTypes();
-    
+
     $this->expertRelationshipTypeId = $this->setRelationshipTypeId('Expert');
-    
+
     $this->setActiveProjectList();
     $this->setActiveProgrammeList();
     $this->setActiveCaseList();
@@ -137,7 +137,7 @@ class CRM_Threepeas_Config {
   }
   private function setCountryCustomTable($name) {
     try {
-      $this->countryCustomTable = civicrm_api3('CustomGroup', 'Getvalue', 
+      $this->countryCustomTable = civicrm_api3('CustomGroup', 'Getvalue',
         array('name' => $name, 'return' => 'table_name'));
     } catch (CiviCRM_API3_Exception $ex) {
       $this->countryCustomTable = '';
@@ -155,7 +155,7 @@ class CRM_Threepeas_Config {
   }
   /**
    * Function to return singleton object
-   * 
+   *
    * @return object $_singleton
    * @access public
    * @static
@@ -185,13 +185,13 @@ class CRM_Threepeas_Config {
   }
   private function setCaseOptionGroupId() {
     try {
-      $this->caseTypeOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue', 
+      $this->caseTypeOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue',
         array('name' => 'case_type', 'return' => 'id'));
     } catch (CiviCRM_API3_Exception $ex) {
       $this->caseTypeOptionGroupId = 0;
     }
     try {
-      $this->caseStatusOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue', 
+      $this->caseStatusOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue',
         array('name' => 'case_status', 'return' => 'id'));
     } catch (CiviCRM_API3_Exception $ex) {
       $this->caseStatusOptionGroupId = 0;
@@ -199,13 +199,13 @@ class CRM_Threepeas_Config {
   }
   private function setProjectOptionGroupId() {
     try {
-      $this->projectOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue', 
+      $this->projectOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue',
         array('name' => 'pum_project', 'return' => 'id'));
     } catch (CiviCRM_API3_Exception $ex) {
       $this->projectOptionGroupId = 0;
     }
     try {
-      $this->caseStatusOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue', 
+      $this->caseStatusOptionGroupId = civicrm_api3('OptionGroup', 'Getvalue',
         array('name' => 'case_status', 'return' => 'id'));
     } catch (CiviCRM_API3_Exception $ex) {
       $this->caseStatusOptionGroupId = 0;
@@ -242,7 +242,7 @@ class CRM_Threepeas_Config {
   }
   /**
    * Function to get a relationship type ID with the CiviCRM API and store it in property
-   * 
+   *
    * @param string $name name of the group of whic the id is to be set
    * @return int $relationshipTypeId
    * @throws Exception when error from API

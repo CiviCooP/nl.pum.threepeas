@@ -40,7 +40,7 @@ class CRM_Threepeas_Page_GetCaseRoles {
     foreach ($caseRelationships as $key => $value) {
       //calculate roles that don't have relationships
       if (CRM_Utils_Array::value($value['relation_type'], $caseRoles)) {
-        //keep naming from careRoles array
+        //keep naming from caseRoles array
         $caseRelationships[$key]['relation'] = $caseRoles[$value['relation_type']];
         unset($caseRoles[$value['relation_type']]);
       }
@@ -87,18 +87,19 @@ class CRM_Threepeas_Page_GetCaseRoles {
     //limit rows display
     $allCaseRelationships = $caseRelationships;
     $caseRelationships = array_slice($allCaseRelationships, $offset, $rowCount, TRUE);
-
     // set user name, email and edit columns links
     // idx will count number of current row / needed by edit links
     $idx = 1;
+
+
     foreach ($caseRelationships as $key => $row) {
       // view user links
-      if ($caseRelationships[$key]['cid']) {
+      if (!empty($caseRelationships[$key]['cid'])) {
         $caseRelationships[$key]['name'] = '<a href='.CRM_Utils_System::url('civicrm/contact/view',
             'action=view&reset=1&cid='.$caseRelationships[$key]['cid']).'>'.$caseRelationships[$key]['name'].'</a>';
       }
       // email column links/icon
-      if ($caseRelationships[$key]['email']) {
+      if (!empty($caseRelationships[$key]['email'])) {
         $caseRelationships[$key]['email'] = '<a href="'.CRM_Utils_System::url('civicrm/contact/view/activity', 'action=reset=1&action=add&atype=3&cid='.$caseRelationships[$key]['cid']).'&caseid='.$caseID.'" title="compose and send an email"><div class="icon email-icon" title="compose and send an email"></div>
              </a>';
       }
@@ -121,7 +122,11 @@ class CRM_Threepeas_Page_GetCaseRoles {
       $idx++;
     }
     $iFilteredTotal = $iTotal = $params['total'] = count($allCaseRelationships);
-    $selectorElements = array('relation', 'name', 'phone', 'email', 'actions');
+    $selectorElements = array('relation', 'name', 'phone', 'email');
+
+    if(!empty($caseRelationships[$key]['actions'])){
+      $selectorElements[] = 'actions';
+    }
 
     echo CRM_Utils_JSON::encodeDataTableSelector($caseRelationships, $sEcho, $iTotal, $iFilteredTotal, $selectorElements);
     CRM_Utils_System::civiExit();
