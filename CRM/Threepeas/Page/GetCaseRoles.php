@@ -104,6 +104,7 @@ class CRM_Threepeas_Page_GetCaseRoles {
              </a>';
       }
       // edit links
+      $caseRelationships[$key]['actions'] = '';
       if ($hasAccessToAllCases) {
         switch($caseRelationships[$key]['source']){
           case 'caseRel':
@@ -116,9 +117,8 @@ class CRM_Threepeas_Page_GetCaseRoles {
               '<a href="#" title="edit case role" onclick="createRelationship('.$caseRelationships[$key]['relation_type'].', null, null, '.$idx.',  \''.$caseRelationships[$key]['relation'].'\');return false;"><div class="icon edit-icon"></div></a>';
             break;
         }
-      } else {
-        $caseRelationships[$key]['actions'] = '';
       }
+
       $idx++;
     }
     $iFilteredTotal = $iTotal = $params['total'] = count($allCaseRelationships);
