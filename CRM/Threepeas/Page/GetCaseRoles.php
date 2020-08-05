@@ -91,7 +91,7 @@ class CRM_Threepeas_Page_GetCaseRoles {
     // idx will count number of current row / needed by edit links
     $idx = 1;
 
-
+    $addselectorElementActions = FALSE;
     foreach ($caseRelationships as $key => $row) {
       // view user links
       if (!empty($caseRelationships[$key]['cid'])) {
@@ -106,7 +106,7 @@ class CRM_Threepeas_Page_GetCaseRoles {
       // edit links
       $caseRelationships[$key]['actions'] = '';
       if ($hasAccessToAllCases) {
-        switch($caseRelationships[$key]['source']){
+        switch($caseRelationships[$key]['source']) {
           case 'caseRel':
             $caseRelationships[$key]['actions'] =
               '<a href="#" title="edit case role" onclick="createRelationship( '.$caseRelationships[$key]['relation_type'].', '.$caseRelationships[$key]['cid'].', '.$caseRelationships[$key]['rel_id'].', '.$idx.', \''.$caseRelationships[$key]['relation'].'\' );return false;"><div class="icon edit-icon" ></div></a>&nbsp;&nbsp;<a href="#" class="case-role-delete" case_id="'.$caseID.'" rel_id="'.$caseRelationships[$key]['rel_id'].'"  rel_type="'.$caseRelationships[$key]['relation_type'].'"><div class="icon delete-icon" title="remove contact from case role"></div></a>';
@@ -118,13 +118,15 @@ class CRM_Threepeas_Page_GetCaseRoles {
             break;
         }
       }
-
+      if (!empty($caseRelationships[$key]['actions'])) {
+        $addselectorElementActions = TRUE;
+      }
       $idx++;
     }
     $iFilteredTotal = $iTotal = $params['total'] = count($allCaseRelationships);
     $selectorElements = array('relation', 'name', 'phone', 'email');
 
-    if(!empty($caseRelationships[$key]['actions'])){
+    if ($addselectorElementActions == TRUE) {
       $selectorElements[] = 'actions';
     }
 
