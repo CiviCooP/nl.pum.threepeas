@@ -1,18 +1,18 @@
 <?php
 /**
  * BAO PumCaseRelation for PUM Default Case Relations
- * 
+ *
  * @client PUM (http://www.pum.nl)
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @date 11 November 2014
- * 
+ *
  * Copyright (C) 2014 Coöperatieve CiviCooP U.A. <http://www.civicoop.org>
  * Licensed to PUM <http://www.pum.nl> and CiviCRM under AGPL-3.0
  */
 class CRM_Threepeas_BAO_PumCaseRelation {
   /**
    * Function to set the default relations for a case
-   * 
+   *
    * @param int $caseId
    * @param int $clientId
    * @param date $caseStartDate
@@ -34,7 +34,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to get coordinator/rep/etc.
-   * 
+   *
    * @param int $contactId
    * @param string $caseRoleLabel
    * @return int $caseRoleId
@@ -47,7 +47,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to get start_date fo case
-   * 
+   *
    * @param int $caseId
    * @return date $caseStartDate
    * @access protected
@@ -62,9 +62,9 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to get the relationship for a specific type from a specific contact
-   * for example, country coordinator for a customer or country coordinator for a 
+   * for example, country coordinator for a customer or country coordinator for a
    * country
-   * 
+   *
    * @param string $caseRoleLabel
    * @param int $sourceContactId
    * @return int $foundContactId
@@ -83,7 +83,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to get active relationships
-   * 
+   *
    * @param int $relationshipTypeId
    * @param int $sourceContactId
    * @return array $relationships['values']
@@ -104,7 +104,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to create a relation
-   * 
+   *
    * @param int $caseId
    * @param int $contactIdA
    * @param int $contactIdB
@@ -149,7 +149,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
 
   /**
    * Function to check if the to be created case relation already exists
-   * 
+   *
    * @param array $params
    * @return boolean
    */
@@ -167,7 +167,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to create relationship record with api
-   * 
+   *
    * @param array $params
    * @throws Exception when error in create
    */
@@ -180,10 +180,10 @@ class CRM_Threepeas_BAO_PumCaseRelation {
         .$ex->getMessage());
     }
   }
-  
+
   /**
    * Function to set parameters for case relation create
-   * 
+   *
    * @param int $caseId
    * @param int $contactIdA
    * @param int $contactIdB
@@ -207,7 +207,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to retrieve case_type label for case_type_id
-   * 
+   *
    * @param int $caseTypeId
    * @return string $caseType
    * @throws Exception when option group case_type not found
@@ -254,7 +254,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to merge function name and call processing function
-   * 
+   *
    * @param string $caseRoleLabel
    * @param int $clientId
    * @throws Exception when function not found in class
@@ -289,7 +289,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to get anamon from country
-   * 
+   *
    * @param int $clientId
    * @return int $anamonId
    * @access protected
@@ -306,7 +306,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to get project officer from country
-   * 
+   *
    * @param int $clientId
    * @return int $projectOfficerId
    * @access protected
@@ -328,7 +328,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
 
   /**
    * Function to get sector coordinator from customer
-   * 
+   *
    * @param int $contactId
    * @return int $sectorCoordinatorId
    * @access public
@@ -341,6 +341,23 @@ class CRM_Threepeas_BAO_PumCaseRelation {
       $sectorCoordinatorId = 0;
     }
     return $sectorCoordinatorId;
+  }
+
+  /**
+   * Function to get recruitment team member from expert
+   *
+   * @param int $contactId
+   * @return int $recruitmentTeamMemberId
+   * @access public
+   * @static
+   */
+  public static function getRecruitmentTeamMemberId($contactId) {
+    $sector = self::getSectorForContactId($contactId);
+    $recruitmentTeamMemberId = CRM_Contactsegment_BAO_ContactSegment::getRoleContactActiveOnDate('Recruitment Team Member', $sector, date('Ymd'));
+    if (!$recruitmentTeamMemberId) {
+      $recruitmentTeamMemberId = 0;
+    }
+    return $recruitmentTeamMemberId;
   }
 
   /**
@@ -389,7 +406,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   /**
    * Function to get recruitment team member from customer
    * (temp not used)
-   * 
+   *
    * @param int $contactId
    * @return int $recruitmentTeamId
    * @access protected
@@ -401,7 +418,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to get the coordinator for a tag
-   * 
+   *
    * @param int $tagId
    * @return int $coordinatorId
    * @access protected
@@ -422,7 +439,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
 
   /**
    * Function to get authorised contact from customer
-   * 
+   *
    * @param int $contactId
    * @return int $authorisedContactId
    * @access protected
@@ -435,7 +452,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
 
   /**
    * Function to get grant coordinator from customer or country if not on customer
-   * 
+   *
    * @param int $contactId
    * @return int $grantCoordinatorId
    * @access protected
@@ -451,7 +468,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to get representative from customer or country if not on customer
-   * 
+   *
    * @param int $contactId
    * @return int $representativeId
    * @access protected
@@ -469,7 +486,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * Function to get ceo
    * (contactId as param is not required but passed because of the generic method
    * call in callCaseRoleMethod)
-   * 
+   *
    * @param int $contactId
    * @return int
    * @access protected
@@ -484,7 +501,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
    * Function to get cfo
    * (contactId as param is not required but passed because of the generic method
    * call in callCaseRoleMethod)
-   * 
+   *
    * @param int $contactId
    * @return int
    * @access protected
@@ -497,7 +514,7 @@ class CRM_Threepeas_BAO_PumCaseRelation {
   }
   /**
    * Function to get contact id of country of a customer
-   * 
+   *
    * @param int $customerId
    * @return int $countryId
    * @throws Exception when contact for customer not found
