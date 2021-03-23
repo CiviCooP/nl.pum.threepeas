@@ -71,4 +71,10 @@
     <title>EditCaseSubject</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/typeofremotecoaching</path>
+    <page_callback>CRM_Threepeas_Form_TypeOfRemoteCoaching</page_callback>
+    <title>TypeOfRemoteCoaching</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

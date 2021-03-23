@@ -313,6 +313,7 @@ function threepeas_civicrm_buildForm($formName, &$form) {
         $form->setDefaults($defaults);
       }
       _threepeasRemoveActivityReasonDeclineOnStatus($formName,$form);
+      _threepeasAddTypeOfRemoteCoaching($form);
       break;
     case 'CRM_Contribute_Form_ContributionView':
       CRM_Threepeas_DonorLinkConfig::singleton();
@@ -1475,4 +1476,7 @@ function _threepeasRemoveActivityReasonDeclineOnStatus(&$formName,&$form) {
       }
     }
   }
+}
+function _threepeasAddTypeOfRemoteCoaching(&$form) {
+  CRM_Core_Resources::singleton()->addScriptFile('nl.pum.threepeas', 'js/remotecoaching.js');
 }

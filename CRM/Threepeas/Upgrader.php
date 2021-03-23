@@ -6,16 +6,16 @@
 class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
   /**
    * implementation of function install()
-   * 
+   *
    * create MySQL files when they do not exist yet:
    * - civicrm_campaign_parent
    * - civicrm_campaign_type_parent
-   * 
+   *
    * @author Erik Hommel (erik.hommel@civicoop.org)
    * @date 29 Jan 2014
-   * 
+   *
    */
-  public function install() {       
+  public function install() {
     $this->executeSqlFile('sql/createProgramme.sql');
     $this->executeSqlFile('sql/createProject.sql');
     $this->executeSqlFile('sql/createCaseProject.sql');
@@ -39,9 +39,9 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
   /**
    * Upgrade 1002 - add country_id to project table
    *              - rename contact_id_manager to manager_id in programme table
-   * this is NOT the core civicrm country_id but the id of a contact of the 
+   * this is NOT the core civicrm country_id but the id of a contact of the
    * sub_type country
-   * 
+   *
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 16 Apr 2014
    */
@@ -96,7 +96,7 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
     if (CRM_Core_DAO::checkTableExists('civicrm_programme_division')) {
       CRM_Core_DAO::executeQuery('DROP TABLE civicrm_programme_division');
     }
-    return TRUE;    
+    return TRUE;
   }
   /**
    * Upgrade 2100 - add projectmanager_id to civicrm_project table
@@ -108,7 +108,7 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
         CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_project ADD COLUMN projectmanager_id INT(11) DEFAULT NULL AFTER country_id');
       }
     }
-    return TRUE;    
+    return TRUE;
   }
   /**
    * Upgrade 2101 - add is_fa_donor field to civicrm_donor_link (issue 937)
@@ -121,9 +121,9 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
           . 'is_fa_donor TINYINT(4) DEFAULT 0 AFTER entity_id');
       }
     }
-    return TRUE;    
+    return TRUE;
   }
-  
+
   /**
    * Upgrade 2201 - add projectplan field to civicrm_project (issue 916)
    */
@@ -135,9 +135,9 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
           . 'projectplan TEXT AFTER expected_results');
       }
     }
-    return TRUE;    
+    return TRUE;
   }
-  
+
   /**
    * Upgrade 2300 - add columns for my pum projects report (issue 3287) to civicrm_project
    */
@@ -165,6 +165,6 @@ class CRM_Threepeas_Upgrader extends CRM_Threepeas_Upgrader_Base {
           . 'anamon_id INT(11) DEFAULT NULL AFTER projectmanager_id');
       }
     }
-    return TRUE;    
+    return TRUE;
   }
 }
