@@ -28,21 +28,34 @@ function _civicrm_api3_remote_coaching_countries_spec(&$spec) {
 function civicrm_api3_remote_coaching_countries($params) {
   if (array_key_exists('entity_id', $params) && !empty($params['entity_id'])) {
     $returnValues = array();
-    $params_cg_remotecoachingtypes = array(
-      'version' => 3,
-      'sequential' => 1,
-      'name' => 'Type_of_Remote_Coaching',
-    );
-    $result_cg_remotecoachingtypes = civicrm_api('CustomGroup', 'getsingle', $params_cg_remotecoachingtypes);
 
-    $sql = "SELECT * FROM {$result_cg_remotecoachingtypes['table_name']} WHERE `entity_id` = %1";
+    $cg_typeremotecoaching = civicrm_api('CustomGroup', 'getsingle', array('version' => 3, 'sequential' => 1, 'name' => 'Type_of_Remote_Coaching'));
+    $cf_typeremotecoaching = civicrm_api('CustomField', 'get', array('version' => 3, 'sequential' => 1, 'custom_group_id' => $cg_typeremotecoaching['id']));
+
+    foreach($cf_typeremotecoaching['values'] as $key => $value){
+      if($value['name'] == 'Type_of_Remote_Coaching'){
+        $columns['remote_coaching'] = $value['column_name'];
+        $values['remote_coaching'] = $value['id'];
+      }
+      if($value['name'] == 'Number_of_participants'){
+        $columns['number_participants'] = $value['column_name'];
+        $values['number_participants'] = $value['id'];
+      }
+      if($value['name'] == 'Participating_countries'){
+        $columns['participating_countries'] = $value['column_name'];
+        $values['participating_countries'] = $value['id'];
+      }
+    }
+
+
+    $sql = "SELECT * FROM {$cg_typeremotecoaching['table_name']} WHERE `entity_id` = %1";
     $dao = CRM_Core_DAO::executeQuery($sql, array(1 => array((int)$params['entity_id'], 'Integer')));
     $i=0;
     while($dao->fetch()){
       $returnValues[$i]['case_id'] = $dao->entity_id;
-      $returnValues[$i]['type_of_remote_coaching'] = $dao->type_of_remote_coaching_607;
-      $returnValues[$i]['number_of_participants'] = $dao->number_of_participants_608;
-      $returnValues[$i]['participating_countries'] = @unserialize($dao->participating_countries_610);
+      $returnValues[$i]['type_of_remote_coaching'] = $dao->$columns['remote_coaching'];
+      $returnValues[$i]['number_of_participants'] = $dao->$columns['number_participants'];
+      $returnValues[$i]['participating_countries'] = @unserialize($dao->$columns['participating_countries']);
       $i++;
     }
     return civicrm_api3_create_success($returnValues, $params, 'RemoteCoaching', 'Countries');
