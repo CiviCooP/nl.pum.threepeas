@@ -12,6 +12,13 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
   public $case_id;
   public $client_id;
 
+  /**
+   * CRM_Threepeas_Form_TypeOfRemoteCoaching::preProcess()
+   *
+   * Retrieve the current case id and client id to know which entry we are working on
+   *
+   * @return void
+   */
   public function preProcess(){
     if(!empty($_GET['id'])){
       $this->case_id = $_GET['id'];
@@ -21,6 +28,14 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
     }
   }
 
+  /**
+   * CRM_Threepeas_Form_TypeOfRemoteCoaching::setDefaultValues()
+   *
+   * This retrieves the existing values in the database for the corresponding case
+   * If there is data available, it fills the default values of the form with the data from the database.
+   *
+   * @return $defaults
+   */
   public function setDefaultValues() {
     $defaults = array();
     $columns = array();
@@ -50,7 +65,7 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
 
       if(isset($query->$columns['remote_coaching']) && !empty($query->$columns['remote_coaching'])){
         $defaults['type_remote_coaching'] = $ov_typeremotecoaching['id'];
-        $defaults['number_participants'] = $query->id;
+        $defaults['number_participants'] = $query->$columns['number_participants'];
 
         $defaults['countries'] = @unserialize($query->$columns['participating_countries']);
       }
@@ -59,22 +74,29 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
     return $defaults;
   }
 
+  /**
+   * CRM_Threepeas_Form_TypeOfRemoteCoaching::buildQuickForm()
+   *
+   * This method adds the form elements to the form
+   *
+   * @return void
+   */
   public function buildQuickForm() {
     CRM_Utils_System::setTitle('Type of Remote Coaching for Case ID '.$this->case_id);
     // add form elements
     $this->add(
-      'select', // field type
-      'type_remote_coaching', // field name
-      'Type of Remote Coaching', // field label
-      $this->getRemoteCoachingTypes(), // list of options
-      TRUE // is required
+      'select',                         // field type
+      'type_remote_coaching',           // field name
+      'Type of Remote Coaching',        // field label
+      $this->getRemoteCoachingTypes(),  // list of options
+      FALSE                              // is required
     );
 
     $this->add(
-      'text', // field type
-      'number_participants', // field name
-      'Number of Participants', // field label
-      TRUE // is required
+      'text',
+      'number_participants',
+      'Number of Participants',
+      TRUE
     );
 
     $countrySelect = $this->addElement('advmultiselect', 'countries', ts('Countries'), $this->getCountries(),
@@ -108,6 +130,14 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
     parent::buildQuickForm();
   }
 
+  /**
+   * CRM_Threepeas_Form_TypeOfRemoteCoaching::postProcess()
+   *
+   * This method processes the input of the form.
+   * It first retrieves the custom fields, then it updates or inserts the new value into the database depending on the selected option in the form.
+   *
+   * @return void
+   */
   public function postProcess() {
     $values = $this->exportValues();
 
@@ -132,8 +162,12 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
       'custom_group_id' => $result_cg_remotecoachingtypes['id'],
     );
     $result_cf_typeremotecoaching = civicrm_api('CustomField', 'get', $params_cf_typeremotecoaching);
-    $field_value_type_remotecoaching = civicrm_api('OptionValue', 'getsingle', array('version' => 3, 'sequential' => 1, 'id' => $values['type_remote_coaching']));
-    $field_value_number_participants = civicrm_api('OptionValue', 'getsingle', array('version' => 3, 'sequential' => 1, 'id' => $values['number_participants']));
+    if(!empty($values['type_remote_coaching'])){
+      $field_value_type_remotecoaching = civicrm_api('OptionValue', 'getsingle', array('version' => 3, 'sequential' => 1, 'id' => $values['type_remote_coaching']));
+    }
+    if(!empty($values['number_participants'])){
+      $field_value_number_participants = civicrm_api('OptionValue', 'getsingle', array('version' => 3, 'sequential' => 1, 'id' => $values['number_participants']));
+    }
     $field_value_countries = @serialize($values['countries']);
 
     $fields = array();
@@ -157,12 +191,41 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
     }
 
     //Update fields in database
-    if($found->N > 0) {
-      $sql = "UPDATE {$result_cg_remotecoachingtypes['table_name']} SET {$fields['type_remote_coaching']} = %2, {$fields['number_participants']} = %3, {$fields['participating_countries']} = %4 WHERE `entity_id` = %1"; // moeten nog: {$fields['number_participants']} = %3, {$fields['participating_countries']} = %4
-      $dao = CRM_Core_DAO::executeQuery($sql, array(1 => array((int)$values['caseId'], 'Integer'), 2 => array($field_value_type_remotecoaching['value'],'String'), 3 => array($field_value_number_participants['value'],'Integer'), 4 => array($field_value_countries, 'String')));
+    if($dao->N > 0) {
+      $arValues = array();
+      $num_participants = 0;
+      $arValues[1] = array((int)$values['caseId'], 'Integer');
+      $arValues[2] = array(!empty($field_value_type_remotecoaching['value'])?$field_value_type_remotecoaching['value']:'','String');
+
+      $sql = "UPDATE {$result_cg_remotecoachingtypes['table_name']} SET `{$fields['type_remote_coaching']}` = %2 ";
+
+      if($field_value_type_remotecoaching['value'] == 'webinar_single_country' || $field_value_type_remotecoaching['value'] == 'webinar_multiple_countries'){
+        $num_participants = !empty($field_value_number_participants['value'])?(int)$values['number_participants']:0;
+        $arValues[3] = array($num_participants,'Integer');
+        $arValues[4] = array($field_value_countries, 'String');
+
+        $sql .= ", `".$fields['number_participants']."` = %3, `".$fields['participating_countries']."` = %4 ";
+      } else {
+        $arValues[4] = array('', 'String');
+
+        $sql .= ", `".$fields['number_participants']."` = NULL, `".$fields['participating_countries']."` = %4 ";
+      }
+
+      $sql .= "WHERE `entity_id` = %1";
+
+      $dao = CRM_Core_DAO::executeQuery($sql, $arValues);
     } else {
-      $sql = "INSERT INTO {$result_cg_remotecoachingtypes['table_name']} (`entity_id`, ".$fields['type_remote_coaching'].", ".$fields['number_participants'].", ".$fields['participating_countries'].") VALUES (%1, %2, %3, %4)";
-      $dao = CRM_Core_DAO::executeQuery($sql, array(1 => array((int)$values['caseId'], 'Integer'), 2 => array($field_value_type_remotecoaching['value'], 'String'), 3 => array($field_value_number_participants, 'String'), 4 => array($field_value_countries, 'String')));
+      $num_participants = !empty($values['number_participants'])?(int)$values['number_participants']:0;
+      $arValues = array();
+      $arValues[1] = array((int)$values['caseId'], 'Integer');
+      $arValues[2] = array(!empty($field_value_type_remotecoaching['value'])?$field_value_type_remotecoaching['value']:'', 'String');
+      $arValues[3] = array($num_participants, 'Integer');
+      $arValues[4] = array(!empty($field_value_countries)?$field_value_countries:'', 'String');
+
+      $sql = "INSERT INTO {$result_cg_remotecoachingtypes['table_name']} (`entity_id`, `".$fields['type_remote_coaching']."`, `".$fields['number_participants']."`, `".$fields['participating_countries']."`) ";
+      $sql .= "VALUES (%1, %2, %3, %4)";
+
+      $dao = CRM_Core_DAO::executeQuery($sql, $arValues);
     }
 
     CRM_Utils_System::redirect('/civicrm/contact/view/case?reset=1&action=view&cid='.$values['clientId'].'&id='.$values['caseId']);
@@ -171,7 +234,7 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
   }
 
   /**
-   * Method to get list of remote coaching types for option list
+   * Method to get list of remote coaching types
    *
    * @return array $options
    */
@@ -193,7 +256,7 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
   }
 
   /**
-   * Method to get available countries
+   * Method to get a list of available countries
    *
    * @return array $result
    */
@@ -212,6 +275,33 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
     } catch (CiviCRM_API3_Exception $ex) {}
 
     return $result;
+  }
+
+  /**
+   * Overridden parent method to set validation rules
+   */
+  public function addRules() {
+    $this->addFormRule(array('CRM_Threepeas_Form_TypeOfRemoteCoaching', 'validateInput'));
+  }
+
+  /**
+   * Method to validate the form input on submission of the form
+   *
+   * @param $fields
+   * @return bool|array $errors
+   */
+  public static function validateInput($fields) {
+    $remotecoaching_types = self::getRemoteCoachingTypes();
+    if($remotecoaching_types[$fields['type_remote_coaching']] == 'Webinar single country' && count($fields['countries']) != 1 ){
+      $errors['countries'] = ts('Please select a single country or choose for "Webinar multiple countries"');
+      return $errors;
+    }
+    if($remotecoaching_types[$fields['type_remote_coaching']] == 'Webinar multiple countries' && count($fields['countries']) < 2){
+      $errors['countries'] = ts('Please select multiple countries or choose for "Webinar single country"');
+      return $errors;
+    }
+
+    return TRUE;
   }
 
   /**
