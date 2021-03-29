@@ -258,23 +258,24 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
   /**
    * Method to get a list of available countries
    *
-   * @return array $result
+   * @return array $countries
    */
   private function getCountries() {
-    $result = array();
+    $countries = array();
     try {
-      $countries = civicrm_api3('Country', 'get', array(
+      $api_result = civicrm_api3('Country', 'get', array(
         'version' => 3,
         'sequential' => 1,
         'rowCount' => 0
       ));
 
-      foreach ($countries['values'] as $country) {
-        $result[$country['id']] = $country['name'];
+      foreach ($api_result['values'] as $country) {
+        $countries[$country['id']] = $country['name'];
       }
     } catch (CiviCRM_API3_Exception $ex) {}
 
-    return $result;
+    asort($countries);
+    return $countries;
   }
 
   /**
@@ -292,8 +293,8 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
    */
   public static function validateInput($fields) {
     $remotecoaching_types = self::getRemoteCoachingTypes();
-    if($remotecoaching_types[$fields['type_remote_coaching']] == 'Webinar single country' && count($fields['countries']) != 1 ){
-      $errors['countries'] = ts('Please select a single country or choose for "Webinar multiple countries"');
+    if($remotecoaching_types[$fields['type_remote_coaching']] == 'Webinar single country' && !is_int((int)$fields['countries']) ){
+      $errors['number_participants'] = ts('Please enter a number in "Number of Participants" field');
       return $errors;
     }
     if($remotecoaching_types[$fields['type_remote_coaching']] == 'Webinar multiple countries' && count($fields['countries']) < 2){

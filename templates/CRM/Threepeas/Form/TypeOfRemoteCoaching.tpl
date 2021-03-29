@@ -15,9 +15,12 @@
 /* function to show or hide fields number of participants and countries depending on type of remote coaching */
 function show_hide_webinar(){
   cj( document ).ready(function() {
-    if(cj('#type_remote_coaching option:selected').text() == 'Webinar single country' || cj('#type_remote_coaching option:selected').text() == 'Webinar multiple countries') {
+    if(cj('#type_remote_coaching option:selected').text() == 'Webinar multiple countries') {
       cj('#number_participants').parent().parent().show();
       cj('.advmultselect').parent().parent().show();
+    } else if (cj('#type_remote_coaching option:selected').text() == 'Webinar single country') {
+      cj('#number_participants').parent().parent().show();
+      cj('.advmultselect').parent().parent().hide();
     } else {
       cj('#number_participants').parent().parent().hide();
       cj('.advmultselect').parent().parent().hide();
