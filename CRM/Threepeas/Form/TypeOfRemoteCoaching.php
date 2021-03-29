@@ -99,7 +99,7 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
       TRUE
     );
 
-    $countrySelect = $this->addElement('advmultiselect', 'countries', ts('Countries'), $this->getCountries(),
+    $countrySelect = $this->addElement('advmultiselect', 'countries', ts('Participating countries'), $this->getCountries(),
     array('id' => 'countries','class' => 'advmultselect', 'size' => 10, 'style' => 'width:auto;'),TRUE);
 
     $countrySelect->setButtonAttributes('add', array('value' => ts('Add country')." >>"));
