@@ -51,13 +51,29 @@ function civicrm_api3_remote_coaching_countries($params) {
     $sql = "SELECT * FROM {$cg_typeremotecoaching['table_name']} WHERE `entity_id` = %1";
     $dao = CRM_Core_DAO::executeQuery($sql, array(1 => array((int)$params['entity_id'], 'Integer')));
     $i=0;
+
+    $countries = civicrm_api('Country', 'get', array('version' => 3, 'sequential' => 1, 'sort' => 'name', 'rowCount' => 0));
+    $countries_sorted = array();
+    foreach($countries['values'] as $key => $value){
+      $countries_sorted[$value['id']] = $value['name'];
+    }
+
     while($dao->fetch()){
+      $participating_countries = @unserialize($dao->$columns['participating_countries']);
+      $participating_countries_sorted = array();
+
+      foreach($countries_sorted as $key => $value) {
+        if(in_array($key,$participating_countries)){
+          $participating_countries_sorted[] = $key;
+        }
+      }
       $returnValues[$i]['case_id'] = $dao->entity_id;
       $returnValues[$i]['type_of_remote_coaching'] = $dao->$columns['remote_coaching'];
       $returnValues[$i]['number_of_participants'] = $dao->$columns['number_participants'];
-      $returnValues[$i]['participating_countries'] = @unserialize($dao->$columns['participating_countries']);
+      $returnValues[$i]['participating_countries'] = $participating_countries_sorted;
       $i++;
     }
+
     return civicrm_api3_create_success($returnValues, $params, 'RemoteCoaching', 'Countries');
   }
   else {

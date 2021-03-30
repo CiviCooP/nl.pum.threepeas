@@ -14,6 +14,14 @@ var getUrlParameter = function getUrlParameter(sParam) {
   return false;
 };
 
+var sleep = function(ms){
+  let now = Date.now(),
+      end = now + ms;
+  while (now < end) {
+    now = Date.now();
+  }
+};
+
 cj('#Type_of_Remote_Coaching .button').click(function(e){
   e.preventDefault();
   window.location.href = "/civicrm/typeofremotecoaching?cid="+getUrlParameter('cid')+"&id="+getUrlParameter('id');
@@ -23,11 +31,11 @@ cj('#Type_of_Remote_Coaching .button').click(function(e){
 cj( document ).ready(function() {
   var caseId = getUrlParameter('id');
 
-  CRM.api('RemoteCoaching', 'Countries', {'sequential': 1, 'entity_id': caseId},{
+  CRM.api('RemoteCoaching', 'Countries', {'sequential': 0, 'entity_id': caseId},{
     success: function(data) {
       $i=0;
       cj.each(data.values[0].participating_countries, function(key, value) {
-        CRM.api('Country', 'get', {'sequential': 1, 'id': value},{
+        CRM.api('Country', 'get', {'sequential': 0, 'id': value},{
           success: function(data2) {
             cj.each(data2.values, function(key2, value2) {
               if($i == 0){
@@ -39,6 +47,7 @@ cj( document ).ready(function() {
             });
           }
         });
+        sleep(25); //Sleep for a while, because api call is too slow, otherwise, countries are not presented in order.
       });
     },
     error: function(data){
