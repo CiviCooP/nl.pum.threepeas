@@ -240,19 +240,26 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
    */
   public function getRemoteCoachingTypes() {
     $options = array();
+    $sorted_options = array();
 
     $result_og_remotecoachingtypes = civicrm_api('OptionGroup', 'getsingle', array('version' => 3, 'sequential' => 1, 'title' => 'Type of Remote Coaching'));
     $remote_coaching_types = civicrm_api('OptionValue', 'get', array('version' => 3, 'sequential' => 1, 'option_group_id' => $result_og_remotecoachingtypes['id']));
 
-    $options = array('' => E::ts('- select -'));
+    $sorted_options = $sort = array('' => E::ts('- select -'));
 
     if(is_array($remote_coaching_types['values'])){
       foreach($remote_coaching_types['values'] as $key => $value){
-        $options[$value['id']] = $value['label'];
+        $options[$value['weight']] = array('id' => $value['id'], 'label' => $value['label']);
       }
     }
 
-    return $options;
+    if(is_array($options)){
+      ksort($options); // order options by weight as defined in option values
+      foreach($options as $key => $value){
+        $sorted_options[$value['id']] = $value['label'];
+      }
+    }
+    return $sorted_options;
   }
 
   /**
