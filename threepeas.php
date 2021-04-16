@@ -313,7 +313,9 @@ function threepeas_civicrm_buildForm($formName, &$form) {
         $form->setDefaults($defaults);
       }
       _threepeasRemoveActivityReasonDeclineOnStatus($formName,$form);
-      _threepeasAddTypeOfRemoteCoaching($form);
+      if($caseType == 'RemoteCoaching') {
+        _threepeasAddTypeOfRemoteCoaching($form);
+      }
       break;
     case 'CRM_Contribute_Form_ContributionView':
       CRM_Threepeas_DonorLinkConfig::singleton();
