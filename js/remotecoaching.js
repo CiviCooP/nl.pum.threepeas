@@ -34,14 +34,16 @@ cj( document ).ready(function() {
   CRM.api('RemoteCoaching', 'countries', {'sequential': 0, 'entity_id': caseId},{
     success: function(data) {
       $i=0;
-      cj.each(data.values[0].participating_countries_name, function(key, value) {
-        if($i == 0){
-          cj('#Type_of_Remote_Coaching .crm-accordion-body .crm-info-panel:nth-child(3) .html-adjust').append(value);
-        } else {
-          cj('#Type_of_Remote_Coaching .crm-accordion-body .crm-info-panel:nth-child(3) .html-adjust').append(','+value);
-        }
-        $i++;
-      });
+      if(data.values[0] !== undefined && data.values[0].hasOwnProperty('participating_countries_name')){
+        cj.each(data.values[0].participating_countries_name, function(key, value) {
+          if($i == 0){
+            cj('#Type_of_Remote_Coaching .crm-accordion-body .crm-info-panel:nth-child(3) .html-adjust').append(value);
+          } else {
+            cj('#Type_of_Remote_Coaching .crm-accordion-body .crm-info-panel:nth-child(3) .html-adjust').append(','+value);
+          }
+          $i++;
+        });
+      }
     },
     error: function(data){
 
