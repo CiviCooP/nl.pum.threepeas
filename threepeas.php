@@ -1482,3 +1482,6 @@ function _threepeasRemoveActivityReasonDeclineOnStatus(&$formName,&$form) {
 function _threepeasAddTypeOfRemoteCoaching(&$form) {
   CRM_Core_Resources::singleton()->addScriptFile('nl.pum.threepeas', 'js/remotecoaching.js');
 }
+function threepeas_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions){
+  $permissions['remote_coaching']['countries'] = array('access CiviCRM');
+}

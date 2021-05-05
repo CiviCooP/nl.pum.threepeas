@@ -31,23 +31,16 @@ cj('#Type_of_Remote_Coaching .button').click(function(e){
 cj( document ).ready(function() {
   var caseId = getUrlParameter('id');
 
-  CRM.api('RemoteCoaching', 'Countries', {'sequential': 0, 'entity_id': caseId},{
+  CRM.api('RemoteCoaching', 'countries', {'sequential': 0, 'entity_id': caseId},{
     success: function(data) {
       $i=0;
-      cj.each(data.values[0].participating_countries, function(key, value) {
-        CRM.api('Country', 'get', {'sequential': 0, 'id': value},{
-          success: function(data2) {
-            cj.each(data2.values, function(key2, value2) {
-              if($i == 0){
-                cj('#Type_of_Remote_Coaching .crm-accordion-body .crm-info-panel:nth-child(3) .html-adjust').append(value2.name);
-              } else {
-                cj('#Type_of_Remote_Coaching .crm-accordion-body .crm-info-panel:nth-child(3) .html-adjust').append(','+value2.name);
-              }
-              $i++;
-            });
-          }
-        });
-        sleep(25); //Sleep for a while, because api call is too slow, otherwise, countries are not presented in order.
+      cj.each(data.values[0].participating_countries_name, function(key, value) {
+        if($i == 0){
+          cj('#Type_of_Remote_Coaching .crm-accordion-body .crm-info-panel:nth-child(3) .html-adjust').append(value);
+        } else {
+          cj('#Type_of_Remote_Coaching .crm-accordion-body .crm-info-panel:nth-child(3) .html-adjust').append(','+value);
+        }
+        $i++;
       });
     },
     error: function(data){

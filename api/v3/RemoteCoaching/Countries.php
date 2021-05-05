@@ -61,16 +61,19 @@ function civicrm_api3_remote_coaching_countries($params) {
     while($dao->fetch()){
       $participating_countries = @unserialize($dao->$columns['participating_countries']);
       $participating_countries_sorted = array();
+      $participating_countries_name = array();
 
       foreach($countries_sorted as $key => $value) {
         if(in_array($key,$participating_countries)){
           $participating_countries_sorted[] = $key;
+          $participating_countries_name[] = $value;
         }
       }
       $returnValues[$i]['case_id'] = $dao->entity_id;
       $returnValues[$i]['type_of_remote_coaching'] = $dao->$columns['remote_coaching'];
       $returnValues[$i]['number_of_participants'] = $dao->$columns['number_participants'];
       $returnValues[$i]['participating_countries'] = $participating_countries_sorted;
+      $returnValues[$i]['participating_countries_name'] = $participating_countries_name;
       $i++;
     }
 
