@@ -17,13 +17,13 @@ function show_hide_webinar(){
   cj( document ).ready(function() {
     if(cj('#type_remote_coaching option:selected').text() == 'Webinar multiple countries') {
       cj('#number_participants').parent().parent().show();
-      cj('.advmultselect').parent().parent().show();
+      cj('.advmultiselect').parent().parent().show();
     } else if (cj('#type_remote_coaching option:selected').text() == 'Webinar single country') {
       cj('#number_participants').parent().parent().show();
-      cj('.advmultselect').parent().parent().hide();
+      cj('.advmultiselect').parent().parent().hide();
     } else {
       cj('#number_participants').parent().parent().hide();
-      cj('.advmultselect').parent().parent().hide();
+      cj('.advmultiselect').parent().parent().hide();
     }
 
     cj('#number_participants').keypress(function (e) {
@@ -60,7 +60,7 @@ function sortSelectOptions(selector, skip_first) {
 
 cj( document ).ready(function() {
   cj('#number_participants').parent().parent().hide();
-  cj('.advmultselect').parent().parent().hide();
+  cj('.advmultiselect').parent().parent().hide();
   sortSelectOptions('#countries-t', false);
 
   show_hide_webinar();
@@ -68,7 +68,7 @@ cj( document ).ready(function() {
   cj('#type_remote_coaching').change(function() {
     show_hide_webinar();
   });
-  cj('#TypeOfRemoteCoaching .advmultselect input').click(function() {
+  cj('#TypeOfRemoteCoaching .advmultiselect input').click(function() {
     sortSelectOptions('#countries-t', false);
   });
   cj('#countries-f').dblclick(function() {

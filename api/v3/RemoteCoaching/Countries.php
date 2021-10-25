@@ -64,7 +64,7 @@ function civicrm_api3_remote_coaching_countries($params) {
       $participating_countries_name = array();
 
       foreach($countries_sorted as $key => $value) {
-        if(in_array($key,$participating_countries)){
+        if(is_array($participating_countries) && in_array($key,$participating_countries)){
           $participating_countries_sorted[] = $key;
           $participating_countries_name[] = $value;
         }

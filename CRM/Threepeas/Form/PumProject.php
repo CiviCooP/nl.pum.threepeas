@@ -1,11 +1,11 @@
 <?php
 /**
  * Class PumProject for form processing of PUM Project
- * 
+ *
  * @client PUM (http://www.pum.nl)
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @date 30 Apr 2014
- * 
+ *
  * Copyright (C) 2014 Coöperatieve CiviCooP U.A. <http://www.civicoop.org>
  * Licensed to PUM <http://www.pum.nl> and CiviCRM under the AGPL-3.0
  */
@@ -17,17 +17,17 @@ require_once 'CRM/Core/Form.php';
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC43/QuickForm+Reference
  */
 class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
-  
+
   protected $projectCustomers = array();
   protected $projectCountries = array();
   protected $projectManagers = array();
   protected $programmes = array();
   protected $projectType = NULL;
   protected $linkedDonationEntityIds = array();
-  
+
   /**
    * Function to build the form
-   */  
+   */
   function buildQuickForm() {
     /*
      * retrieve Select List Options
@@ -116,17 +116,28 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->add('text', 'country_id', ts('Customer or Country'), array('size' => CRM_Utils_Type::HUGE));
     if ($this->projectType == 'Customer') {
       $this->add('text', 'projectmanager_id', ts('Project Manager'), array('size' => CRM_Utils_Type::HUGE));
-      $this->add('textarea', 'reason', ts('What is the reason for this request for Assistance?'), 
+      $this->add('textarea', 'reason', ts('What is the reason for this request for Assistance?'),
         array('rows'    => 4, 'readonly'=> 'readonly', 'cols'    => 80), false);
-      $this->add('textarea', 'work_description', ts('Which project activities do you expect the expert to perform?'), 
+      $this->add('textarea', 'work_description', ts('Which project activities do you expect the expert to perform?'),
         array('rows'    => 4, 'readonly'=> 'readonly', 'cols'    => 80), false);
-      $this->add('textarea', 'qualifications', ts('Qualifications'), 
-        array('rows'    => 4, 'readonly'=> 'readonly', 'cols' => 80), false);    
+      $this->add('textarea', 'qualifications', ts('Qualifications'),
+        array('rows'    => 4, 'readonly'=> 'readonly', 'cols' => 80), false);
       $this->add('text', 'sector_coordinator', ts('Sector Coordinator'), array('size' => CRM_Utils_Type::HUGE));
+
+
+      //If project source is AMSCO, representative should not be displayed
+      $source = CRM_Core_DAO::singleValueQuery('SELECT ct.source FROM civicrm_project p LEFT JOIN civicrm_contact ct ON ct.id = p.customer_id WHERE p.id = %1', array(1=>array((int)$this->_id, 'Integer')));
+      if($source == 'AMSCO') {
+        //Do not display
+      } else {
+        $displayRow['representative'] = CRM_Threepeas_Utils::getContactName($representativeId);
+      }
       $this->add('text', 'representative', ts('Representative'), array('size' => CRM_Utils_Type::HUGE));
+
+
       $this->add('text', 'authorised', ts('Authorised Contact'), array('size' => CRM_Utils_Type::HUGE));
     }
-    $this->add('textarea', 'expected_results', ts('What are the expected results of the project?'), 
+    $this->add('textarea', 'expected_results', ts('What are the expected results of the project?'),
       array('rows'    => 4, 'readonly'=> 'readonly', 'cols'    => 80), false);
     $this->add('textarea', 'projectplan', ts('Projectplan (activities to be performed with customer)'),
       array('rows' => 15, 'readonly'=> 'readonly', 'cols' => 150), false);
@@ -195,7 +206,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     $this->add('checkbox', 'is_active', ts('Enabled'));
     $this->addButtons(array(
       array('type' => 'next', 'name' => ts('Save'), 'isDefault' => true,),
-      array('type' => 'cancel', 'name' => ts('Cancel'))));   
+      array('type' => 'cancel', 'name' => ts('Cancel'))));
     $this->setAddUpdateDonationLink();
   }
   /**
@@ -246,7 +257,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    * Function to get the list of customers
    */
   function setProjectCustomerList() {
-    $threepeasConfig = CRM_Threepeas_Config::singleton();    
+    $threepeasConfig = CRM_Threepeas_Config::singleton();
     $customerParams = array('contact_sub_type' => $threepeasConfig->customerContactType, 'is_deleted' => 0);
     $this->projectCustomers = $this->retrieveContacts($customerParams);
     $this->projectCustomers[0] = '- select -';
@@ -287,7 +298,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   }
   /**
    * Function to save the project
-   * 
+   *
    * @return array $result with saved project data
    */
   function saveProject($values) {
@@ -347,7 +358,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   }
   /**
    * Function to retrieve contacts with params for option list
-   * 
+   *
    * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
    * @date 23 Apr 2014
    * @param array $params
@@ -445,7 +456,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    */
   function setAddUpdateDonationLink() {
     $contributionsList = CRM_Threepeas_BAO_PumDonorLink::getContributionsList('Project', '');
-    $this->add('advmultiselect', 'new_link', '', $contributionsList, false,  
+    $this->add('advmultiselect', 'new_link', '', $contributionsList, false,
       array('size' => count($contributionsList), 'style' => 'width:auto; min-width:300px;',
         'class' => 'advmultiselect',
       ));
@@ -464,7 +475,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     } else {
       if (isset($defaults['country_id']) && !empty($defaults['country_id'])) {
         $defaults['country_id'] = CRM_Utils_Array::value($defaults['country_id'], $this->projectCountries);
-      }  
+      }
     }
     $new_year = (int) date('Y') + 1;
     list($defaults['start_date']) = CRM_Utils_Date::setDateDefaults($new_year.'-01-01');
@@ -505,7 +516,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
   }
   /**
    * Function to set default fa donor
-   * 
+   *
    * @param int $projectId
    * @return int $faDonationId
    * @access protected
@@ -569,7 +580,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
 
 /**
    * Function to set default values
-   * 
+   *
    * @return array $defaults
    */
   function setDefaultValues() {
@@ -593,7 +604,7 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
     return $defaults;
   }
   /**
-   * Function to set defaults for Country Coordinator, Project Officer, 
+   * Function to set defaults for Country Coordinator, Project Officer,
    * Representative and Sector Coordinator
    *
    * @param array $project
@@ -647,15 +658,15 @@ class CRM_Threepeas_Form_PumProject extends CRM_Core_Form {
    */
   protected function setLinkedDonationEntityIds() {
     if (!empty($this->_id)) {
-      $params = array('entity' => 
-        'Project', 
-        'entity_id' => $this->_id, 
-        'donation_entity' => 'Contribution', 
+      $params = array('entity' =>
+        'Project',
+        'entity_id' => $this->_id,
+        'donation_entity' => 'Contribution',
         'is_active' => 1);
       $donations = CRM_Threepeas_BAO_PumDonorLink::getValues($params);
       foreach ($donations as $donation) {
         $this->linkedDonationEntityIds[] = $donation['donation_entity_id'];
-      }  
+      }
     }
   }
 }

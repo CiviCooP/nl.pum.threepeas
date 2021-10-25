@@ -55,7 +55,13 @@ class CRM_Threepeas_Page_Projectlist extends CRM_Core_Page {
     }
     $representativeId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'representative');
     $authorisedId = CRM_Threepeas_BAO_PumCaseRelation::getRelationId($caseRoleId, 'authorised_contact');
-    $displayRow['representative'] = CRM_Threepeas_Utils::getContactName($representativeId);
+
+    //If project source is AMSCO, representative should not be displayed
+    $source = CRM_Core_DAO::singleValueQuery('SELECT source FROM civicrm_contact WHERE id = %1', array(1=>array((int)$dao->customer_id, 'Integer')));
+    if($source != 'AMSCO') {
+      $displayRow['representative'] = CRM_Threepeas_Utils::getContactName($representativeId);
+    }
+
     $displayRow['authorised_contact'] = CRM_Threepeas_Utils::getContactName($authorisedId);
     $displayRow['is_active'] = CRM_Threepeas_Utils::setIsActive($dao->is_active);
     $displayRow['start_date'] = CRM_Threepeas_Utils::setProjectDate($dao->start_date);

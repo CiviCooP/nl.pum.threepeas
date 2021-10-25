@@ -100,7 +100,7 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
     );
 
     $countrySelect = $this->addElement('advmultiselect', 'countries', ts('Participating countries'), $this->getCountries(),
-    array('id' => 'countries','class' => 'advmultselect', 'size' => 10, 'style' => 'width:auto;'),TRUE);
+    array('id' => 'countries','class' => 'advmultiselect', 'size' => 10, 'style' => 'width:auto;'),TRUE);
 
     $countrySelect->setButtonAttributes('add', array('value' => ts('Add country')." >>"));
     $countrySelect->setButtonAttributes('remove', array('value' => "<< ".ts('Remove country')));
@@ -238,7 +238,7 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
    *
    * @return array $options
    */
-  public function getRemoteCoachingTypes() {
+  public static function getRemoteCoachingTypes() {
     $options = array();
     $sorted_options = array();
 
@@ -300,11 +300,14 @@ class CRM_Threepeas_Form_TypeOfRemoteCoaching extends CRM_Core_Form {
    */
   public static function validateInput($fields) {
     $remotecoaching_types = self::getRemoteCoachingTypes();
-    if($remotecoaching_types[$fields['type_remote_coaching']] == 'Webinar single country' && !is_int((int)$fields['countries']) ){
+    if(!isset($errors) || !is_array($errors)){
+      $errors = array();
+    }
+    if($remotecoaching_types[$fields['type_remote_coaching']] == 'Webinar single country' && !is_int((int)$fields['number_participants']) ){
       $errors['number_participants'] = ts('Please enter a number in "Number of Participants" field');
       return $errors;
     }
-    if($remotecoaching_types[$fields['type_remote_coaching']] == 'Webinar multiple countries' && count($fields['countries']) < 2){
+    if($remotecoaching_types[$fields['type_remote_coaching']] == 'Webinar multiple countries' && ((!isset($fields['countries'])) || (is_array($fields['countries']) && count($fields['countries']) < 2))){
       $errors['countries'] = ts('Please select multiple countries or choose for "Webinar single country"');
       return $errors;
     }
